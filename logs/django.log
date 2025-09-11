@@ -209,3 +209,30 @@ WARNING 2025-09-11 12:16:43,778 basehttp 22256 22744 "POST /accounts/api/registe
 INFO 2025-09-11 12:17:00,216 basehttp 22256 11424 "POST /accounts/api/register/ HTTP/1.1" 201 377
 INFO 2025-09-11 12:17:16,835 basehttp 22256 20668 "POST /accounts/api/login/ HTTP/1.1" 200 458
 INFO 2025-09-11 12:17:17,221 basehttp 22256 15636 "GET /accounts/api/profile/ HTTP/1.1" 200 939
+INFO 2025-09-11 12:43:39,102 basehttp 22256 23384 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+INFO 2025-09-11 12:47:17,633 basehttp 22256 4808 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+INFO 2025-09-11 12:47:29,282 basehttp 22256 22772 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+INFO 2025-09-11 12:50:18,375 autoreload 22256 19492 D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+INFO 2025-09-11 12:50:18,814 autoreload 14296 22664 Watching for file changes with StatReloader
+INFO 2025-09-11 12:52:10,705 autoreload 14296 22664 D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+INFO 2025-09-11 12:52:11,131 autoreload 22960 22356 Watching for file changes with StatReloader
+INFO 2025-09-11 13:28:06,983 basehttp 22960 21844 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+INFO 2025-09-11 13:28:21,053 basehttp 22960 18492 "POST /accounts/api/login/ HTTP/1.1" 200 457
+INFO 2025-09-11 13:28:21,439 basehttp 22960 21508 "GET /accounts/api/profile/ HTTP/1.1" 200 937
+INFO 2025-09-11 13:28:25,193 basehttp 22960 22420 "GET /api/reservations/api/bookings/ HTTP/1.1" 200 52
+INFO 2025-09-11 13:28:27,529 basehttp 22960 15244 "GET /api/reservations/api/relations/ HTTP/1.1" 200 52
+WARNING 2025-09-11 13:28:27,648 log 22960 19656 Not Found: /api/campus/api/campuses/
+WARNING 2025-09-11 13:28:27,648 basehttp 22960 19656 "GET /api/campus/api/campuses/ HTTP/1.1" 404 5755
+INFO 2025-09-11 13:29:05,217 basehttp 22960 6228 "GET /accounts/api/profile/ HTTP/1.1" 200 937
+INFO 2025-09-11 13:29:08,143 basehttp 22960 9808 "GET /api/reservations/api/bookings/ HTTP/1.1" 200 52
+INFO 2025-09-11 13:29:09,711 basehttp 22960 21752 "GET /accounts/api/profile/ HTTP/1.1" 200 937
+INFO 2025-09-11 13:29:15,747 basehttp 22960 12632 "GET /api/reservations/api/bookings/ HTTP/1.1" 200 52
+INFO 2025-09-11 13:29:17,250 basehttp 22960 18924 "GET /accounts/api/profile/ HTTP/1.1" 200 937
+INFO 2025-09-11 13:29:27,640 basehttp 22960 12328 "GET /api/reservations/api/bookings/ HTTP/1.1" 200 52
+INFO 2025-09-11 13:29:28,800 basehttp 22960 19056 "GET /accounts/api/profile/ HTTP/1.1" 200 937
+INFO 2025-09-11 13:29:39,473 basehttp 22960 23544 "GET /accounts/api/profile/ HTTP/1.1" 200 937
+INFO 2025-09-11 13:30:23,540 basehttp 22960 17000 "GET /api/reservations/api/bookings/ HTTP/1.1" 200 52
+INFO 2025-09-11 13:30:27,223 basehttp 22960 20368 "GET /api/reservations/api/bookings/ HTTP/1.1" 200 52
+INFO 2025-09-11 13:30:28,252 basehttp 22960 21208 "GET /api/reservations/api/bookings/ HTTP/1.1" 200 52
+INFO 2025-09-11 13:30:30,052 basehttp 22960 19552 "GET /api/reservations/api/bookings/ HTTP/1.1" 200 52
+INFO 2025-09-11 13:31:05,966 basehttp 22960 17392 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80

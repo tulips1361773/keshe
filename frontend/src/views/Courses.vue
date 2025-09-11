@@ -376,7 +376,7 @@ export default {
     }
     
     const viewCourse = (courseId) => {
-      ElMessage.info(`查看课程 ${courseId} 详情功能开发中...`)
+      router.push(`/courses/${courseId}`)
     }
     
     const enrollCourse = (courseId) => {

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "campus",
     "courses",
     "payments",
+    "reservations",
 ]
 
 MIDDLEWARE = [

@@ -65,8 +65,13 @@
             <span>教学管理</span>
           </el-menu-item>
           
-          <el-menu-item index="schedule">
+          <el-menu-item index="reservations">
             <el-icon><Calendar /></el-icon>
+            <span>预约管理</span>
+          </el-menu-item>
+          
+          <el-menu-item index="schedule">
+            <el-icon><Clock /></el-icon>
             <span>课程表</span>
           </el-menu-item>
           
@@ -374,15 +379,20 @@ export default {
 
     const handleMenuSelect = (index) => {
       activeMenu.value = index
+      
+      // 处理需要跳转到其他页面的菜单项
+      if (index === 'reservations') {
+        router.push('/reservations')
+      }
     }
 
     const handleQuickAction = (action) => {
       switch (action) {
         case 'browse-courses':
-          ElMessage.info('课程浏览功能开发中...')
+          router.push('/courses')
           break
         case 'book-lesson':
-          ElMessage.info('课程预约功能开发中...')
+          router.push('/reservations')
           break
         case 'view-progress':
           activeMenu.value = 'progress'

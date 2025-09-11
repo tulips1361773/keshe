@@ -8,6 +8,8 @@ import Register from '@/views/Register.vue'
 import Dashboard from '@/views/Dashboard.vue'
 import Profile from '@/views/Profile.vue'
 import Courses from '@/views/Courses.vue'
+import CourseDetail from '@/views/CourseDetail.vue'
+import Reservations from '@/views/Reservations.vue'
 
 const routes = [
   {
@@ -60,6 +62,24 @@ const routes = [
     component: Courses,
     meta: {
       title: '课程管理 - 乒乓球培训管理系统',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/courses/:id',
+    name: 'CourseDetail',
+    component: CourseDetail,
+    meta: {
+      title: '课程详情 - 乒乓球培训管理系统',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/reservations',
+    name: 'Reservations',
+    component: Reservations,
+    meta: {
+      title: '预约管理 - 乒乓球培训管理系统',
       requiresAuth: true
     }
   },
