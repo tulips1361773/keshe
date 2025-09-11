@@ -24,12 +24,20 @@ axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 
 // 存储CSRF token
 let csrfToken = null
+let csrfTokenPromise = null
 
-// 获取CSRF token的异步函数
+// 获取CSRF token的异步函数（使用原生 fetch，避免进入 axios 拦截器的递归）
 async function fetchCSRFToken() {
   try {
-    const response = await axios.get('/accounts/api/csrf-token/')
-    csrfToken = response.data.csrfToken
+    const response = await fetch('/accounts/api/csrf-token/', {
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
+    })
+    if (!response.ok) {
+      throw new Error(`获取CSRF token失败，状态码: ${response.status}`)
+    }
+    const data = await response.json()
+    csrfToken = data.csrfToken || getCSRFToken()
     return csrfToken
   } catch (error) {
     console.error('获取CSRF token失败:', error)
@@ -37,15 +45,20 @@ async function fetchCSRFToken() {
   }
 }
 
-// 初始化时获取CSRF token
+// 初始化时尝试获取CSRF token（使用 fetch，不会触发 axios 拦截器）
 fetchCSRFToken()
 
 // 请求拦截器 - 自动添加CSRF token
 axios.interceptors.request.use(
   async (config) => {
-    // 如果没有CSRF token，尝试获取
+    // 保障 headers 存在
+    config.headers = config.headers || {}
+
+    // 如果没有CSRF token，尝试获取（使用单例Promise防抖）
     if (!csrfToken) {
-      await fetchCSRFToken()
+      csrfTokenPromise = csrfTokenPromise || fetchCSRFToken()
+      await csrfTokenPromise
+      csrfTokenPromise = null
     }
     
     // 添加CSRF token到请求头
@@ -59,8 +72,9 @@ axios.interceptors.request.use(
       config.headers['X-CSRFToken'] = cookieToken
     }
     
-    // 确保POST请求包含Content-Type
-    if (config.method === 'post' || config.method === 'put' || config.method === 'patch') {
+    // 确保POST/PUT/PATCH请求包含Content-Type
+    const method = (config.method || '').toLowerCase()
+    if (['post', 'put', 'patch'].includes(method)) {
       config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json'
     }
     

@@ -19,7 +19,7 @@
     </div>
 
     <!-- 课程详情内容 -->
-    <div class="course-detail-main" v-if="course">
+    <div class="course-detail-main" v-if="!loading && course">
       <div class="course-container">
         <!-- 课程基本信息 -->
         <div class="course-hero">
@@ -250,8 +250,13 @@
     </div>
     
     <!-- 加载状态 -->
-    <div v-else class="loading-state">
+    <div v-else-if="loading" class="loading-state">
       <el-skeleton :rows="8" animated />
+    </div>
+    
+    <!-- 错误状态 -->
+    <div v-else class="error-state">
+      <el-empty description="课程不存在或加载失败" />
     </div>
   </div>
 </template>
@@ -271,6 +276,8 @@ import {
   CircleCheckFilled,
   Lock
 } from '@element-plus/icons-vue'
+import axios from '@/utils/axios'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'CourseDetail',
@@ -288,90 +295,65 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
+    const userStore = useUserStore()
     const course = ref(null)
     const activeTab = ref('introduction')
     const enrolling = ref(false)
+    const loading = ref(true)
     
-    // 模拟课程详情数据
-    const mockCourseData = {
-      1: {
-        id: 1,
-        title: '乒乓球基础入门',
-        description: '从零开始学习乒乓球，掌握基本握拍、发球和接球技巧',
-        fullDescription: '本课程专为乒乓球初学者设计，通过系统的理论讲解和实践训练，帮助学员从零基础开始，逐步掌握乒乓球的基本技能。课程内容包括握拍方法、基本站位、发球技术、接球技巧等核心内容，让您在轻松愉快的氛围中快速入门乒乓球运动。',
-        image: 'https://via.placeholder.com/600x400?text=乒乓球基础入门',
-        instructor: '张教练',
-        duration: 20,
-        level: 'beginner',
-        type: 'basic',
-        rating: 4.8,
-        ratingCount: 156,
-        students: 1200,
-        price: 299,
-        originalPrice: 399,
-        enrolled: false,
-        objectives: [
-          '掌握正确的握拍方法和基本站位',
-          '学会基础发球技术，包括正手发球和反手发球',
-          '熟练掌握正手和反手的基本击球动作',
-          '了解乒乓球比赛的基本规则和礼仪',
-          '培养良好的运动习惯和安全意识'
-        ],
-        targetAudience: ['乒乓球零基础学员', '想要系统学习的初学者', '希望纠正错误动作的学员'],
-        curriculum: [
-          {
-            id: 1,
-            title: '乒乓球基础知识',
-            description: '了解乒乓球运动的历史、规则和基本装备',
-            duration: 45,
-            lessons: 3,
-            completed: true,
-            locked: false
-          },
-          {
-            id: 2,
-            title: '握拍方法与基本站位',
-            description: '学习正确的握拍方法和标准的基本站位',
-            duration: 60,
-            lessons: 4,
-            completed: false,
-            locked: false
-          },
-          {
-            id: 3,
-            title: '正手基本技术',
-            description: '掌握正手攻球、正手推挡等基本技术',
-            duration: 90,
-            lessons: 6,
-            completed: false,
-            locked: true
+    // API调用方法
+    const loadCourseDetail = async () => {
+      const courseId = route.params.id
+      loading.value = true
+      
+      try {
+        const response = await axios.get(`/api/courses/api/courses/${courseId}/`)
+        if (response.data) {
+          course.value = {
+            ...response.data,
+            // 处理数据格式
+            objectives: response.data.objectives || [],
+            targetAudience: response.data.target_audience || [],
+            curriculum: response.data.curriculum || [],
+            reviews: response.data.reviews || [],
+            ratingDistribution: response.data.rating_distribution || {},
+            fullDescription: response.data.full_description || response.data.description
           }
-        ],
-        ratingDistribution: {
-          5: 98,
-          4: 45,
-          3: 10,
-          2: 2,
-          1: 1
-        },
-        reviews: [
-          {
-            id: 1,
-            name: '学员小王',
-            avatar: '',
-            rating: 5,
-            date: new Date('2024-01-15'),
-            content: '张教练讲解得非常详细，从最基础的握拍开始教，很适合我这种零基础的学员。课程安排合理，循序渐进，现在已经能打几个回合了！'
-          },
-          {
-            id: 2,
-            name: '乒乓球爱好者',
-            avatar: '',
-            rating: 4,
-            date: new Date('2024-01-10'),
-            content: '课程内容很全面，教练的示范动作很标准。不过希望能增加一些实战练习的内容。'
-          }
-        ]
+        }
+      } catch (error) {
+        console.error('加载课程详情失败:', error)
+        ElMessage.error('加载课程详情失败')
+        router.push('/courses')
+      } finally {
+        loading.value = false
+      }
+    }
+    
+    const handleEnroll = async () => {
+      if (!userStore.isAuthenticated) {
+        ElMessage.warning('请先登录')
+        router.push('/login')
+        return
+      }
+      
+      enrolling.value = true
+      try {
+        if (course.value.enrolled) {
+          // 继续学习 - 跳转到学习页面
+          ElMessage.success('开始学习！')
+          // router.push(`/courses/${course.value.id}/learn`)
+        } else {
+          // 报名课程
+          await axios.post(`/api/courses/api/courses/${course.value.id}/enroll/`)
+          ElMessage.success('报名成功！')
+          course.value.enrolled = true
+        }
+      } catch (error) {
+        console.error('操作失败:', error)
+        const message = error.response?.data?.error || '操作失败，请重试'
+        ElMessage.error(message)
+      } finally {
+        enrolling.value = false
       }
     }
     
@@ -407,45 +389,7 @@ export default {
       return date.toLocaleDateString('zh-CN')
     }
     
-    const handleEnroll = async () => {
-      enrolling.value = true
-      try {
-        // 模拟API调用
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        if (course.value.enrolled) {
-          ElMessage.success('开始学习！')
-          // 跳转到学习页面
-        } else {
-          ElMessage.success('报名成功！')
-          course.value.enrolled = true
-        }
-      } catch (error) {
-        ElMessage.error('操作失败，请重试')
-      } finally {
-        enrolling.value = false
-      }
-    }
-    
-    const loadCourseDetail = async () => {
-      const courseId = parseInt(route.params.id)
-      
-      try {
-        // 模拟API调用
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
-        const courseData = mockCourseData[courseId]
-        if (courseData) {
-          course.value = courseData
-        } else {
-          ElMessage.error('课程不存在')
-          router.push('/courses')
-        }
-      } catch (error) {
-        ElMessage.error('加载课程详情失败')
-        router.push('/courses')
-      }
-    }
+
     
     onMounted(() => {
       loadCourseDetail()
@@ -455,11 +399,13 @@ export default {
       course,
       activeTab,
       enrolling,
+      loading,
       getLevelTagType,
       getLevelText,
       getTypeText,
       formatDate,
-      handleEnroll
+      handleEnroll,
+      loadCourseDetail
     }
   }
 }
@@ -901,6 +847,14 @@ export default {
   padding: 40px;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+/* 错误状态 */
+.error-state {
+  padding: 80px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 /* 响应式设计 */

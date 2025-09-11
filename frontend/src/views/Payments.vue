@@ -182,6 +182,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { CreditCard } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import axios from '@/utils/axios'
 
 const userStore = useUserStore()
 
@@ -233,21 +234,14 @@ const rechargeRules = {
 // 方法
 const loadAccountInfo = async () => {
   try {
-    const response = await fetch('/api/payments/api/account/', {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      accountBalance.value = parseFloat(data.balance || 0)
-      frozenAmount.value = parseFloat(data.frozen_amount || 0)
+    const response = await axios.get('/api/payments/api/account/')
+    if (response.data) {
+      accountBalance.value = parseFloat(response.data.balance || 0)
+      frozenAmount.value = parseFloat(response.data.frozen_amount || 0)
     }
   } catch (error) {
     console.error('加载账户信息错误:', error)
+    ElMessage.error('加载账户信息失败')
   }
 }
 
@@ -260,21 +254,11 @@ const loadTransactions = async () => {
       ...filters
     }
     
-    const queryString = new URLSearchParams(params).toString()
-    const response = await fetch(`/api/payments/api/transactions/?${queryString}`, {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
+    const response = await axios.get('/api/payments/api/transactions/', { params })
     
-    if (response.ok) {
-      const data = await response.json()
-      transactions.value = data.results || []
-      total.value = data.count || 0
-    } else {
-      ElMessage.error('加载交易记录失败')
+    if (response.data) {
+      transactions.value = response.data.results || []
+      total.value = response.data.count || 0
     }
   } catch (error) {
     console.error('加载交易记录错误:', error)
@@ -291,34 +275,22 @@ const submitRecharge = async () => {
     await rechargeFormRef.value.validate()
     rechargeLoading.value = true
     
-    const response = await fetch('/api/payments/api/recharge/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify(rechargeForm)
-    })
+    await axios.post('/api/payments/api/recharge/', rechargeForm)
     
-    if (response.ok) {
-      ElMessage.success('充值申请提交成功')
-      showRechargeDialog.value = false
-      Object.assign(rechargeForm, {
-        amount: null,
-        payment_method: 'wechat',
-        description: ''
-      })
-      loadAccountInfo()
-      loadTransactions()
-    } else {
-      const error = await response.json()
-      ElMessage.error(error.error || '充值失败')
-    }
+    ElMessage.success('充值申请提交成功')
+    showRechargeDialog.value = false
+    Object.assign(rechargeForm, {
+      amount: null,
+      payment_method: 'wechat',
+      description: ''
+    })
+    loadAccountInfo()
+    loadTransactions()
   } catch (error) {
     if (error.message) {
       console.error('充值错误:', error)
-      ElMessage.error('充值失败')
+      const message = error.response?.data?.error || '充值失败'
+      ElMessage.error(message)
     }
   } finally {
     rechargeLoading.value = false

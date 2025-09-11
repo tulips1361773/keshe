@@ -13,6 +13,10 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import User, UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
+from django.db.models import Count, Q
+from courses.models import Course, CourseEnrollment
+from reservations.models import Booking
+from notifications.models import Notification
 import json
 
 
@@ -289,6 +293,87 @@ def change_password(request):
         return Response({
             'success': False,
             'message': f'修改密码失败: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_stats(request):
+    """获取用户统计数据API"""
+    try:
+        user = request.user
+        
+        # 根据用户类型获取不同的统计数据
+        if user.user_type == 'student':
+            # 学生统计数据
+            total_courses = CourseEnrollment.objects.filter(student=user).count()
+            active_courses = CourseEnrollment.objects.filter(
+                student=user, 
+                status='confirmed'
+            ).count()
+            completed_courses = CourseEnrollment.objects.filter(
+                student=user, 
+                status='completed'
+            ).count()
+            total_bookings = Booking.objects.filter(
+                relation__student=user
+            ).count()
+            
+            stats = {
+                'total_courses': total_courses,
+                'active_courses': active_courses,
+                'completed_courses': completed_courses,
+                'total_bookings': total_bookings
+            }
+            
+        elif user.user_type == 'coach':
+            # 教练统计数据
+            total_courses = Course.objects.filter(coach=user).count()
+            active_courses = Course.objects.filter(
+                coach=user, 
+                status='active'
+            ).count()
+            total_students = CourseEnrollment.objects.filter(
+                course__coach=user
+            ).values('student').distinct().count()
+            total_bookings = Booking.objects.filter(
+                relation__coach=user
+            ).count()
+            
+            stats = {
+                'total_courses': total_courses,
+                'active_courses': active_courses,
+                'total_students': total_students,
+                'total_bookings': total_bookings
+            }
+            
+        else:
+            # 管理员或其他用户类型的统计数据
+            total_users = User.objects.filter(is_active=True).count()
+            total_students = User.objects.filter(user_type='student', is_active=True).count()
+            total_coaches = User.objects.filter(user_type='coach', is_active=True).count()
+            total_courses = Course.objects.count()
+            total_enrollments = CourseEnrollment.objects.count()
+            total_bookings = Booking.objects.count()
+            
+            stats = {
+                'total_users': total_users,
+                'total_students': total_students,
+                'total_coaches': total_coaches,
+                'total_courses': total_courses,
+                'total_enrollments': total_enrollments,
+                'total_bookings': total_bookings
+            }
+        
+        return Response({
+            'success': True,
+            'data': stats
+        })
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'获取统计数据失败: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

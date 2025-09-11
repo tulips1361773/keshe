@@ -237,6 +237,7 @@ import {
   User,
   Camera
 } from '@element-plus/icons-vue'
+import axios from '@/utils/axios'
 
 export default {
   name: 'Profile',
@@ -331,8 +332,8 @@ export default {
 
     const loadProfile = async () => {
       try {
-        await userStore.fetchProfile()
-        const user = userStore.user
+        const response = await axios.get('/api/profile/')
+        const user = response.data
         if (user) {
           Object.assign(profileForm, {
             username: user.username || '',
@@ -368,13 +369,11 @@ export default {
           bio: profileForm.bio
         }
 
-        const result = await userStore.updateProfile(updateData)
+        await axios.put('/api/profile/', updateData)
         
-        if (result.success) {
-          ElMessage.success('个人资料保存成功')
-        } else {
-          ElMessage.error(result.message || '保存失败')
-        }
+        ElMessage.success('个人资料保存成功')
+        // 重新加载资料以获取最新数据
+        await loadProfile()
       } catch (error) {
         console.error('保存个人资料失败:', error)
         ElMessage.error('保存过程中发生错误')
@@ -396,11 +395,12 @@ export default {
 
         changingPassword.value = true
         
-        // 这里应该调用修改密码的API
-        // const result = await userStore.changePassword(passwordForm)
+        const passwordData = {
+          current_password: passwordForm.currentPassword,
+          new_password: passwordForm.newPassword
+        }
         
-        // 模拟API调用
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await axios.post('/api/change-password/', passwordData)
         
         ElMessage.success('密码修改成功')
         handleClosePasswordDialog()

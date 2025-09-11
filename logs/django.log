@@ -404,3 +404,39 @@ INFO 2025-09-11 14:19:42,656 autoreload 1228 22316 D:\code\django_learning\keshe
 [2025-09-11 14:39:39] WARNING django.server: "GET /api/accounts/api/profile/ HTTP/1.1" 403 34
 [2025-09-11 14:40:00] INFO django.server: "POST /api/accounts/api/login/ HTTP/1.1" 200 465
 [2025-09-11 14:40:00] INFO django.server: "GET /api/accounts/api/profile/ HTTP/1.1" 200 952
+[2025-09-11 14:55:05] WARNING django.server: "GET /api/accounts/api/stats/ HTTP/1.1" 404 5430
+[2025-09-11 15:03:44] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 15:08:52] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 15:10:49] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 15:12:03] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-11 15:12:04] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:12:26] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-11 15:12:27] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:15:16] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-11 15:15:16] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:15:28] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-11 15:15:29] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:15:49] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-11 15:15:50] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:16:04] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-11 15:16:04] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:16:30] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:20:02] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:23:54] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:24:03] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 15:31:01] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:32:54] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 15:36:08] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 15:37:19] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 15:39:00] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 15:41:39] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 16:00:44] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 16:01:12] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 16:01:12] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 16:01:12] INFO django.server: "GET /api/accounts/api/stats/ HTTP/1.1" 200 100
+[2025-09-11 16:01:22] WARNING django.server: "GET /api/ HTTP/1.1" 404 3558
+[2025-09-11 16:01:32] WARNING django.server: "GET /api/accounts/ HTTP/1.1" 404 5593
+[2025-09-11 16:01:41] ERROR django.server: "GET /api/accounts/login/ HTTP/1.1" 500 4193
+[2025-09-11 16:01:49] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 16:01:49] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 16:01:49] INFO django.server: "GET /api/accounts/api/stats/ HTTP/1.1" 200 103

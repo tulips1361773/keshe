@@ -245,6 +245,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { EditPen } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import axios from '@/utils/axios'
 
 const userStore = useUserStore()
 
@@ -307,22 +308,9 @@ const loadEvaluations = async () => {
       ...filters
     }
     
-    const queryString = new URLSearchParams(params).toString()
-    const response = await fetch(`/api/courses/api/evaluations/?${queryString}`, {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      evaluations.value = data.results || []
-      total.value = data.count || 0
-    } else {
-      ElMessage.error('加载评价列表失败')
-    }
+    const response = await axios.get('/api/courses/api/evaluations/', { params })
+    evaluations.value = response.data.results || []
+    total.value = response.data.count || 0
   } catch (error) {
     console.error('加载评价列表错误:', error)
     ElMessage.error('加载评价列表失败')
@@ -333,18 +321,8 @@ const loadEvaluations = async () => {
 
 const loadCourses = async () => {
   try {
-    const response = await fetch('/api/courses/api/list/', {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      courses.value = data.data || []
-    }
+    const response = await axios.get('/api/courses/api/list/')
+    courses.value = response.data.data || []
   } catch (error) {
     console.error('加载课程列表错误:', error)
   }
@@ -352,18 +330,8 @@ const loadCourses = async () => {
 
 const loadCoaches = async () => {
   try {
-    const response = await fetch('/api/coaches/api/list/', {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      coaches.value = data.data || []
-    }
+    const response = await axios.get('/api/coaches/api/list/')
+    coaches.value = response.data.data || []
   } catch (error) {
     console.error('加载教练列表错误:', error)
   }
@@ -371,18 +339,8 @@ const loadCoaches = async () => {
 
 const loadAvailableCourses = async () => {
   try {
-    const response = await fetch('/api/courses/api/available-for-evaluation/', {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      availableCourses.value = data.data || []
-    }
+    const response = await axios.get('/api/courses/api/available-for-evaluation/')
+    availableCourses.value = response.data.data || []
   } catch (error) {
     console.error('加载可评价课程错误:', error)
   }
@@ -395,36 +353,20 @@ const submitEvaluation = async () => {
     await evaluationFormRef.value.validate()
     submitLoading.value = true
     
-    const url = isEditing.value 
-      ? `/api/courses/api/evaluations/${selectedEvaluation.value.id}/`
-      : '/api/courses/api/evaluations/'
-    
-    const method = isEditing.value ? 'PUT' : 'POST'
-    
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify(evaluationForm)
-    })
-    
-    if (response.ok) {
-      ElMessage.success(isEditing.value ? '评价更新成功' : '评价提交成功')
-      showCreateDialog.value = false
-      resetForm()
-      loadEvaluations()
+    if (isEditing.value) {
+      await axios.put(`/api/courses/api/evaluations/${selectedEvaluation.value.id}/`, evaluationForm)
+      ElMessage.success('评价更新成功')
     } else {
-      const error = await response.json()
-      ElMessage.error(error.error || '操作失败')
+      await axios.post('/api/courses/api/evaluations/', evaluationForm)
+      ElMessage.success('评价提交成功')
     }
+    
+    showCreateDialog.value = false
+    resetForm()
+    loadEvaluations()
   } catch (error) {
-    if (error.message) {
-      console.error('提交评价错误:', error)
-      ElMessage.error('操作失败')
-    }
+    console.error('提交评价错误:', error)
+    ElMessage.error(error.response?.data?.error || '操作失败')
   } finally {
     submitLoading.value = false
   }

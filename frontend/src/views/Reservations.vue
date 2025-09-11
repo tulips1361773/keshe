@@ -124,19 +124,34 @@
 
     <!-- 创建预约对话框 -->
     <el-dialog v-model="showCreateDialog" title="新建预约" width="600px">
-      <BookingForm 
-        @success="handleCreateSuccess" 
-        @cancel="showCreateDialog = false"
-      />
+      <div class="dialog-placeholder">
+        <el-icon class="placeholder-icon"><Plus /></el-icon>
+        <p>新建预约功能开发中...</p>
+        <el-button @click="showCreateDialog = false">关闭</el-button>
+      </div>
     </el-dialog>
 
     <!-- 预约详情对话框 -->
     <el-dialog v-model="showDetailDialog" title="预约详情" width="600px">
-      <BookingDetail 
-        v-if="selectedBooking"
-        :booking="selectedBooking"
-        @close="showDetailDialog = false"
-      />
+      <div v-if="selectedBooking" class="booking-detail">
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="预约ID">{{ selectedBooking.id }}</el-descriptions-item>
+          <el-descriptions-item label="教练">{{ selectedBooking.relation?.coach?.real_name || '未知' }}</el-descriptions-item>
+          <el-descriptions-item label="学员">{{ selectedBooking.relation?.student?.real_name || '未知' }}</el-descriptions-item>
+          <el-descriptions-item label="球台">{{ selectedBooking.table?.campus?.name || '未知' }} - {{ selectedBooking.table?.number || '未知' }}号台</el-descriptions-item>
+          <el-descriptions-item label="开始时间">{{ formatDateTime(selectedBooking.start_time) }}</el-descriptions-item>
+          <el-descriptions-item label="结束时间">{{ formatDateTime(selectedBooking.end_time) }}</el-descriptions-item>
+          <el-descriptions-item label="时长">{{ selectedBooking.duration_hours }}小时</el-descriptions-item>
+          <el-descriptions-item label="费用">¥{{ selectedBooking.total_fee }}</el-descriptions-item>
+          <el-descriptions-item label="状态">
+            <el-tag :type="getStatusType(selectedBooking.status)">{{ getStatusText(selectedBooking.status) }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="创建时间">{{ formatDateTime(selectedBooking.created_at) }}</el-descriptions-item>
+        </el-descriptions>
+      </div>
+      <template #footer>
+        <el-button @click="showDetailDialog = false">关闭</el-button>
+      </template>
     </el-dialog>
 
     <!-- 取消预约对话框 -->
@@ -166,8 +181,9 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
-import BookingForm from '@/components/BookingForm.vue'
-import BookingDetail from '@/components/BookingDetail.vue'
+import axios from '@/utils/axios'
+// import BookingForm from '@/components/BookingForm.vue'
+// import BookingDetail from '@/components/BookingDetail.vue'
 
 const userStore = useUserStore()
 
@@ -209,21 +225,11 @@ const loadBookings = async () => {
       ...filters
     }
     
-    const response = await fetch('/api/reservations/bookings/', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
+    const response = await axios.get('/api/reservations/api/bookings/', { params })
     
-    if (response.ok) {
-      const data = await response.json()
-      bookings.value = data.results || []
-      total.value = data.count || 0
-    } else {
-      ElMessage.error('加载预约列表失败')
+    if (response.data) {
+      bookings.value = response.data.results || []
+      total.value = response.data.count || 0
     }
   } catch (error) {
     console.error('加载预约列表错误:', error)
@@ -270,25 +276,13 @@ const viewBooking = (booking) => {
 
 const confirmBooking = async (booking) => {
   try {
-    const response = await fetch(`/api/reservations/api/bookings/${booking.id}/confirm/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      ElMessage.success('预约已确认')
-      loadBookings()
-    } else {
-      const error = await response.json()
-      ElMessage.error(error.error || '确认预约失败')
-    }
+    await axios.post(`/api/reservations/api/bookings/${booking.id}/confirm/`)
+    ElMessage.success('预约已确认')
+    loadBookings()
   } catch (error) {
     console.error('确认预约错误:', error)
-    ElMessage.error('确认预约失败')
+    const message = error.response?.data?.error || '确认预约失败'
+    ElMessage.error(message)
   }
 }
 
@@ -306,29 +300,17 @@ const submitCancel = async () => {
   
   cancelLoading.value = true
   try {
-    const response = await fetch(`/api/reservations/bookings/${selectedBooking.value.id}/cancel/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        reason: cancelForm.reason
-      })
+    await axios.post(`/api/reservations/api/bookings/${selectedBooking.value.id}/cancel/`, {
+      reason: cancelForm.reason
     })
     
-    if (response.ok) {
-      ElMessage.success('预约已取消')
-      showCancelDialog.value = false
-      loadBookings()
-    } else {
-      const error = await response.json()
-      ElMessage.error(error.error || '取消预约失败')
-    }
+    ElMessage.success('预约已取消')
+    showCancelDialog.value = false
+    loadBookings()
   } catch (error) {
     console.error('取消预约错误:', error)
-    ElMessage.error('取消预约失败')
+    const message = error.response?.data?.error || '取消预约失败'
+    ElMessage.error(message)
   } finally {
     cancelLoading.value = false
   }
@@ -342,26 +324,14 @@ const completeBooking = async (booking) => {
       type: 'warning'
     })
     
-    const response = await fetch(`/api/reservations/bookings/${booking.id}/complete/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      ElMessage.success('预约已完成')
-      loadBookings()
-    } else {
-      const error = await response.json()
-      ElMessage.error(error.error || '完成预约失败')
-    }
+    await axios.post(`/api/reservations/api/bookings/${booking.id}/complete/`)
+    ElMessage.success('预约已完成')
+    loadBookings()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('完成预约错误:', error)
-      ElMessage.error('完成预约失败')
+      const message = error.response?.data?.error || '完成预约失败'
+      ElMessage.error(message)
     }
   }
 }
@@ -449,5 +419,25 @@ onMounted(() => {
 
 .el-button + .el-button {
   margin-left: 8px;
+}
+
+.dialog-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.placeholder-icon {
+  font-size: 48px;
+  color: #909399;
+  margin-bottom: 16px;
+}
+
+.dialog-placeholder p {
+  color: #606266;
+  margin-bottom: 20px;
+}
+
+.booking-detail {
+  margin-bottom: 20px;
 }
 </style>

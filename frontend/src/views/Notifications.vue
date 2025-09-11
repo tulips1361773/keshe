@@ -224,6 +224,7 @@ import {
   Warning 
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import axios from '@/utils/axios'
 
 const userStore = useUserStore()
 
@@ -267,22 +268,9 @@ const loadNotifications = async () => {
       ...filters
     }
     
-    const queryString = new URLSearchParams(params).toString()
-    const response = await fetch(`/api/notifications/api/list/?${queryString}`, {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      notifications.value = data.results || []
-      total.value = data.count || 0
-    } else {
-      ElMessage.error('加载消息列表失败')
-    }
+    const response = await axios.get('/api/notifications/api/list/', { params })
+    notifications.value = response.data.results || []
+    total.value = response.data.count || 0
   } catch (error) {
     console.error('加载消息列表错误:', error)
     ElMessage.error('加载消息列表失败')
@@ -293,21 +281,11 @@ const loadNotifications = async () => {
 
 const loadStats = async () => {
   try {
-    const response = await fetch('/api/notifications/api/stats/', {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      totalCount.value = data.total || 0
-      unreadCount.value = data.unread || 0
-      systemCount.value = data.system || 0
-      bookingCount.value = data.booking || 0
-    }
+    const response = await axios.get('/api/notifications/api/stats/')
+    totalCount.value = response.data.total || 0
+    unreadCount.value = response.data.unread || 0
+    systemCount.value = response.data.system || 0
+    bookingCount.value = response.data.booking || 0
   } catch (error) {
     console.error('加载统计数据错误:', error)
   }
@@ -315,25 +293,13 @@ const loadStats = async () => {
 
 const markAsRead = async (notification) => {
   try {
-    const response = await fetch(`/api/notifications/api/${notification.id}/mark-read/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      notification.is_read = true
-      if (selectedNotification.value && selectedNotification.value.id === notification.id) {
-        selectedNotification.value.is_read = true
-      }
-      loadStats()
-      ElMessage.success('已标记为已读')
-    } else {
-      ElMessage.error('操作失败')
+    await axios.post(`/api/notifications/api/${notification.id}/mark-read/`)
+    notification.is_read = true
+    if (selectedNotification.value && selectedNotification.value.id === notification.id) {
+      selectedNotification.value.is_read = true
     }
+    loadStats()
+    ElMessage.success('已标记为已读')
   } catch (error) {
     console.error('标记已读错误:', error)
     ElMessage.error('操作失败')
@@ -342,22 +308,10 @@ const markAsRead = async (notification) => {
 
 const markAllAsRead = async () => {
   try {
-    const response = await fetch('/api/notifications/api/mark-all-read/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      notifications.value.forEach(n => n.is_read = true)
-      loadStats()
-      ElMessage.success('所有消息已标记为已读')
-    } else {
-      ElMessage.error('操作失败')
-    }
+    await axios.post('/api/notifications/api/mark-all-read/')
+    notifications.value.forEach(n => n.is_read = true)
+    loadStats()
+    ElMessage.success('所有消息已标记为已读')
   } catch (error) {
     console.error('批量标记已读错误:', error)
     ElMessage.error('操作失败')
@@ -370,25 +324,13 @@ const deleteNotification = async (notification) => {
       type: 'warning'
     })
     
-    const response = await fetch(`/api/notifications/api/${notification.id}/`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      const index = notifications.value.findIndex(n => n.id === notification.id)
-      if (index > -1) {
-        notifications.value.splice(index, 1)
-      }
-      loadStats()
-      ElMessage.success('消息已删除')
-    } else {
-      ElMessage.error('删除失败')
+    await axios.delete(`/api/notifications/api/${notification.id}/`)
+    const index = notifications.value.findIndex(n => n.id === notification.id)
+    if (index > -1) {
+      notifications.value.splice(index, 1)
     }
+    loadStats()
+    ElMessage.success('消息已删除')
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除消息错误:', error)
@@ -403,22 +345,10 @@ const clearAllNotifications = async () => {
       type: 'warning'
     })
     
-    const response = await fetch('/api/notifications/api/clear-all/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    if (response.ok) {
-      notifications.value = []
-      loadStats()
-      ElMessage.success('所有消息已清空')
-    } else {
-      ElMessage.error('操作失败')
-    }
+    await axios.post('/api/notifications/api/clear-all/')
+    notifications.value = []
+    loadStats()
+    ElMessage.success('所有消息已清空')
   } catch (error) {
     if (error !== 'cancel') {
       console.error('清空消息错误:', error)

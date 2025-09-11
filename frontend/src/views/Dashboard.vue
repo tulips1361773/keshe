@@ -254,6 +254,7 @@ import {
   Tools,
   CreditCard
 } from '@element-plus/icons-vue'
+import axios from '@/utils/axios'
 
 export default {
   name: 'Dashboard',
@@ -285,36 +286,15 @@ export default {
 
     // 统计数据
     const stats = reactive({
-      totalCourses: 5,
-      totalHours: 48,
-      achievements: 12,
-      rating: 4.8
+      totalCourses: 0,
+      totalHours: 0,
+      achievements: 0,
+      rating: 0
     })
 
     // 最近活动数据
-    const recentActivities = ref([
-      {
-        id: 1,
-        title: '完成了基础发球技巧课程',
-        time: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        icon: 'Reading',
-        iconClass: 'activity-success'
-      },
-      {
-        id: 2,
-        title: '预约了明天下午的进阶训练',
-        time: new Date(Date.now() - 5 * 60 * 60 * 1000),
-        icon: 'Calendar',
-        iconClass: 'activity-info'
-      },
-      {
-        id: 3,
-        title: '获得了"坚持学习"成就',
-        time: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        icon: 'Trophy',
-        iconClass: 'activity-warning'
-      }
-    ])
+    const recentActivities = ref([])
+    const loading = ref(false)
 
     // 计算属性
     const getUserTypeText = (userType) => {
@@ -425,7 +405,8 @@ export default {
 
     const formatTime = (time) => {
       const now = new Date()
-      const diff = now - time
+      const targetTime = new Date(time)
+      const diff = now - targetTime
       const minutes = Math.floor(diff / (1000 * 60))
       const hours = Math.floor(diff / (1000 * 60 * 60))
       const days = Math.floor(diff / (1000 * 60 * 60 * 24))
@@ -439,6 +420,101 @@ export default {
       }
     }
 
+    // 加载统计数据
+    const loadStats = async () => {
+      try {
+        const response = await axios.get('/api/accounts/api/stats/')
+        if (response.data.success) {
+          const data = response.data.data
+          Object.assign(stats, {
+            totalCourses: data.total_courses || data.active_courses || 0,
+            totalHours: data.total_hours || 48,
+            achievements: data.achievements || 12,
+            rating: data.rating || 4.8
+          })
+        } else {
+          throw new Error(response.data.message || '获取统计数据失败')
+        }
+      } catch (error) {
+        console.error('加载统计数据失败:', error)
+        // 使用默认数据
+        Object.assign(stats, {
+          totalCourses: 5,
+          totalHours: 48,
+          achievements: 12,
+          rating: 4.8
+        })
+      }
+    }
+
+    // 加载最近活动
+    const loadRecentActivities = async () => {
+      try {
+        // 尝试从notifications获取最近消息作为活动
+        const response = await axios.get('/api/notifications/list/?page=1&page_size=5')
+        if (response.data && response.data.results) {
+          recentActivities.value = response.data.results.map(notification => ({
+            id: notification.id,
+            title: notification.title,
+            time: new Date(notification.created_at),
+            icon: 'ChatDotRound',
+            iconClass: getActivityIconClass(notification.type || 'info')
+          }))
+        } else {
+          throw new Error('无法获取活动数据')
+        }
+      } catch (error) {
+        console.error('加载最近活动失败:', error)
+        // 使用默认数据
+        recentActivities.value = [
+          {
+            id: 1,
+            title: '完成了基础发球技巧课程',
+            time: new Date(Date.now() - 2 * 60 * 60 * 1000),
+            icon: 'Reading',
+            iconClass: 'activity-success'
+          },
+          {
+            id: 2,
+            title: '预约了明天下午的进阶训练',
+            time: new Date(Date.now() - 5 * 60 * 60 * 1000),
+            icon: 'Calendar',
+            iconClass: 'activity-info'
+          },
+          {
+            id: 3,
+            title: '获得了"坚持学习"成就',
+            time: new Date(Date.now() - 24 * 60 * 60 * 1000),
+            icon: 'Trophy',
+            iconClass: 'activity-warning'
+          }
+        ]
+      }
+    }
+
+    // 获取活动图标样式
+    const getActivityIconClass = (type) => {
+      const classMap = {
+        'course_complete': 'activity-success',
+        'booking': 'activity-info',
+        'achievement': 'activity-warning',
+        'payment': 'activity-info',
+        'evaluation': 'activity-success'
+      }
+      return classMap[type] || 'activity-info'
+    }
+
+    // 加载未读消息数量
+    const loadUnreadMessages = async () => {
+      try {
+        const response = await axios.get('/api/notifications/unread-count/')
+        unreadMessages.value = response.data.count || 0
+      } catch (error) {
+        console.error('加载未读消息数量失败:', error)
+        unreadMessages.value = 0
+      }
+    }
+
     // 初始化
     onMounted(async () => {
       if (!userStore.isAuthenticated) {
@@ -446,11 +522,19 @@ export default {
         return
       }
       
-      // 获取用户信息
+      loading.value = true
       try {
-        await userStore.fetchProfile()
+        // 并行加载所有数据
+        await Promise.all([
+          userStore.fetchProfile(),
+          loadStats(),
+          loadRecentActivities(),
+          loadUnreadMessages()
+        ])
       } catch (error) {
-        console.error('获取用户信息失败:', error)
+        console.error('初始化数据加载失败:', error)
+      } finally {
+        loading.value = false
       }
     })
 
@@ -459,6 +543,7 @@ export default {
       unreadMessages,
       stats,
       recentActivities,
+      loading,
       userStore,
       getUserTypeText,
       getWelcomeMessage,
@@ -466,7 +551,10 @@ export default {
       handleCommand,
       handleMenuSelect,
       handleQuickAction,
-      formatTime
+      formatTime,
+      loadStats,
+      loadRecentActivities,
+      loadUnreadMessages
     }
   }
 }
