@@ -1,0 +1,57 @@
+INFO 2025-09-11 11:10:08,700 autoreload 19664 4132 Watching for file changes with StatReloader
+INFO 2025-09-11 11:10:15,500 basehttp 19664 17788 "GET /?ide_webview_request_time=1757560215439 HTTP/1.1" 302 0
+INFO 2025-09-11 11:10:15,512 basehttp 19664 17788 "GET /admin/ HTTP/1.1" 302 0
+INFO 2025-09-11 11:10:15,701 basehttp 19664 17788 "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4195
+INFO 2025-09-11 11:10:16,164 basehttp 19664 16680 "GET /static/admin/css/login.css HTTP/1.1" 200 958
+INFO 2025-09-11 11:10:16,164 basehttp 19664 12592 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2694
+INFO 2025-09-11 11:10:16,165 basehttp 19664 21204 "GET /static/admin/css/responsive.css HTTP/1.1" 200 18559
+INFO 2025-09-11 11:10:16,168 basehttp 19664 18840 "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929
+INFO 2025-09-11 11:10:16,181 basehttp 19664 21204 "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+INFO 2025-09-11 11:10:16,181 basehttp 19664 16680 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+INFO 2025-09-11 11:10:16,188 basehttp 19664 17788 "GET /static/admin/css/base.css HTTP/1.1" 200 21310
+WARNING 2025-09-11 11:10:16,397 log 19664 17788 Not Found: /@vite/client
+WARNING 2025-09-11 11:10:16,397 basehttp 19664 17788 "GET /@vite/client HTTP/1.1" 404 3347
+INFO 2025-09-11 11:10:26,898 basehttp 19664 17788 "POST /admin/login/?next=/admin/ HTTP/1.1" 200 4333
+WARNING 2025-09-11 11:10:26,932 log 19664 17788 Not Found: /@vite/client
+WARNING 2025-09-11 11:10:26,932 basehttp 19664 17788 "GET /@vite/client HTTP/1.1" 404 3347
+INFO 2025-09-11 11:10:35,696 basehttp 19664 17788 "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+INFO 2025-09-11 11:10:35,730 basehttp 19664 17788 "GET /admin/ HTTP/1.1" 200 6243
+INFO 2025-09-11 11:10:35,745 basehttp 19664 17788 "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2025-09-11 11:10:35,755 basehttp 19664 17788 "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+INFO 2025-09-11 11:10:35,755 basehttp 19664 21204 "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+WARNING 2025-09-11 11:10:35,790 log 19664 17788 Not Found: /@vite/client
+WARNING 2025-09-11 11:10:35,791 basehttp 19664 17788 "GET /@vite/client HTTP/1.1" 404 3347
+INFO 2025-09-11 11:11:58,323 basehttp 19664 17788 "GET /admin/accounts/user/add/ HTTP/1.1" 200 19749
+INFO 2025-09-11 11:11:58,343 basehttp 19664 17788 "GET /static/admin/css/forms.css HTTP/1.1" 200 9090
+INFO 2025-09-11 11:11:58,345 basehttp 19664 21204 "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+INFO 2025-09-11 11:11:58,345 basehttp 19664 18840 "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+INFO 2025-09-11 11:11:58,350 basehttp 19664 12592 "GET /static/admin/js/core.js HTTP/1.1" 200 5682
+INFO 2025-09-11 11:11:58,350 basehttp 19664 7860 "GET /static/admin/js/inlines.js HTTP/1.1" 200 15526
+INFO 2025-09-11 11:11:58,355 basehttp 19664 18840 "GET /static/admin/css/widgets.css HTTP/1.1" 200 11921
+INFO 2025-09-11 11:11:58,363 basehttp 19664 17788 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 8943
+INFO 2025-09-11 11:11:58,364 basehttp 19664 21204 "GET /static/admin/js/actions.js HTTP/1.1" 200 7872
+INFO 2025-09-11 11:11:58,366 basehttp 19664 12592 "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+INFO 2025-09-11 11:11:58,368 basehttp 19664 7860 "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+INFO 2025-09-11 11:11:58,375 basehttp 19664 17788 "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+INFO 2025-09-11 11:11:58,382 basehttp 19664 16680 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 292458
+INFO 2025-09-11 11:11:58,400 basehttp 19664 16680 "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+INFO 2025-09-11 11:11:58,412 basehttp 19664 18840 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 232381
+INFO 2025-09-11 11:11:58,458 basehttp 19664 18840 "GET /static/admin/img/inline-delete.svg HTTP/1.1" 200 560
+WARNING 2025-09-11 11:11:58,461 log 19664 16680 Not Found: /@vite/client
+WARNING 2025-09-11 11:11:58,461 basehttp 19664 16680 "GET /@vite/client HTTP/1.1" 404 3347
+INFO 2025-09-11 11:12:07,480 basehttp 19664 16680 "GET /admin/ HTTP/1.1" 200 6243
+WARNING 2025-09-11 11:12:07,508 log 19664 16680 Not Found: /@vite/client
+WARNING 2025-09-11 11:12:07,513 basehttp 19664 16680 "GET /@vite/client HTTP/1.1" 404 3347
+INFO 2025-09-11 11:19:15,092 autoreload 19664 4132 D:\code\django_learning\keshe\campus\views.py changed, reloading.
+INFO 2025-09-11 11:19:15,520 autoreload 19932 9276 Watching for file changes with StatReloader
+INFO 2025-09-11 11:19:39,005 autoreload 19932 9276 D:\code\django_learning\keshe\campus\views.py changed, reloading.
+INFO 2025-09-11 11:19:39,434 autoreload 19056 18956 Watching for file changes with StatReloader
+INFO 2025-09-11 11:19:51,313 autoreload 19056 18956 D:\code\django_learning\keshe\campus\urls.py changed, reloading.
+INFO 2025-09-11 11:19:51,777 autoreload 19664 16192 Watching for file changes with StatReloader
+INFO 2025-09-11 11:22:24,440 autoreload 14296 19852 Watching for file changes with StatReloader
+INFO 2025-09-11 11:22:31,480 basehttp 14296 18708 - Broken pipe from ('127.0.0.1', 49896)
+INFO 2025-09-11 11:22:31,499 basehttp 14296 17872 "GET /admin/ HTTP/1.1" 200 8256
+WARNING 2025-09-11 11:22:31,749 log 14296 17872 Not Found: /@vite/client
+WARNING 2025-09-11 11:22:31,749 basehttp 14296 17872 "GET /@vite/client HTTP/1.1" 404 3347
+WARNING 2025-09-11 11:23:42,539 log 14296 20532 Forbidden: /campus/api/list/
+WARNING 2025-09-11 11:23:42,539 basehttp 14296 20532 "GET /campus/api/list/ HTTP/1.1" 403 43
