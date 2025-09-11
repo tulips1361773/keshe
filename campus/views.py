@@ -50,6 +50,98 @@ def campus_list(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def campus_area_update(request, campus_id, area_id):
+    """更新校区分区API"""
+    try:
+        campus = get_object_or_404(Campus, id=campus_id)
+        area = get_object_or_404(CampusArea, id=area_id, campus=campus)
+        
+        # 检查权限：超级管理员或校区管理员可以更新分区
+        if not (request.user.is_super_admin or request.user.is_superuser or 
+                campus.manager == request.user):
+            return Response({
+                'success': False,
+                'message': '没有权限更新此分区'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        data = json.loads(request.body) if request.body else request.data
+        serializer = CampusAreaSerializer(area, data=data, partial=True)
+        
+        if serializer.is_valid():
+            area = serializer.save()
+            return Response({
+                'success': True,
+                'message': '分区更新成功',
+                'data': CampusAreaSerializer(area).data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': '数据验证失败',
+                'errors': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+    except Campus.DoesNotExist:
+        return Response({
+            'success': False,
+            'message': '校区不存在'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except CampusArea.DoesNotExist:
+        return Response({
+            'success': False,
+            'message': '分区不存在'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'更新分区失败: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def campus_area_delete(request, campus_id, area_id):
+    """删除校区分区API"""
+    try:
+        campus = get_object_or_404(Campus, id=campus_id)
+        area = get_object_or_404(CampusArea, id=area_id, campus=campus)
+        
+        # 检查权限：超级管理员或校区管理员可以删除分区
+        if not (request.user.is_super_admin or request.user.is_superuser or 
+                campus.manager == request.user):
+            return Response({
+                'success': False,
+                'message': '没有权限删除此分区'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # 检查分区是否有关联的预约或其他数据
+        # 这里可以根据实际业务需求添加更多检查
+        
+        area_name = area.name
+        area.delete()
+        
+        return Response({
+            'success': True,
+            'message': f'分区 "{area_name}" 删除成功'
+        })
+    except Campus.DoesNotExist:
+        return Response({
+            'success': False,
+            'message': '校区不存在'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except CampusArea.DoesNotExist:
+        return Response({
+            'success': False,
+            'message': '分区不存在'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'删除分区失败: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def campus_create(request):

@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/courses/', include('courses.urls')),
     path('api/payments/', include('payments.urls')),
     path('api/reservations/', include('reservations.urls')),
+    path('api/notifications/', include('notifications.urls')),
     
     # 传统Django视图路由
     path('accounts/', include('accounts.urls')),

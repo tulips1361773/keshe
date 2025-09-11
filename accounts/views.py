@@ -217,6 +217,81 @@ def update_profile(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    """修改密码API"""
+    try:
+        data = json.loads(request.body)
+        user = request.user
+        
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+        
+        # 验证必填字段
+        if not all([old_password, new_password, confirm_password]):
+            return Response({
+                'success': False,
+                'message': '所有密码字段都不能为空'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 验证旧密码
+        if not user.check_password(old_password):
+            return Response({
+                'success': False,
+                'message': '原密码错误'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 验证新密码确认
+        if new_password != confirm_password:
+            return Response({
+                'success': False,
+                'message': '新密码与确认密码不一致'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 验证新密码强度（8-16位，包含字母、数字和特殊字符）
+        import re
+        if len(new_password) < 8 or len(new_password) > 16:
+            return Response({
+                'success': False,
+                'message': '密码长度必须为8-16位'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not re.search(r'[a-zA-Z]', new_password):
+            return Response({
+                'success': False,
+                'message': '密码必须包含字母'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not re.search(r'\d', new_password):
+            return Response({
+                'success': False,
+                'message': '密码必须包含数字'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', new_password):
+            return Response({
+                'success': False,
+                'message': '密码必须包含特殊字符'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 更新密码
+        user.set_password(new_password)
+        user.save()
+        
+        return Response({
+            'success': True,
+            'message': '密码修改成功'
+        })
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'修改密码失败: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 # 传统Django视图
 def login_view(request):
     """登录页面"""

@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/register/', views.user_register, name='api_register'),
     path('api/profile/', views.user_profile, name='api_profile'),
     path('api/profile/update/', views.update_profile, name='api_update_profile'),
+    path('api/change-password/', views.change_password, name='api_change_password'),
     
     # 传统Django视图
     path('login/', views.login_view, name='login'),

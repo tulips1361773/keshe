@@ -219,6 +219,32 @@ class BookingCancellationSerializer(serializers.ModelSerializer):
         ]
 
 
+class BookingCancellationCreateSerializer(serializers.ModelSerializer):
+    """创建预约取消申请序列化器"""
+    booking_id = serializers.IntegerField()
+    
+    class Meta:
+        model = BookingCancellation
+        fields = ['booking_id', 'reason']
+    
+    def validate_booking_id(self, value):
+        """验证预约ID"""
+        try:
+            booking = Booking.objects.get(id=value)
+        except Booking.DoesNotExist:
+            raise serializers.ValidationError('预约不存在')
+        
+        # 检查预约状态
+        if booking.status not in ['pending', 'confirmed']:
+            raise serializers.ValidationError('预约状态不允许申请取消')
+        
+        # 检查是否已有取消申请
+        if hasattr(booking, 'cancellation'):
+            raise serializers.ValidationError('该预约已有取消申请')
+        
+        return value
+
+
 class BookingListSerializer(serializers.ModelSerializer):
     """预约列表序列化器（简化版）"""
     coach_name = serializers.CharField(source='relation.coach.real_name', read_only=True)

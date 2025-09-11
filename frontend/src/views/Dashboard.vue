@@ -80,9 +80,19 @@
             <span>学习进度</span>
           </el-menu-item>
           
-          <el-menu-item index="messages">
+          <el-menu-item index="payments">
+            <el-icon><CreditCard /></el-icon>
+            <span>支付管理</span>
+          </el-menu-item>
+          
+          <el-menu-item index="evaluations">
+            <el-icon><Star /></el-icon>
+            <span>课程评价</span>
+          </el-menu-item>
+          
+          <el-menu-item index="notifications">
             <el-icon><ChatDotRound /></el-icon>
-            <span>消息中心</span>
+            <span>消息通知</span>
             <el-badge v-if="unreadMessages > 0" :value="unreadMessages" class="message-badge" />
           </el-menu-item>
         </el-menu>
@@ -241,7 +251,8 @@ import {
   DocumentRemove,
   Search,
   Service,
-  Tools
+  Tools,
+  CreditCard
 } from '@element-plus/icons-vue'
 
 export default {
@@ -263,7 +274,8 @@ export default {
     DocumentRemove,
     Search,
     Service,
-    Tools
+    Tools,
+    CreditCard
   },
   setup() {
     const router = useRouter()
@@ -342,7 +354,9 @@ export default {
         'teaching': '教学管理',
         'schedule': '课程表',
         'progress': '学习进度',
-        'messages': '消息中心'
+        'payments': '支付管理',
+        'evaluations': '课程评价',
+        'notifications': '消息通知'
       }
       return titleMap[activeMenu.value] || '页面'
     }
@@ -383,6 +397,12 @@ export default {
       // 处理需要跳转到其他页面的菜单项
       if (index === 'reservations') {
         router.push('/reservations')
+      } else if (index === 'payments') {
+        router.push('/payments')
+      } else if (index === 'evaluations') {
+        router.push('/evaluations')
+      } else if (index === 'notifications') {
+        router.push('/notifications')
       }
     }
 

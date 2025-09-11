@@ -120,17 +120,42 @@ class CourseAttendanceSerializer(serializers.ModelSerializer):
 class CourseEvaluationSerializer(serializers.ModelSerializer):
     """课程评价序列化器"""
     course_name = serializers.CharField(source='course.name', read_only=True)
-    student_name = serializers.CharField(source='student.real_name', read_only=True)
+    coach_name = serializers.CharField(source='course.coach.real_name', read_only=True)
+    student_name = serializers.SerializerMethodField()
+    student_username = serializers.SerializerMethodField()
     
     class Meta:
         model = CourseEvaluation
         fields = '__all__'
         read_only_fields = ('created_at',)
     
+    def get_student_name(self, obj):
+        """获取学员姓名，支持匿名"""
+        if obj.is_anonymous:
+            return '匿名用户'
+        return obj.student.real_name or obj.student.username
+    
+    def get_student_username(self, obj):
+        """获取学员用户名，支持匿名"""
+        if obj.is_anonymous:
+            return 'anonymous'
+        return obj.student.username
+    
     def validate(self, data):
         """验证评价数据"""
         course = data.get('course')
         student = data.get('student')
+        rating = data.get('rating')
+        coach_rating = data.get('coach_rating')
+        facility_rating = data.get('facility_rating')
+        
+        # 验证评分范围
+        if rating is not None and not (1 <= rating <= 5):
+            raise serializers.ValidationError('总体评分必须在1-5之间')
+        if coach_rating is not None and not (1 <= coach_rating <= 5):
+            raise serializers.ValidationError('教练评分必须在1-5之间')
+        if facility_rating is not None and not (1 <= facility_rating <= 5):
+            raise serializers.ValidationError('设施评分必须在1-5之间')
         
         # 检查学员是否已报名此课程
         if course and student:

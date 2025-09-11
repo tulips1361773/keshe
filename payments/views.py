@@ -1,97 +1,534 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
-# 临时占位视图，后续会完善
+from django.utils import timezone
+from decimal import Decimal
+from django.db import transaction
+from django.core.paginator import Paginator
+from .models import Payment, PaymentMethod, UserAccount, AccountTransaction, Refund, Invoice
+from .serializers import PaymentSerializer, PaymentMethodSerializer, UserAccountSerializer, AccountTransactionSerializer, RefundSerializer, InvoiceSerializer
+from courses.models import CourseEnrollment
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def payment_create(request):
     """创建支付API"""
-    return Response({'message': '创建支付功能待实现'})
+    try:
+        data = request.data
+        enrollment_id = data.get('enrollment_id')
+        payment_type = data.get('payment_type', 'course_fee')
+        amount = Decimal(str(data.get('amount', 0)))
+        payment_method_id = data.get('payment_method_id')
+        
+        # 验证报名记录
+        enrollment = None
+        if enrollment_id:
+            enrollment = get_object_or_404(CourseEnrollment, id=enrollment_id, student=request.user)
+        
+        # 验证支付方式
+        payment_method = get_object_or_404(PaymentMethod, id=payment_method_id, is_active=True)
+        
+        # 创建支付记录
+        payment = Payment.objects.create(
+            user=request.user,
+            enrollment=enrollment,
+            payment_type=payment_type,
+            amount=amount,
+            payment_method=payment_method,
+            description=data.get('description', '')
+        )
+        
+        serializer = PaymentSerializer(payment)
+        return Response({
+            'code': 200,
+            'message': '支付订单创建成功',
+            'data': serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'创建支付失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def payment_list(request):
     """支付列表API"""
-    return Response({'message': '支付列表功能待实现'})
+    try:
+        payments = Payment.objects.filter(user=request.user).order_by('-created_at')
+        
+        # 筛选条件
+        payment_type = request.GET.get('payment_type')
+        payment_status = request.GET.get('status')
+        
+        if payment_type:
+            payments = payments.filter(payment_type=payment_type)
+        if payment_status:
+            payments = payments.filter(status=payment_status)
+        
+        # 分页
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 10))
+        paginator = Paginator(payments, page_size)
+        page_obj = paginator.get_page(page)
+        
+        serializer = PaymentSerializer(page_obj.object_list, many=True)
+        
+        return Response({
+            'code': 200,
+            'message': '获取支付列表成功',
+            'data': {
+                'results': serializer.data,
+                'count': paginator.count,
+                'page': page,
+                'page_size': page_size,
+                'total_pages': paginator.num_pages
+            }
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取支付列表失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def payment_detail(request, payment_id):
     """支付详情API"""
-    return Response({'message': f'支付{payment_id}详情功能待实现'})
+    try:
+        payment = get_object_or_404(Payment, payment_id=payment_id, user=request.user)
+        serializer = PaymentSerializer(payment)
+        
+        return Response({
+            'code': 200,
+            'message': '获取支付详情成功',
+            'data': serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取支付详情失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def payment_confirm(request, payment_id):
     """确认支付API"""
-    return Response({'message': f'确认支付{payment_id}功能待实现'})
+    try:
+        with transaction.atomic():
+            payment = get_object_or_404(Payment, payment_id=payment_id, user=request.user)
+            
+            if payment.status != 'pending':
+                return Response({
+                    'code': 400,
+                    'message': '支付状态不允许确认'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 更新支付状态
+            payment.status = 'completed'
+            payment.paid_at = timezone.now()
+            payment.transaction_id = request.data.get('transaction_id', '')
+            payment.save()
+            
+            # 如果是课程费用，更新报名状态
+            if payment.enrollment and payment.payment_type == 'course_fee':
+                payment.enrollment.payment_status = 'paid'
+                payment.enrollment.save()
+            
+            serializer = PaymentSerializer(payment)
+            return Response({
+                'code': 200,
+                'message': '支付确认成功',
+                'data': serializer.data
+            })
+            
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'支付确认失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def refund_create(request):
     """创建退款API"""
-    return Response({'message': '创建退款功能待实现'})
+    try:
+        data = request.data
+        payment_id = data.get('payment_id')
+        refund_amount = Decimal(str(data.get('refund_amount', 0)))
+        reason = data.get('reason', '')
+        
+        # 验证支付记录
+        payment = get_object_or_404(Payment, payment_id=payment_id, user=request.user)
+        
+        if payment.status != 'completed':
+            return Response({
+                'code': 400,
+                'message': '只能对已完成的支付申请退款'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if refund_amount > payment.amount:
+            return Response({
+                'code': 400,
+                'message': '退款金额不能超过支付金额'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 创建退款记录
+        refund = Refund.objects.create(
+            payment=payment,
+            refund_amount=refund_amount,
+            reason=reason
+        )
+        
+        serializer = RefundSerializer(refund)
+        return Response({
+            'code': 200,
+            'message': '退款申请提交成功',
+            'data': serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'创建退款失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def refund_list(request):
     """退款列表API"""
-    return Response({'message': '退款列表功能待实现'})
+    try:
+        refunds = Refund.objects.filter(payment__user=request.user).order_by('-created_at')
+        
+        # 筛选条件
+        refund_status = request.GET.get('status')
+        if refund_status:
+            refunds = refunds.filter(status=refund_status)
+        
+        # 分页
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 10))
+        paginator = Paginator(refunds, page_size)
+        page_obj = paginator.get_page(page)
+        
+        serializer = RefundSerializer(page_obj.object_list, many=True)
+        
+        return Response({
+            'code': 200,
+            'message': '获取退款列表成功',
+            'data': {
+                'results': serializer.data,
+                'count': paginator.count,
+                'page': page,
+                'page_size': page_size,
+                'total_pages': paginator.num_pages
+            }
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取退款列表失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def refund_detail(request, refund_id):
     """退款详情API"""
-    return Response({'message': f'退款{refund_id}详情功能待实现'})
+    try:
+        refund = get_object_or_404(Refund, refund_id=refund_id, payment__user=request.user)
+        serializer = RefundSerializer(refund)
+        
+        return Response({
+            'code': 200,
+            'message': '获取退款详情成功',
+            'data': serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取退款详情失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def refund_approve(request, refund_id):
-    """批准退款API"""
-    return Response({'message': f'批准退款{refund_id}功能待实现'})
+    """审批退款API"""
+    try:
+        # 只有管理员可以审批退款
+        if not request.user.is_staff:
+            return Response({
+                'code': 403,
+                'message': '权限不足，只有管理员可以审批退款'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        with transaction.atomic():
+            refund = get_object_or_404(Refund, refund_id=refund_id)
+            
+            if refund.status != 'pending':
+                return Response({
+                    'code': 400,
+                    'message': '退款状态不允许审批'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            approve = request.data.get('approve', False)
+            
+            if approve:
+                refund.status = 'approved'
+                refund.processed_at = timezone.now()
+                # 这里应该调用实际的退款接口
+            else:
+                refund.status = 'rejected'
+                refund.processed_at = timezone.now()
+            
+            refund.save()
+            
+            serializer = RefundSerializer(refund)
+            return Response({
+                'code': 200,
+                'message': '退款审批成功',
+                'data': serializer.data
+            })
+            
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'退款审批失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_account(request):
     """用户账户API"""
-    return Response({'message': '用户账户功能待实现'})
+    try:
+        account, created = UserAccount.objects.get_or_create(user=request.user)
+        serializer = UserAccountSerializer(account)
+        
+        return Response({
+            'code': 200,
+            'message': '获取用户账户成功',
+            'data': serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取用户账户失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def account_recharge(request):
     """账户充值API"""
-    return Response({'message': '账户充值功能待实现'})
+    try:
+        from .serializers import RechargeSerializer
+        
+        serializer = RechargeSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({
+                'code': 400,
+                'message': '参数验证失败',
+                'errors': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        validated_data = serializer.validated_data
+        amount = validated_data['amount']
+        payment_method_id = validated_data['payment_method_id']
+        description = validated_data.get('description', '账户充值')
+        
+        # 获取支付方式
+        payment_method = get_object_or_404(PaymentMethod, id=payment_method_id, is_active=True)
+        
+        # 创建充值支付记录
+        payment = Payment.objects.create(
+            user=request.user,
+            payment_type='recharge',
+            amount=amount,
+            payment_method=payment_method,
+            description=description
+        )
+        
+        payment_serializer = PaymentSerializer(payment)
+        return Response({
+            'code': 200,
+            'message': '充值订单创建成功',
+            'data': payment_serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'账户充值失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def account_transactions(request):
     """账户交易记录API"""
-    return Response({'message': '账户交易记录功能待实现'})
+    try:
+        account, created = UserAccount.objects.get_or_create(user=request.user)
+        transactions = AccountTransaction.objects.filter(account=account).order_by('-created_at')
+        
+        # 筛选条件
+        transaction_type = request.GET.get('transaction_type')
+        if transaction_type:
+            transactions = transactions.filter(transaction_type=transaction_type)
+        
+        # 分页
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 10))
+        paginator = Paginator(transactions, page_size)
+        page_obj = paginator.get_page(page)
+        
+        serializer = AccountTransactionSerializer(page_obj.object_list, many=True)
+        
+        return Response({
+            'code': 200,
+            'message': '获取交易记录成功',
+            'data': {
+                'results': serializer.data,
+                'count': paginator.count,
+                'page': page,
+                'page_size': page_size,
+                'total_pages': paginator.num_pages
+            }
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取交易记录失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def invoice_create(request):
     """创建发票API"""
-    return Response({'message': '创建发票功能待实现'})
+    try:
+        data = request.data
+        payment_id = data.get('payment_id')
+        invoice_type = data.get('invoice_type', 'personal')
+        title = data.get('title', '')
+        tax_number = data.get('tax_number', '')
+        
+        # 验证支付记录
+        payment = get_object_or_404(Payment, payment_id=payment_id, user=request.user)
+        
+        if payment.status != 'completed':
+            return Response({
+                'code': 400,
+                'message': '只能为已完成的支付开具发票'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 检查是否已开具发票
+        if Invoice.objects.filter(payment=payment).exists():
+            return Response({
+                'code': 400,
+                'message': '该支付记录已开具发票'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 创建发票记录
+        invoice = Invoice.objects.create(
+            payment=payment,
+            invoice_type=invoice_type,
+            title=title,
+            tax_number=tax_number,
+            amount=payment.amount
+        )
+        
+        serializer = InvoiceSerializer(invoice)
+        return Response({
+            'code': 200,
+            'message': '发票申请提交成功',
+            'data': serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'创建发票失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def invoice_list(request):
     """发票列表API"""
-    return Response({'message': '发票列表功能待实现'})
+    try:
+        invoices = Invoice.objects.filter(payment__user=request.user).order_by('-created_at')
+        
+        # 筛选条件
+        invoice_status = request.GET.get('status')
+        if invoice_status:
+            invoices = invoices.filter(status=invoice_status)
+        
+        # 分页
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 10))
+        paginator = Paginator(invoices, page_size)
+        page_obj = paginator.get_page(page)
+        
+        serializer = InvoiceSerializer(page_obj.object_list, many=True)
+        
+        return Response({
+            'code': 200,
+            'message': '获取发票列表成功',
+            'data': {
+                'results': serializer.data,
+                'count': paginator.count,
+                'page': page,
+                'page_size': page_size,
+                'total_pages': paginator.num_pages
+            }
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取发票列表失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def invoice_detail(request, invoice_number):
     """发票详情API"""
-    return Response({'message': f'发票{invoice_number}详情功能待实现'})
+    try:
+        invoice = get_object_or_404(Invoice, invoice_number=invoice_number, payment__user=request.user)
+        serializer = InvoiceSerializer(invoice)
+        
+        return Response({
+            'code': 200,
+            'message': '获取发票详情成功',
+            'data': serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取发票详情失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def payment_methods(request):
     """支付方式API"""
-    return Response({'message': '支付方式功能待实现'})
+    try:
+        methods = PaymentMethod.objects.filter(is_active=True).order_by('id')
+        serializer = PaymentMethodSerializer(methods, many=True)
+        
+        return Response({
+            'code': 200,
+            'message': '获取支付方式成功',
+            'data': serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取支付方式失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)

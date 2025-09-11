@@ -7,15 +7,16 @@ router = DefaultRouter()
 router.register(r'relations', views.CoachStudentRelationViewSet, basename='relation')
 router.register(r'tables', views.TableViewSet, basename='table')
 router.register(r'bookings', views.BookingViewSet, basename='booking')
+router.register(r'cancellations', views.BookingCancellationViewSet, basename='cancellation')
 
 app_name = 'reservations'
 
 urlpatterns = [
     # ViewSet路由
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
     
     # 额外的API端点
-    path('api/coaches/', views.get_coaches, name='get_coaches'),
-    path('api/students/', views.get_students, name='get_students'),
-    path('api/statistics/', views.booking_statistics, name='booking_statistics'),
+    path('coaches/', views.get_coaches, name='get_coaches'),
+    path('students/', views.get_students, name='get_students'),
+    path('statistics/', views.booking_statistics, name='booking_statistics'),
 ]

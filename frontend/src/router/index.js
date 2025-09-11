@@ -10,6 +10,9 @@ import Profile from '@/views/Profile.vue'
 import Courses from '@/views/Courses.vue'
 import CourseDetail from '@/views/CourseDetail.vue'
 import Reservations from '@/views/Reservations.vue'
+import Payments from '@/views/Payments.vue'
+import Evaluations from '@/views/Evaluations.vue'
+import Notifications from '@/views/Notifications.vue'
 
 const routes = [
   {
@@ -80,6 +83,33 @@ const routes = [
     component: Reservations,
     meta: {
       title: '预约管理 - 乒乓球培训管理系统',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/payments',
+    name: 'Payments',
+    component: Payments,
+    meta: {
+      title: '支付管理 - 乒乓球培训管理系统',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/evaluations',
+    name: 'Evaluations',
+    component: Evaluations,
+    meta: {
+      title: '课程评价 - 乒乓球培训管理系统',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/notifications',
+    name: 'Notifications',
+    component: Notifications,
+    meta: {
+      title: '消息通知 - 乒乓球培训管理系统',
       requiresAuth: true
     }
   },

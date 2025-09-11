@@ -7,6 +7,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from datetime import datetime, timedelta
+from notifications.models import Notification
+import logging
+
+# 导入错误处理工具
+from keshe.utils import APIErrorHandler, BusinessLogicError, log_user_action, PerformanceMonitor
+
+logger = logging.getLogger(__name__)
 
 from .models import CoachStudentRelation, Table, Booking, BookingCancellation
 from .serializers import (
@@ -14,6 +21,7 @@ from .serializers import (
     TableSerializer,
     BookingSerializer,
     BookingCancellationSerializer,
+    BookingCancellationCreateSerializer,
     BookingCreateSerializer
 )
 from accounts.models import User
@@ -71,6 +79,24 @@ class CoachStudentRelationViewSet(viewsets.ModelViewSet):
         relation.processed_at = timezone.now()
         relation.save()
         
+        # 创建通知
+        if user == relation.coach:
+            # 教练同意申请，通知学员
+            recipient = relation.student
+            message = f"教练 {user.username} 已同意您的师生关系申请"
+        else:
+            # 学员同意申请，通知教练
+            recipient = relation.coach
+            message = f"学员 {user.username} 已同意您的师生关系申请"
+        
+        Notification.objects.create(
+            recipient=recipient,
+            sender=user,
+            message=message,
+            notification_type='relation_approved',
+            related_object_id=relation.id
+        )
+        
         return Response({'message': '申请已同意'})
     
     @action(detail=True, methods=['post'])
@@ -95,6 +121,24 @@ class CoachStudentRelationViewSet(viewsets.ModelViewSet):
         relation.status = 'rejected'
         relation.processed_at = timezone.now()
         relation.save()
+        
+        # 创建通知
+        if user == relation.coach:
+            # 教练拒绝申请，通知学员
+            recipient = relation.student
+            message = f"教练 {user.username} 已拒绝您的师生关系申请"
+        else:
+            # 学员拒绝申请，通知教练
+            recipient = relation.coach
+            message = f"学员 {user.username} 已拒绝您的师生关系申请"
+        
+        Notification.objects.create(
+            recipient=recipient,
+            sender=user,
+            message=message,
+            notification_type='relation_rejected',
+            related_object_id=relation.id
+        )
         
         return Response({'message': '申请已拒绝'})
 
@@ -198,19 +242,89 @@ class BookingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         
-        # 验证师生关系
-        relation_id = self.request.data.get('relation_id')
         try:
-            relation = CoachStudentRelation.objects.get(
-                id=relation_id,
-                status='approved'
+            logger.info(f"User {user.username} attempting to create booking")
+            
+            # 验证师生关系
+            relation_id = self.request.data.get('relation_id')
+            if not relation_id:
+                raise BusinessLogicError("师生关系ID不能为空", "missing_relation_id")
+            
+            try:
+                relation = CoachStudentRelation.objects.get(
+                    id=relation_id,
+                    status='approved'
+                )
+                if user not in [relation.coach, relation.student]:
+                    raise BusinessLogicError('无权限创建此预约', 'permission_denied', 403)
+            except CoachStudentRelation.DoesNotExist:
+                raise BusinessLogicError('师生关系不存在或未通过审核', 'relation_not_found', 404)
+            
+            # 检查时间冲突
+            start_time = serializer.validated_data.get('start_time')
+            end_time = serializer.validated_data.get('end_time')
+            table_id = serializer.validated_data.get('table_id')
+            
+            if start_time and end_time and table_id:
+                conflicting_bookings = Booking.objects.filter(
+                    table_id=table_id,
+                    status__in=['pending', 'confirmed'],
+                    start_time__lt=end_time,
+                    end_time__gt=start_time
+                )
+                
+                if conflicting_bookings.exists():
+                    raise BusinessLogicError('该时间段已被预约', 'time_conflict', 409)
+            
+            # 保存预约
+            booking = serializer.save()
+            
+            # 记录用户操作
+            log_user_action(
+                user, 
+                'create_booking', 
+                f'booking_{booking.id}',
+                {
+                    'relation_id': relation_id,
+                    'table_id': table_id,
+                    'start_time': str(start_time),
+                    'end_time': str(end_time)
+                }
             )
-            if user not in [relation.coach, relation.student]:
-                raise ValueError('无权限创建此预约')
-        except CoachStudentRelation.DoesNotExist:
-            raise ValueError('师生关系不存在或未通过审核')
-        
-        serializer.save()
+            
+            # 创建通知
+            try:
+                if user == relation.coach:
+                    # 教练创建预约，通知学员
+                    recipient = relation.student
+                    message = f"教练 {relation.coach.username} 为您创建了一个新的预约"
+                else:
+                    # 学员创建预约，通知教练
+                    recipient = relation.coach
+                    message = f"学员 {relation.student.username} 创建了一个新的预约"
+                
+                Notification.objects.create(
+                    recipient=recipient,
+                    sender=user,
+                    message=message,
+                    notification_type='booking_created',
+                    related_object_id=booking.id
+                )
+                
+                logger.info(f"Notification created for booking {booking.id}")
+                
+            except Exception as e:
+                logger.warning(f"Failed to create notification for booking {booking.id}: {e}")
+                # 通知创建失败不应该影响预约创建
+            
+            logger.info(f"Booking {booking.id} created successfully by user {user.username}")
+            
+        except BusinessLogicError:
+            # 重新抛出业务逻辑错误，让DRF处理
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error creating booking for user {user.username}: {e}")
+            raise BusinessLogicError('创建预约时发生错误', 'creation_failed', 500)
     
     @action(detail=True, methods=['post'])
     def confirm(self, request, pk=None):
@@ -235,6 +349,15 @@ class BookingViewSet(viewsets.ModelViewSet):
         booking.confirmed_at = timezone.now()
         booking.save()
         
+        # 创建通知
+        Notification.objects.create(
+            recipient=booking.relation.student,
+            sender=request.user,
+            message=f"您的预约已被教练 {request.user.username} 确认",
+            notification_type='booking_confirmed',
+            related_object_id=booking.id
+        )
+        
         return Response({'message': '预约已确认'})
     
     @action(detail=True, methods=['post'])
@@ -257,6 +380,24 @@ class BookingViewSet(viewsets.ModelViewSet):
         booking.cancelled_by = user
         booking.cancel_reason = reason
         booking.save()
+        
+        # 创建通知
+        if user == booking.relation.coach:
+            # 教练取消，通知学员
+            recipient = booking.relation.student
+            message = f"教练 {user.username} 取消了您的预约"
+        else:
+            # 学员取消，通知教练
+            recipient = booking.relation.coach
+            message = f"学员 {user.username} 取消了预约"
+        
+        Notification.objects.create(
+            recipient=recipient,
+            sender=user,
+            message=message,
+            notification_type='booking_cancelled',
+            related_object_id=booking.id
+        )
         
         return Response({'message': '预约已取消'})
     
@@ -290,6 +431,150 @@ class BookingViewSet(viewsets.ModelViewSet):
         booking.save()
         
         return Response({'message': '预约已完成'})
+
+
+class BookingCancellationViewSet(viewsets.ModelViewSet):
+    """预约取消申请管理"""
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+    
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return BookingCancellationCreateSerializer
+        return BookingCancellationSerializer
+    
+    def get_queryset(self):
+        user = self.request.user
+        queryset = BookingCancellation.objects.all()
+        
+        if user.user_type == 'coach':
+            # 教练可以看到自己相关的取消申请
+            queryset = queryset.filter(
+                Q(booking__relation__coach=user) |
+                Q(requested_by=user)
+            )
+        elif user.user_type == 'student':
+            # 学员只能看到自己的申请
+            queryset = queryset.filter(
+                Q(booking__relation__student=user) |
+                Q(requested_by=user)
+            )
+        else:
+            return BookingCancellation.objects.none()
+        
+        return queryset.order_by('-created_at')
+    
+    def create(self, request, *args, **kwargs):
+        """创建取消申请"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # 获取预约对象
+        booking_id = serializer.validated_data['booking_id']
+        booking = Booking.objects.get(id=booking_id)
+        
+        # 检查权限：只有相关的教练或学员可以申请取消
+        if request.user not in [booking.relation.coach, booking.relation.student]:
+            return Response(
+                {'error': '只有相关的教练或学员可以申请取消'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # 创建取消申请
+        cancellation = BookingCancellation.objects.create(
+            booking=booking,
+            requested_by=request.user,
+            reason=serializer.validated_data['reason']
+        )
+        
+        # 返回详细信息
+        response_serializer = BookingCancellationSerializer(cancellation)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['post'])
+    def approve(self, request, pk=None):
+        """同意取消申请"""
+        cancellation = self.get_object()
+        user = request.user
+        response_message = request.data.get('response_message', '')
+        
+        # 检查权限（通常是教练处理学员的申请，或管理员处理）
+        booking = cancellation.booking
+        if user != booking.coach and not user.is_staff:
+            return Response(
+                {'error': '只有教练或管理员可以处理取消申请'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if cancellation.status != 'pending':
+            return Response(
+                {'error': '申请状态不正确'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # 更新取消申请状态
+        cancellation.status = 'approved'
+        cancellation.processed_by = user
+        cancellation.processed_at = timezone.now()
+        cancellation.response_message = response_message
+        cancellation.save()
+        
+        # 更新预约状态
+        booking.status = 'cancelled'
+        booking.cancelled_at = timezone.now()
+        booking.cancelled_by = cancellation.requested_by
+        booking.cancel_reason = cancellation.reason
+        booking.save()
+        
+        # 创建通知
+        Notification.objects.create(
+            recipient=cancellation.requested_by,
+            sender=user,
+            message=f"您的预约取消申请已被 {user.username} 同意",
+            notification_type='cancellation_approved',
+            related_object_id=cancellation.id
+        )
+        
+        return Response({'message': '取消申请已同意，预约已取消'})
+    
+    @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        """拒绝取消申请"""
+        cancellation = self.get_object()
+        user = request.user
+        response_message = request.data.get('response_message', '')
+        
+        # 检查权限
+        booking = cancellation.booking
+        if user != booking.coach and not user.is_staff:
+            return Response(
+                {'error': '只有教练或管理员可以处理取消申请'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if cancellation.status != 'pending':
+            return Response(
+                {'error': '申请状态不正确'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # 更新取消申请状态
+        cancellation.status = 'rejected'
+        cancellation.processed_by = user
+        cancellation.processed_at = timezone.now()
+        cancellation.response_message = response_message
+        cancellation.save()
+        
+        # 创建通知
+        Notification.objects.create(
+            recipient=cancellation.requested_by,
+            sender=user,
+            message=f"您的预约取消申请已被 {user.username} 拒绝",
+            notification_type='cancellation_rejected',
+            related_object_id=cancellation.id
+        )
+        
+        return Response({'message': '取消申请已拒绝'})
 
 
 @api_view(['GET'])

@@ -209,7 +209,7 @@ const loadBookings = async () => {
       ...filters
     }
     
-    const response = await fetch('/api/reservations/api/bookings/', {
+    const response = await fetch('/api/reservations/bookings/', {
       method: 'GET',
       headers: {
         'Authorization': `Token ${userStore.token}`,
@@ -306,7 +306,7 @@ const submitCancel = async () => {
   
   cancelLoading.value = true
   try {
-    const response = await fetch(`/api/reservations/api/bookings/${selectedBooking.value.id}/cancel/`, {
+    const response = await fetch(`/api/reservations/bookings/${selectedBooking.value.id}/cancel/`, {
       method: 'POST',
       headers: {
         'Authorization': `Token ${userStore.token}`,
@@ -342,7 +342,7 @@ const completeBooking = async (booking) => {
       type: 'warning'
     })
     
-    const response = await fetch(`/api/reservations/api/bookings/${booking.id}/complete/`, {
+    const response = await fetch(`/api/reservations/bookings/${booking.id}/complete/`, {
       method: 'POST',
       headers: {
         'Authorization': `Token ${userStore.token}`,
