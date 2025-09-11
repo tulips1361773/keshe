@@ -55,3 +55,110 @@ WARNING 2025-09-11 11:22:31,749 log 14296 17872 Not Found: /@vite/client
 WARNING 2025-09-11 11:22:31,749 basehttp 14296 17872 "GET /@vite/client HTTP/1.1" 404 3347
 WARNING 2025-09-11 11:23:42,539 log 14296 20532 Forbidden: /campus/api/list/
 WARNING 2025-09-11 11:23:42,539 basehttp 14296 20532 "GET /campus/api/list/ HTTP/1.1" 403 43
+WARNING 2025-09-11 11:25:59,321 log 14296 18900 Forbidden: /campus/api/list/
+WARNING 2025-09-11 11:25:59,321 basehttp 14296 18900 "GET /campus/api/list/ HTTP/1.1" 403 43
+WARNING 2025-09-11 11:26:10,285 log 14296 19304 Bad Request: /accounts/api/register/
+WARNING 2025-09-11 11:26:10,285 basehttp 14296 19304 "POST /accounts/api/register/ HTTP/1.1" 400 87
+INFO 2025-09-11 11:26:20,106 basehttp 14296 21492 "POST /accounts/api/register/ HTTP/1.1" 201 384
+ERROR 2025-09-11 11:26:29,235 log 14296 21140 Internal Server Error: /accounts/api/login/
+ERROR 2025-09-11 11:26:29,235 basehttp 14296 21140 "POST /accounts/api/login/ HTTP/1.1" 500 90
+INFO 2025-09-11 11:26:51,394 autoreload 14296 19852 D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+INFO 2025-09-11 11:26:51,818 autoreload 2680 18512 Watching for file changes with StatReloader
+INFO 2025-09-11 11:27:09,481 basehttp 2680 16596 "POST /accounts/api/login/ HTTP/1.1" 200 465
+INFO 2025-09-11 11:27:17,358 basehttp 2680 16532 "GET /campus/api/list/ HTTP/1.1" 200 36
+WARNING 2025-09-11 11:27:27,196 log 2680 6364 Forbidden: /campus/api/create/
+WARNING 2025-09-11 11:27:27,196 basehttp 2680 6364 "POST /campus/api/create/ HTTP/1.1" 403 69
+INFO 2025-09-11 11:27:54,228 basehttp 2680 18960 "POST /accounts/api/login/ HTTP/1.1" 200 473
+WARNING 2025-09-11 11:28:01,632 log 2680 14600 Bad Request: /campus/api/create/
+WARNING 2025-09-11 11:28:01,632 basehttp 2680 14600 "POST /campus/api/create/ HTTP/1.1" 400 95
+INFO 2025-09-11 11:28:10,840 basehttp 2680 3668 "POST /campus/api/create/ HTTP/1.1" 201 474
+INFO 2025-09-11 11:28:23,596 basehttp 2680 6364 "GET /campus/api/list/ HTTP/1.1" 200 455
+WARNING 2025-09-11 11:28:32,164 log 2680 21096 Bad Request: /campus/api/1/areas/create/
+WARNING 2025-09-11 11:28:32,164 basehttp 2680 21096 "POST /campus/api/1/areas/create/ HTTP/1.1" 400 112
+INFO 2025-09-11 11:28:57,231 basehttp 2680 9760 "POST /campus/api/1/areas/create/ HTTP/1.1" 201 376
+INFO 2025-09-11 11:29:06,139 basehttp 2680 13612 "GET /campus/api/1/areas/ HTTP/1.1" 200 357
+INFO 2025-09-11 11:29:15,455 basehttp 2680 8700 "POST /accounts/api/register/ HTTP/1.1" 201 377
+WARNING 2025-09-11 11:29:26,680 log 2680 18628 Not Found: /campus/api/1/coaches/add/
+WARNING 2025-09-11 11:29:26,681 basehttp 2680 18628 "POST /campus/api/1/coaches/add/ HTTP/1.1" 404 5157
+INFO 2025-09-11 11:29:59,829 autoreload 2680 18512 D:\code\django_learning\keshe\campus\views.py changed, reloading.
+INFO 2025-09-11 11:30:00,320 autoreload 20644 20236 Watching for file changes with StatReloader
+INFO 2025-09-11 11:30:08,026 autoreload 20644 20236 D:\code\django_learning\keshe\campus\urls.py changed, reloading.
+INFO 2025-09-11 11:30:08,449 autoreload 10692 10520 Watching for file changes with StatReloader
+INFO 2025-09-11 11:30:22,168 basehttp 10692 7036 "POST /campus/api/1/coaches/add/ HTTP/1.1" 201 728
+INFO 2025-09-11 11:30:37,002 basehttp 10692 13716 "GET /campus/api/1/coaches/ HTTP/1.1" 200 709
+INFO 2025-09-11 11:30:45,264 basehttp 10692 7924 "POST /accounts/api/register/ HTTP/1.1" 201 381
+WARNING 2025-09-11 11:30:52,415 log 10692 19404 Not Found: /campus/api/1/students/add/
+WARNING 2025-09-11 11:30:52,415 basehttp 10692 19404 "POST /campus/api/1/students/add/ HTTP/1.1" 404 5381
+INFO 2025-09-11 11:31:32,403 autoreload 10692 10520 D:\code\django_learning\keshe\campus\views.py changed, reloading.
+INFO 2025-09-11 11:31:32,819 autoreload 18840 8816 Watching for file changes with StatReloader
+INFO 2025-09-11 11:31:43,695 autoreload 18840 8816 D:\code\django_learning\keshe\campus\urls.py changed, reloading.
+INFO 2025-09-11 11:31:44,108 autoreload 6496 18764 Watching for file changes with StatReloader
+INFO 2025-09-11 11:32:00,396 basehttp 6496 16548 "POST /campus/api/1/students/add/ HTTP/1.1" 201 658
+INFO 2025-09-11 11:32:07,824 basehttp 6496 4896 "GET /campus/api/1/students/ HTTP/1.1" 200 639
+INFO 2025-09-11 11:33:37,195 autoreload 6496 18764 D:\code\django_learning\keshe\courses\views.py changed, reloading.
+INFO 2025-09-11 11:33:37,627 autoreload 19980 18032 Watching for file changes with StatReloader
+INFO 2025-09-11 11:33:57,253 basehttp 19980 19900 "POST /accounts/api/login/ HTTP/1.1" 200 473
+WARNING 2025-09-11 11:33:57,264 log 19980 17924 Not Found: /courses/api/courses/
+WARNING 2025-09-11 11:33:57,264 basehttp 19980 17924 "POST /courses/api/courses/ HTTP/1.1" 404 6629
+INFO 2025-09-11 11:34:10,860 basehttp 19980 20076 "POST /accounts/api/login/ HTTP/1.1" 200 473
+WARNING 2025-09-11 11:34:10,867 log 19980 18028 Bad Request: /courses/api/create/
+WARNING 2025-09-11 11:34:10,867 basehttp 19980 18028 "POST /courses/api/create/ HTTP/1.1" 400 221
+INFO 2025-09-11 11:34:21,537 basehttp 19980 1176 "POST /accounts/api/login/ HTTP/1.1" 200 473
+WARNING 2025-09-11 11:34:21,544 log 19980 19964 Bad Request: /courses/api/create/
+WARNING 2025-09-11 11:34:21,545 basehttp 19980 19964 "POST /courses/api/create/ HTTP/1.1" 400 115
+INFO 2025-09-11 11:34:32,060 basehttp 19980 4500 "POST /accounts/api/login/ HTTP/1.1" 200 473
+INFO 2025-09-11 11:34:32,070 basehttp 19980 21240 "GET /campus/api/1/coaches/ HTTP/1.1" 200 709
+INFO 2025-09-11 11:34:42,647 basehttp 19980 4476 "POST /accounts/api/login/ HTTP/1.1" 200 473
+INFO 2025-09-11 11:34:42,736 basehttp 19980 19752 "POST /courses/api/create/ HTTP/1.1" 201 661
+INFO 2025-09-11 11:34:50,862 basehttp 19980 12128 "POST /accounts/api/login/ HTTP/1.1" 200 473
+INFO 2025-09-11 11:34:50,872 basehttp 19980 17392 "GET /courses/api/list/ HTTP/1.1" 200 642
+WARNING 2025-09-11 11:34:59,604 log 19980 8808 Unauthorized: /accounts/api/login/
+WARNING 2025-09-11 11:34:59,604 basehttp 19980 8808 "POST /accounts/api/login/ HTTP/1.1" 401 54
+INFO 2025-09-11 11:35:29,128 basehttp 19980 17116 "POST /accounts/api/login/ HTTP/1.1" 200 473
+INFO 2025-09-11 11:35:29,138 basehttp 19980 19872 "GET /campus/api/1/students/ HTTP/1.1" 200 639
+WARNING 2025-09-11 11:35:38,798 log 19980 20136 Unauthorized: /accounts/api/login/
+WARNING 2025-09-11 11:35:38,798 basehttp 19980 20136 "POST /accounts/api/login/ HTTP/1.1" 401 54
+INFO 2025-09-11 11:35:50,757 basehttp 19980 21096 "POST /accounts/api/register/ HTTP/1.1" 201 387
+INFO 2025-09-11 11:35:51,450 basehttp 19980 17420 "POST /accounts/api/login/ HTTP/1.1" 200 468
+WARNING 2025-09-11 11:35:51,455 log 19980 14056 Bad Request: /courses/api/1/enroll/
+WARNING 2025-09-11 11:35:51,455 basehttp 19980 14056 "POST /courses/api/1/enroll/ HTTP/1.1" 400 60
+INFO 2025-09-11 11:36:01,593 basehttp 19980 20056 "POST /accounts/api/login/ HTTP/1.1" 200 473
+INFO 2025-09-11 11:36:01,659 basehttp 19980 18808 "PUT /courses/api/1/update/ HTTP/1.1" 200 665
+INFO 2025-09-11 11:36:09,856 basehttp 19980 2120 "POST /accounts/api/login/ HTTP/1.1" 200 468
+ERROR 2025-09-11 11:36:09,949 log 19980 17480 Internal Server Error: /courses/api/1/enroll/
+ERROR 2025-09-11 11:36:09,949 basehttp 19980 17480 "POST /courses/api/1/enroll/ HTTP/1.1" 500 108
+INFO 2025-09-11 11:36:53,040 autoreload 19980 18032 D:\code\django_learning\keshe\courses\models.py changed, reloading.
+INFO 2025-09-11 11:36:53,475 autoreload 19208 9444 Watching for file changes with StatReloader
+WARNING 2025-09-11 11:37:03,678 log 19208 18292 Unauthorized: /accounts/api/login/
+WARNING 2025-09-11 11:37:03,678 basehttp 19208 18292 "POST /accounts/api/login/ HTTP/1.1" 401 54
+INFO 2025-09-11 11:37:17,661 basehttp 19208 19260 "POST /accounts/api/login/ HTTP/1.1" 200 473
+INFO 2025-09-11 11:37:18,222 basehttp 19208 19528 "POST /accounts/api/register/ HTTP/1.1" 201 411
+INFO 2025-09-11 11:37:18,943 basehttp 19208 4872 "POST /accounts/api/login/ HTTP/1.1" 200 492
+WARNING 2025-09-11 11:37:18,954 log 19208 20472 Not Found: /courses/api/enroll/
+WARNING 2025-09-11 11:37:18,954 basehttp 19208 20472 "POST /courses/api/enroll/ HTTP/1.1" 404 6626
+INFO 2025-09-11 11:37:29,742 basehttp 19208 13972 "POST /accounts/api/login/ HTTP/1.1" 200 473
+INFO 2025-09-11 11:37:38,836 basehttp 19208 12016 "GET /admin/accounts/user/ HTTP/1.1" 200 17242
+INFO 2025-09-11 11:37:38,850 basehttp 19208 12968 "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+INFO 2025-09-11 11:37:39,144 basehttp 19208 9240 "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+INFO 2025-09-11 11:37:39,144 basehttp 19208 18248 "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+INFO 2025-09-11 11:37:39,157 basehttp 19208 12016 "GET /static/admin/css/changelists.css HTTP/1.1" 200 6566
+INFO 2025-09-11 11:37:39,163 basehttp 19208 18248 "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+INFO 2025-09-11 11:37:39,194 basehttp 19208 18248 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+INFO 2025-09-11 11:37:39,196 basehttp 19208 12016 "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+WARNING 2025-09-11 11:37:39,225 log 19208 12016 Not Found: /@vite/client
+WARNING 2025-09-11 11:37:39,226 basehttp 19208 12016 "GET /@vite/client HTTP/1.1" 404 3347
+WARNING 2025-09-11 11:37:39,929 log 19208 16736 Bad Request: /accounts/api/register/
+WARNING 2025-09-11 11:37:39,929 basehttp 19208 16736 "POST /accounts/api/register/ HTTP/1.1" 400 51
+INFO 2025-09-11 11:38:04,160 basehttp 19208 13260 "POST /accounts/api/register/ HTTP/1.1" 201 419
+INFO 2025-09-11 11:38:04,904 basehttp 19208 19260 "POST /accounts/api/login/ HTTP/1.1" 200 500
+WARNING 2025-09-11 11:38:04,910 log 19208 18960 Not Found: /courses/api/enroll/
+WARNING 2025-09-11 11:38:04,910 basehttp 19208 18960 "POST /courses/api/enroll/ HTTP/1.1" 404 6626
+WARNING 2025-09-11 11:38:15,935 log 19208 8700 Bad Request: /accounts/api/register/
+WARNING 2025-09-11 11:38:15,936 basehttp 19208 8700 "POST /accounts/api/register/ HTTP/1.1" 400 48
+INFO 2025-09-11 11:38:25,073 basehttp 19208 18404 "POST /accounts/api/register/ HTTP/1.1" 201 416
+INFO 2025-09-11 11:38:41,235 basehttp 19208 19492 "POST /accounts/api/login/ HTTP/1.1" 200 497
+WARNING 2025-09-11 11:38:48,379 log 19208 17588 Not Found: /courses/api/enroll/
+WARNING 2025-09-11 11:38:48,379 basehttp 19208 17588 "POST /courses/api/enroll/ HTTP/1.1" 404 6626
+INFO 2025-09-11 11:39:02,094 basehttp 19208 20544 "POST /courses/api/1/enroll/ HTTP/1.1" 201 438
+INFO 2025-09-11 11:39:08,921 basehttp 19208 17368 "GET /courses/api/enrollments/ HTTP/1.1" 200 425
+INFO 2025-09-11 11:39:15,465 basehttp 19208 14772 "POST /courses/api/enrollments/2/cancel/ HTTP/1.1" 200 42

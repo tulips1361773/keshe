@@ -17,5 +17,7 @@ urlpatterns = [
     
     # 校区学员和教练管理API
     path('api/<int:campus_id>/students/', views.campus_students, name='api_campus_students'),
+    path('api/<int:campus_id>/students/add/', views.campus_student_add, name='api_campus_student_add'),
     path('api/<int:campus_id>/coaches/', views.campus_coaches, name='api_campus_coaches'),
+    path('api/<int:campus_id>/coaches/add/', views.campus_coach_add, name='api_campus_coach_add'),
 ]

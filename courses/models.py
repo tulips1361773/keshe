@@ -131,7 +131,8 @@ class Course(models.Model):
     @property
     def total_price(self):
         """课程总价"""
-        return self.price_per_session * self.total_sessions
+        from decimal import Decimal
+        return self.price_per_session * Decimal(str(self.total_sessions))
 
 
 class CourseSchedule(models.Model):
@@ -256,7 +257,8 @@ class CourseEnrollment(models.Model):
     @property
     def remaining_amount(self):
         """剩余应付金额"""
-        return self.course.total_price - self.paid_amount
+        from decimal import Decimal
+        return Decimal(str(self.course.total_price)) - Decimal(str(self.paid_amount))
 
 
 class CourseSession(models.Model):
