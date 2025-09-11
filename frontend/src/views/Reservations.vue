@@ -123,12 +123,11 @@
     </el-card>
 
     <!-- 创建预约对话框 -->
-    <el-dialog v-model="showCreateDialog" title="新建预约" width="600px">
-      <div class="dialog-placeholder">
-        <el-icon class="placeholder-icon"><Plus /></el-icon>
-        <p>新建预约功能开发中...</p>
+    <el-dialog v-model="showCreateDialog" title="新建预约" width="800px">
+      <BookingForm @success="handleCreateSuccess" @cancel="showCreateDialog = false" />
+      <template #footer>
         <el-button @click="showCreateDialog = false">关闭</el-button>
-      </div>
+      </template>
     </el-dialog>
 
     <!-- 预约详情对话框 -->
@@ -182,8 +181,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import axios from '@/utils/axios'
-// import BookingForm from '@/components/BookingForm.vue'
-// import BookingDetail from '@/components/BookingDetail.vue'
+import BookingForm from '@/components/BookingForm.vue'
 
 const userStore = useUserStore()
 
@@ -338,6 +336,7 @@ const completeBooking = async (booking) => {
 
 const handleCreateSuccess = () => {
   showCreateDialog.value = false
+  ElMessage.success('预约创建成功')
   loadBookings()
 }
 

@@ -6,7 +6,7 @@
  * @param {string} context - 错误上下文
  * @param {boolean} showMessage - 是否显示用户提示
  */
-export const handleError = (error, context = '', showMessage = true) => {
+export const handleError = async (error, context = '', showMessage = true) => {
   // 记录错误日志
   console.error(`[${context}] 错误:`, error)
   
@@ -19,7 +19,7 @@ export const handleError = (error, context = '', showMessage = true) => {
   if (!showMessage) return
   
   // 根据错误类型显示不同的用户提示
-  const { ElMessage } = require('element-plus')
+  const { ElMessage } = await import('element-plus')
   
   if (error.name === 'NetworkError' || error.message?.includes('fetch')) {
     ElMessage.error('网络连接失败，请检查网络后重试')
@@ -44,7 +44,7 @@ export const handleError = (error, context = '', showMessage = true) => {
  * @param {string} context - 错误上下文
  */
 export const handleApiError = async (response, context = '') => {
-  const { ElMessage } = require('element-plus')
+  const { ElMessage } = await import('element-plus')
   
   try {
     const error = await response.json()

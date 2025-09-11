@@ -199,25 +199,6 @@ const form = reactive({
   notes: ''
 })
 
-// 表单验证规则
-const rules = {
-  relation_id: [{ required: true, message: '请选择师生关系', trigger: 'change' }],
-  campus_id: [{ required: true, message: '请选择校区', trigger: 'change' }],
-  start_time: [
-    { required: true, message: '请选择开始时间', trigger: 'change' },
-    { validator: validateStartTime, trigger: 'change' }
-  ],
-  end_time: [
-    { required: true, message: '请选择结束时间', trigger: 'change' },
-    { validator: validateEndTime, trigger: 'change' }
-  ],
-  table_id: [{ required: true, message: '请选择球台', trigger: 'change' }],
-  total_fee: [
-    { required: true, message: '请输入预约费用', trigger: 'blur' },
-    { validator: validateTotalFee, trigger: 'blur' }
-  ]
-}
-
 // 验证函数
 const validateStartTime = (rule, value, callback) => {
   if (!value) {
@@ -279,22 +260,30 @@ const validateEndTime = (rule, value, callback) => {
 }
 
 const validateTotalFee = (rule, value, callback) => {
-  if (value === null || value === undefined || value === '') {
-    callback(new Error('请输入预约费用'))
+  if (!value || value <= 0) {
+    callback(new Error('预约费用必须大于0'))
     return
   }
-  
-  if (value < 0) {
-    callback(new Error('预约费用不能为负数'))
-    return
-  }
-  
-  if (value > 10000) {
-    callback(new Error('预约费用不能超过10000元'))
-    return
-  }
-  
   callback()
+}
+
+// 表单验证规则
+const rules = {
+  relation_id: [{ required: true, message: '请选择师生关系', trigger: 'change' }],
+  campus_id: [{ required: true, message: '请选择校区', trigger: 'change' }],
+  start_time: [
+    { required: true, message: '请选择开始时间', trigger: 'change' },
+    { validator: validateStartTime, trigger: 'change' }
+  ],
+  end_time: [
+    { required: true, message: '请选择结束时间', trigger: 'change' },
+    { validator: validateEndTime, trigger: 'change' }
+  ],
+  table_id: [{ required: true, message: '请选择球台', trigger: 'change' }],
+  total_fee: [
+    { required: true, message: '请输入预约费用', trigger: 'blur' },
+    { validator: validateTotalFee, trigger: 'blur' }
+  ]
 }
 
 // 计算属性
@@ -344,7 +333,7 @@ const loadRelations = async () => {
       await handleApiError(response, '加载师生关系')
     }
   } catch (error) {
-    handleError(error, '加载师生关系')
+    await handleError(error, '加载师生关系')
   } finally {
     performance.end('loadRelations')
   }
@@ -355,7 +344,7 @@ const loadCampuses = async () => {
     performance.start('loadCampuses')
     logger.debug('开始加载校区列表')
     
-    const response = await fetch('/api/campus/list/', {
+    const response = await fetch('/api/campus/api/list/', {
       headers: {
         'Authorization': `Token ${userStore.token}`,
         'Content-Type': 'application/json'
@@ -371,7 +360,7 @@ const loadCampuses = async () => {
       await handleApiError(response, '加载校区列表')
     }
   } catch (error) {
-    handleError(error, '加载校区列表')
+    await handleError(error, '加载校区列表')
   } finally {
     performance.end('loadCampuses')
   }
@@ -422,7 +411,7 @@ const loadAvailableTables = async () => {
     }
   } catch (error) {
     availableTables.value = []
-    handleError(error, '加载可用球台')
+    await handleError(error, '加载可用球台')
   } finally {
     tablesLoading.value = false
     performance.end('loadAvailableTables')
@@ -585,7 +574,7 @@ const submitForm = async () => {
       await handleApiError(response, '创建预约')
     }
   } catch (error) {
-    handleError(error, '创建预约')
+    await handleError(error, '创建预约')
   } finally {
     submitting.value = false
     performance.end('submitBooking')
