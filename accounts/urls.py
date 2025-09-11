@@ -7,6 +7,7 @@ app_name = 'accounts'
 # API路由
 urlpatterns = [
     # 认证相关API
+    path('api/csrf-token/', views.get_csrf_token, name='api_csrf_token'),
     path('api/login/', views.user_login, name='api_login'),
     path('api/logout/', views.user_logout, name='api_logout'),
     path('api/register/', views.user_register, name='api_register'),

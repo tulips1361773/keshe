@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.middleware.csrf import get_token
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -15,12 +16,22 @@ from .serializers import UserSerializer, UserProfileSerializer
 import json
 
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_csrf_token(request):
+    """获取CSRF token API"""
+    token = get_token(request)
+    return Response({
+        'csrfToken': token
+    })
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def user_login(request):
     """用户登录API"""
     try:
-        data = json.loads(request.body)
+        data = request.data
         username = data.get('username')
         password = data.get('password')
         
@@ -82,7 +93,7 @@ def user_logout(request):
 def user_register(request):
     """用户注册API"""
     try:
-        data = json.loads(request.body)
+        data = request.data
         username = data.get('username')
         password = data.get('password')
         phone = data.get('phone')

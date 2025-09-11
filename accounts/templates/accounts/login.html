@@ -1,0 +1,92 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}学员登录 - 乒乓球培训管理系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-table-tennis fa-3x text-primary mb-3"></i>
+                    <h2 class="card-title">学员登录</h2>
+                    <p class="text-muted">欢迎回到乒乓球培训系统</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user"></i> 用户名
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username" required autofocus>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i> 密码
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                        <label class="form-check-label" for="remember_me">
+                            记住我
+                        </label>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> 立即登录
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted">
+                        还没有账号？ <a href="{% url 'accounts:register' %}" class="text-decoration-none">立即注册</a>
+                    </p>
+                    <p class="text-muted">
+                        <a href="#" class="text-decoration-none">忘记密码？</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title text-center">
+                    <i class="fas fa-info-circle"></i> 系统特色
+                </h5>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                        <h6>专业教练</h6>
+                        <small class="text-muted">经验丰富的专业教练团队</small>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-calendar-alt fa-2x text-success mb-2"></i>
+                        <h6>灵活排课</h6>
+                        <small class="text-muted">自由选择上课时间</small>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
+                        <h6>比赛机会</h6>
+                        <small class="text-muted">定期举办各类比赛</small>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-mobile-alt fa-2x text-info mb-2"></i>
+                        <h6>便捷管理</h6>
+                        <small class="text-muted">随时随地管理学习</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

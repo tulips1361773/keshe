@@ -162,3 +162,50 @@ WARNING 2025-09-11 11:38:48,379 basehttp 19208 17588 "POST /courses/api/enroll/ 
 INFO 2025-09-11 11:39:02,094 basehttp 19208 20544 "POST /courses/api/1/enroll/ HTTP/1.1" 201 438
 INFO 2025-09-11 11:39:08,921 basehttp 19208 17368 "GET /courses/api/enrollments/ HTTP/1.1" 200 425
 INFO 2025-09-11 11:39:15,465 basehttp 19208 14772 "POST /courses/api/enrollments/2/cancel/ HTTP/1.1" 200 42
+INFO 2025-09-11 11:55:26,009 basehttp 19208 12736 - Broken pipe from ('127.0.0.1', 55620)
+INFO 2025-09-11 12:03:50,892 autoreload 19208 9444 D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+INFO 2025-09-11 12:03:52,281 autoreload 21072 512 Watching for file changes with StatReloader
+INFO 2025-09-11 12:05:50,901 autoreload 9936 4720 Watching for file changes with StatReloader
+INFO 2025-09-11 12:09:36,665 basehttp 9936 16124 "POST /accounts/api/register/ HTTP/1.1" 201 376
+INFO 2025-09-11 12:09:45,449 basehttp 9936 444 "POST /accounts/api/login/ HTTP/1.1" 200 457
+INFO 2025-09-11 12:09:45,830 basehttp 9936 20464 "GET /accounts/api/profile/ HTTP/1.1" 200 937
+WARNING 2025-09-11 12:10:15,466 log 9936 22368 Forbidden: /accounts/api/logout/
+WARNING 2025-09-11 12:10:15,466 basehttp 9936 22368 "POST /accounts/api/logout/ HTTP/1.1" 403 108
+WARNING 2025-09-11 12:10:45,740 log 9936 22324 Forbidden: /accounts/api/register/
+WARNING 2025-09-11 12:10:45,741 basehttp 9936 22324 "POST /accounts/api/register/ HTTP/1.1" 403 108
+INFO 2025-09-11 12:11:26,272 autoreload 9936 4720 D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+INFO 2025-09-11 12:11:26,748 autoreload 22256 15416 Watching for file changes with StatReloader
+INFO 2025-09-11 12:11:38,886 autoreload 19460 22384 Watching for file changes with StatReloader
+WARNING 2025-09-11 12:12:08,041 log 19460 18568 Forbidden: /accounts/api/register/
+WARNING 2025-09-11 12:12:08,041 basehttp 19460 18568 "POST /accounts/api/register/ HTTP/1.1" 403 45
+WARNING 2025-09-11 12:12:10,895 log 19460 21836 Forbidden: /accounts/api/register/
+WARNING 2025-09-11 12:12:10,895 basehttp 19460 21836 "POST /accounts/api/register/ HTTP/1.1" 403 45
+WARNING 2025-09-11 12:12:58,487 log 19460 22200 Forbidden: /accounts/api/register/
+WARNING 2025-09-11 12:12:58,489 basehttp 19460 22200 "POST /accounts/api/register/ HTTP/1.1" 403 45
+INFO 2025-09-11 12:14:00,250 autoreload 19460 22384 D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+INFO 2025-09-11 12:14:00,730 autoreload 23152 23156 Watching for file changes with StatReloader
+INFO 2025-09-11 12:14:07,417 autoreload 23152 23156 D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+INFO 2025-09-11 12:14:07,835 autoreload 23424 23428 Watching for file changes with StatReloader
+INFO 2025-09-11 12:14:18,754 autoreload 23424 23428 D:\code\django_learning\keshe\accounts\urls.py changed, reloading.
+INFO 2025-09-11 12:14:19,199 autoreload 22752 22748 Watching for file changes with StatReloader
+INFO 2025-09-11 12:14:31,009 basehttp 22752 21576 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+INFO 2025-09-11 12:14:31,268 basehttp 22752 23336 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+INFO 2025-09-11 12:14:31,871 basehttp 22752 20668 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+INFO 2025-09-11 12:14:31,888 basehttp 22752 11672 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+INFO 2025-09-11 12:14:45,255 autoreload 23428 23424 Watching for file changes with StatReloader
+INFO 2025-09-11 12:14:53,286 basehttp 23428 22676 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+INFO 2025-09-11 12:15:13,440 basehttp 23428 21808 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+ERROR 2025-09-11 12:15:39,395 log 23428 17824 Internal Server Error: /accounts/api/register/
+ERROR 2025-09-11 12:15:39,395 basehttp 23428 17824 "POST /accounts/api/register/ HTTP/1.1" 500 107
+INFO 2025-09-11 12:16:08,565 autoreload 23428 23424 D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+INFO 2025-09-11 12:16:09,045 autoreload 17484 1384 Watching for file changes with StatReloader
+INFO 2025-09-11 12:16:15,767 autoreload 17484 1384 D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+INFO 2025-09-11 12:16:16,212 autoreload 22256 19492 Watching for file changes with StatReloader
+INFO 2025-09-11 12:16:21,870 basehttp 22256 21624 "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+WARNING 2025-09-11 12:16:26,094 log 22256 17584 Bad Request: /accounts/api/register/
+WARNING 2025-09-11 12:16:26,095 basehttp 22256 17584 "POST /accounts/api/register/ HTTP/1.1" 400 51
+WARNING 2025-09-11 12:16:43,778 log 22256 22744 Bad Request: /accounts/api/register/
+WARNING 2025-09-11 12:16:43,778 basehttp 22256 22744 "POST /accounts/api/register/ HTTP/1.1" 400 48
+INFO 2025-09-11 12:17:00,216 basehttp 22256 11424 "POST /accounts/api/register/ HTTP/1.1" 201 377
+INFO 2025-09-11 12:17:16,835 basehttp 22256 20668 "POST /accounts/api/login/ HTTP/1.1" 200 458
+INFO 2025-09-11 12:17:17,221 basehttp 22256 15636 "GET /accounts/api/profile/ HTTP/1.1" 200 939
