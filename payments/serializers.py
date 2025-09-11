@@ -33,13 +33,14 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 class UserAccountSerializer(serializers.ModelSerializer):
     """用户账户序列化器"""
-    user = UserSerializer(read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
+    real_name = serializers.CharField(source='user.real_name', read_only=True)
     
     class Meta:
         model = UserAccount
         fields = [
-            'id', 'user', 'balance', 'frozen_amount', 'total_recharge',
-            'total_consumption', 'created_at', 'updated_at'
+            'id', 'username', 'real_name', 'balance', 'frozen_amount', 'total_paid',
+            'total_refunded', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 

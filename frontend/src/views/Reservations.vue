@@ -225,7 +225,7 @@ const loadBookings = async () => {
       ...filters
     }
     
-    const response = await axios.get('/api/reservations/api/bookings/', { params })
+    const response = await axios.get('/api/reservations/bookings/', { params })
     
     if (response.data) {
       bookings.value = response.data.results || []
@@ -276,7 +276,7 @@ const viewBooking = (booking) => {
 
 const confirmBooking = async (booking) => {
   try {
-    await axios.post(`/api/reservations/api/bookings/${booking.id}/confirm/`)
+    await axios.post(`/api/reservations/bookings/${booking.id}/confirm/`)
     ElMessage.success('预约已确认')
     loadBookings()
   } catch (error) {
@@ -300,7 +300,7 @@ const submitCancel = async () => {
   
   cancelLoading.value = true
   try {
-    await axios.post(`/api/reservations/api/bookings/${selectedBooking.value.id}/cancel/`, {
+    await axios.post(`/api/reservations/bookings/${selectedBooking.value.id}/cancel/`, {
       reason: cancelForm.reason
     })
     
@@ -324,7 +324,7 @@ const completeBooking = async (booking) => {
       type: 'warning'
     })
     
-    await axios.post(`/api/reservations/api/bookings/${booking.id}/complete/`)
+    await axios.post(`/api/reservations/bookings/${booking.id}/complete/`)
     ElMessage.success('预约已完成')
     loadBookings()
   } catch (error) {

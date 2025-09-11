@@ -307,7 +307,7 @@ export default {
       loading.value = true
       
       try {
-        const response = await axios.get(`/api/courses/api/courses/${courseId}/`)
+        const response = await axios.get(`/api/courses/${courseId}/`)
         if (response.data) {
           course.value = {
             ...response.data,
@@ -344,7 +344,7 @@ export default {
           // router.push(`/courses/${course.value.id}/learn`)
         } else {
           // 报名课程
-          await axios.post(`/api/courses/api/courses/${course.value.id}/enroll/`)
+          await axios.post(`/api/courses/${course.value.id}/enroll/`)
           ElMessage.success('报名成功！')
           course.value.enrolled = true
         }

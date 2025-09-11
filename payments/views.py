@@ -310,16 +310,15 @@ def user_account(request):
         account, created = UserAccount.objects.get_or_create(user=request.user)
         serializer = UserAccountSerializer(account)
         
-        return Response({
-            'code': 200,
-            'message': '获取用户账户成功',
-            'data': serializer.data
-        })
+        return Response(serializer.data)
         
     except Exception as e:
+        import traceback
+        error_detail = traceback.format_exc()
+        print(f"Error in user_account: {error_detail}")
         return Response({
-            'code': 400,
-            'message': f'获取用户账户失败: {str(e)}'
+            'error': f'获取用户账户失败: {str(e)}',
+            'detail': error_detail
         }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -532,3 +531,11 @@ def payment_methods(request):
             'code': 400,
             'message': f'获取支付方式失败: {str(e)}'
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+def payments_index(request):
+    """支付模块首页视图"""
+    return render(request, 'payments/index.html', {
+        'title': '支付管理系统',
+        'description': '欢迎使用支付管理系统'
+    })

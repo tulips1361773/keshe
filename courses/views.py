@@ -719,59 +719,141 @@ def course_evaluate(request, course_id):
             'message': f'评价失败: {str(e)}'
         }, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def evaluation_list(request):
     """评价列表API"""
-    try:
-        from django.core.paginator import Paginator
-        from .models import CourseEvaluation
-        from .serializers import CourseEvaluationSerializer
-        
-        evaluations = CourseEvaluation.objects.select_related(
-            'course', 'student', 'course__coach'
-        ).order_by('-created_at')
-        
-        # 筛选条件
-        course_id = request.GET.get('course')
-        coach_id = request.GET.get('coach')
-        rating = request.GET.get('rating')
-        
-        if course_id:
-            evaluations = evaluations.filter(course_id=course_id)
-        if coach_id:
-            evaluations = evaluations.filter(course__coach_id=coach_id)
-        if rating:
-            evaluations = evaluations.filter(rating=rating)
-        
-        # 如果不是管理员，只能看到自己的评价或公开的评价
-        if not request.user.is_staff:
-            evaluations = evaluations.filter(
-                models.Q(student=request.user) | models.Q(is_anonymous=False)
-            )
-        
-        # 分页
-        page = int(request.GET.get('page', 1))
-        page_size = int(request.GET.get('page_size', 10))
-        paginator = Paginator(evaluations, page_size)
-        page_obj = paginator.get_page(page)
-        
-        serializer = CourseEvaluationSerializer(page_obj.object_list, many=True)
-        
-        return Response({
-            'code': 200,
-            'message': '获取评价列表成功',
-            'data': {
-                'results': serializer.data,
-                'count': paginator.count,
-                'page': page,
-                'page_size': page_size,
-                'total_pages': paginator.num_pages
-            }
-        })
-        
-    except Exception as e:
-        return Response({
-            'code': 400,
-            'message': f'获取评价列表失败: {str(e)}'
-        }, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        try:
+            from django.core.paginator import Paginator
+            from .models import CourseEvaluation
+            from .serializers import CourseEvaluationSerializer
+            
+            evaluations = CourseEvaluation.objects.select_related(
+                'course', 'student', 'course__coach'
+            ).order_by('-created_at')
+            
+            # 筛选条件
+            course_id = request.GET.get('course')
+            coach_id = request.GET.get('coach')
+            rating = request.GET.get('rating')
+            
+            if course_id:
+                evaluations = evaluations.filter(course_id=course_id)
+            if coach_id:
+                evaluations = evaluations.filter(course__coach_id=coach_id)
+            if rating:
+                evaluations = evaluations.filter(rating=rating)
+            
+            # 如果不是管理员，只能看到自己的评价或公开的评价
+            if not request.user.is_staff:
+                evaluations = evaluations.filter(
+                    Q(student=request.user) | Q(is_anonymous=False)
+                )
+            
+            # 分页
+            page = int(request.GET.get('page', 1))
+            page_size = int(request.GET.get('page_size', 10))
+            paginator = Paginator(evaluations, page_size)
+            page_obj = paginator.get_page(page)
+            
+            serializer = CourseEvaluationSerializer(page_obj.object_list, many=True)
+            
+            return Response({
+                'code': 200,
+                'message': '获取评价列表成功',
+                'data': {
+                    'results': serializer.data,
+                    'count': paginator.count,
+                    'page': page,
+                    'page_size': page_size,
+                    'total_pages': paginator.num_pages
+                }
+            })
+            
+        except Exception as e:
+            return Response({
+                'code': 400,
+                'message': f'获取评价列表失败: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'POST':
+        try:
+            from django.db import transaction
+            from .models import CourseEvaluation
+            from .serializers import CourseEvaluationSerializer
+            
+            data = request.data
+            course_id = data.get('course')
+            rating = data.get('rating')
+            comment = data.get('comment', '')
+            coach_rating = data.get('coach_rating', rating)
+            facility_rating = data.get('facility_rating', rating)
+            is_anonymous = data.get('is_anonymous', False)
+            
+            # 验证课程存在
+            course = get_object_or_404(Course, id=course_id)
+            
+            # 检查用户是否有权限评价该课程
+            enrollment = CourseEnrollment.objects.filter(
+                course=course,
+                student=request.user,
+                status__in=['confirmed', 'completed']
+            ).first()
+            
+            if not enrollment:
+                return Response({
+                    'code': 400,
+                    'message': '您没有权限评价该课程，只能评价已报名的课程'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 检查是否已经评价过
+            existing_evaluation = CourseEvaluation.objects.filter(
+                course=course,
+                student=request.user
+            ).first()
+            
+            # 验证评分范围
+            if not (1 <= rating <= 5):
+                return Response({
+                    'code': 400,
+                    'message': '评分必须在1-5之间'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            with transaction.atomic():
+                if existing_evaluation:
+                    # 更新现有评价
+                    existing_evaluation.rating = rating
+                    existing_evaluation.comment = comment
+                    existing_evaluation.coach_rating = coach_rating
+                    existing_evaluation.facility_rating = facility_rating
+                    existing_evaluation.is_anonymous = is_anonymous
+                    existing_evaluation.save()
+                    evaluation = existing_evaluation
+                    message = '评价更新成功'
+                else:
+                    # 创建新评价
+                    evaluation = CourseEvaluation.objects.create(
+                        course=course,
+                        student=request.user,
+                        rating=rating,
+                        comment=comment,
+                        coach_rating=coach_rating,
+                        facility_rating=facility_rating,
+                        is_anonymous=is_anonymous
+                    )
+                    message = '评价提交成功'
+            
+            serializer = CourseEvaluationSerializer(evaluation)
+            
+            return Response({
+                'code': 200,
+                'message': message,
+                'data': serializer.data
+            })
+            
+        except Exception as e:
+            return Response({
+                'code': 400,
+                'message': f'评价失败: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)

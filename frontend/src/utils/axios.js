@@ -1,5 +1,8 @@
 import axios from 'axios'
 
+// 设置axios基础URL
+axios.defaults.baseURL = 'http://127.0.0.1:8000'
+
 // 获取CSRF token的函数
 function getCSRFToken() {
   // 从cookie中获取CSRF token
@@ -48,11 +51,17 @@ async function fetchCSRFToken() {
 // 初始化时尝试获取CSRF token（使用 fetch，不会触发 axios 拦截器）
 fetchCSRFToken()
 
-// 请求拦截器 - 自动添加CSRF token
+// 请求拦截器 - 自动添加CSRF token和Authorization头
 axios.interceptors.request.use(
   async (config) => {
     // 保障 headers 存在
     config.headers = config.headers || {}
+
+    // 添加Authorization头（如果存在token）
+    const token = localStorage.getItem('token')
+    if (token && !config.headers['Authorization']) {
+      config.headers['Authorization'] = `Token ${token}`
+    }
 
     // 如果没有CSRF token，尝试获取（使用单例Promise防抖）
     if (!csrfToken) {

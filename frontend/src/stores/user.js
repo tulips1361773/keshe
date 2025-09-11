@@ -153,8 +153,11 @@ export const useUserStore = defineStore('user', {
 
     // 初始化用户状态
     async initializeAuth() {
-      if (this.token) {
-        axios.defaults.headers.common['Authorization'] = `Token ${this.token}`
+      // 从localStorage恢复token
+      const storedToken = localStorage.getItem('token')
+      if (storedToken) {
+        this.token = storedToken
+        axios.defaults.headers.common['Authorization'] = `Token ${storedToken}`
         await this.fetchProfile()
       }
     }

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+        p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        .api-links {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .api-link {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .api-link:hover {
+            background: #5a6fd8;
+        }
+        .status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #e8f5e8;
+            border-radius: 5px;
+            color: #2d5a2d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💳 {{ title }}</h1>
+        <p>{{ description }}</p>
+        
+        <div class="status">
+            <strong>✅ 系统状态：</strong> 正常运行
+        </div>
+        
+        <div class="api-links">
+            <a href="/api/payments/api/account/" class="api-link">📊 账户信息 API</a>
+            <a href="/api/payments/api/account/transactions/" class="api-link">💰 交易记录 API</a>
+            <a href="/api/payments/api/methods/" class="api-link">💳 支付方式 API</a>
+            <a href="/admin/" class="api-link">⚙️ 管理后台</a>
+        </div>
+        
+        <p style="margin-top: 2rem; font-size: 0.9rem; color: #888;">
+            如需使用前端界面，请访问: <a href="http://localhost:3001/" style="color: #667eea;">http://localhost:3001/</a>
+        </p>
+    </div>
+</body>
+</html>

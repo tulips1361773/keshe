@@ -268,7 +268,7 @@ const loadNotifications = async () => {
       ...filters
     }
     
-    const response = await axios.get('/api/notifications/api/list/', { params })
+    const response = await axios.get('/api/notifications/list/', { params })
     notifications.value = response.data.results || []
     total.value = response.data.count || 0
   } catch (error) {
@@ -281,7 +281,7 @@ const loadNotifications = async () => {
 
 const loadStats = async () => {
   try {
-    const response = await axios.get('/api/notifications/api/stats/')
+    const response = await axios.get('/api/notifications/stats/')
     totalCount.value = response.data.total || 0
     unreadCount.value = response.data.unread || 0
     systemCount.value = response.data.system || 0
@@ -293,7 +293,7 @@ const loadStats = async () => {
 
 const markAsRead = async (notification) => {
   try {
-    await axios.post(`/api/notifications/api/${notification.id}/mark-read/`)
+    await axios.post(`/api/notifications/${notification.id}/mark-read/`)
     notification.is_read = true
     if (selectedNotification.value && selectedNotification.value.id === notification.id) {
       selectedNotification.value.is_read = true
@@ -308,7 +308,7 @@ const markAsRead = async (notification) => {
 
 const markAllAsRead = async () => {
   try {
-    await axios.post('/api/notifications/api/mark-all-read/')
+    await axios.post('/api/notifications/mark-all-read/')
     notifications.value.forEach(n => n.is_read = true)
     loadStats()
     ElMessage.success('所有消息已标记为已读')
@@ -324,7 +324,7 @@ const deleteNotification = async (notification) => {
       type: 'warning'
     })
     
-    await axios.delete(`/api/notifications/api/${notification.id}/`)
+    await axios.delete(`/api/notifications/${notification.id}/delete/`)
     const index = notifications.value.findIndex(n => n.id === notification.id)
     if (index > -1) {
       notifications.value.splice(index, 1)
@@ -345,7 +345,7 @@ const clearAllNotifications = async () => {
       type: 'warning'
     })
     
-    await axios.post('/api/notifications/api/clear-all/')
+    await axios.post('/api/notifications/clear-all/')
     notifications.value = []
     loadStats()
     ElMessage.success('所有消息已清空')

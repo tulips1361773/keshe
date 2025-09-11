@@ -254,7 +254,7 @@ const loadTransactions = async () => {
       ...filters
     }
     
-    const response = await axios.get('/api/payments/api/transactions/', { params })
+    const response = await axios.get('/api/payments/api/account/transactions/', { params })
     
     if (response.data) {
       transactions.value = response.data.results || []
@@ -275,7 +275,7 @@ const submitRecharge = async () => {
     await rechargeFormRef.value.validate()
     rechargeLoading.value = true
     
-    await axios.post('/api/payments/api/recharge/', rechargeForm)
+    await axios.post('/api/payments/api/account/recharge/', rechargeForm)
     
     ElMessage.success('充值申请提交成功')
     showRechargeDialog.value = false
@@ -390,7 +390,18 @@ const getStatusText = (status) => {
 }
 
 // 生命周期
-onMounted(() => {
+onMounted(async () => {
+  // 初始化用户认证状态
+  const userStore = useUserStore()
+  if (!userStore.isAuthenticated) {
+    ElMessage.error('请先登录')
+    return
+  }
+  
+  // 确保认证头已设置
+  await userStore.initializeAuth()
+  
+  // 加载数据
   loadAccountInfo()
   loadTransactions()
 })

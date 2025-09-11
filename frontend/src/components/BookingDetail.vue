@@ -291,7 +291,7 @@ const confirmCancel = async () => {
     
     cancelling.value = true
     
-    const response = await fetch(`/api/reservations/api/bookings/${props.booking.id}/cancel/`, {
+    const response = await fetch(`/api/reservations/bookings/${props.booking.id}/cancel/`, {
       method: 'POST',
       headers: {
         'Authorization': `Token ${userStore.token}`,

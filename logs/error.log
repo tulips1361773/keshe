@@ -1,1 +1,31 @@
 ERROR 2025-09-11 16:01:41,494 log 22508 19200 Internal Server Error: /api/accounts/login/
+ERROR 2025-09-11 16:12:27,405 log 24316 23540 Internal Server Error: /payments/
+Traceback (most recent call last):
+  File "D:\Anaconda\envs\django\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\envs\django\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\code\django_learning\keshe\payments\views.py", line 539, in payments_index
+    return render(request, 'payments/index.html', {
+  File "D:\Anaconda\envs\django\lib\site-packages\django\shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "D:\Anaconda\envs\django\lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "D:\Anaconda\envs\django\lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: payments/index.html
+ERROR 2025-09-11 16:12:44,504 log 24316 2948 Internal Server Error: /payments/
+Traceback (most recent call last):
+  File "D:\Anaconda\envs\django\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\envs\django\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\code\django_learning\keshe\payments\views.py", line 539, in payments_index
+    return render(request, 'payments/index.html', {
+  File "D:\Anaconda\envs\django\lib\site-packages\django\shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "D:\Anaconda\envs\django\lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "D:\Anaconda\envs\django\lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: payments/index.html

@@ -6,6 +6,7 @@
         <el-icon><EditPen /></el-icon>
         添加评价
       </el-button>
+      <el-button type="warning" @click="testCommentArray">测试Comment数组问题</el-button>
     </div>
 
     <!-- 筛选条件 -->
@@ -308,7 +309,7 @@ const loadEvaluations = async () => {
       ...filters
     }
     
-    const response = await axios.get('/api/courses/api/evaluations/', { params })
+    const response = await axios.get('/api/courses/evaluations/', { params })
     evaluations.value = response.data.results || []
     total.value = response.data.count || 0
   } catch (error) {
@@ -321,7 +322,7 @@ const loadEvaluations = async () => {
 
 const loadCourses = async () => {
   try {
-    const response = await axios.get('/api/courses/api/list/')
+    const response = await axios.get('/api/courses/list/')
     courses.value = response.data.data || []
   } catch (error) {
     console.error('加载课程列表错误:', error)
@@ -330,8 +331,8 @@ const loadCourses = async () => {
 
 const loadCoaches = async () => {
   try {
-    const response = await axios.get('/api/coaches/api/list/')
-    coaches.value = response.data.data || []
+    const response = await axios.get('/api/reservations/coaches/')
+    coaches.value = response.data || []
   } catch (error) {
     console.error('加载教练列表错误:', error)
   }
@@ -339,7 +340,7 @@ const loadCoaches = async () => {
 
 const loadAvailableCourses = async () => {
   try {
-    const response = await axios.get('/api/courses/api/available-for-evaluation/')
+    const response = await axios.get('/api/courses/list/')
     availableCourses.value = response.data.data || []
   } catch (error) {
     console.error('加载可评价课程错误:', error)
@@ -350,14 +351,29 @@ const submitEvaluation = async () => {
   if (!evaluationFormRef.value) return
   
   try {
+    // 调试信息：验证前检查comment字段类型
+    console.log('Before validation - evaluationForm.comment:', evaluationForm.comment, 'Type:', typeof evaluationForm.comment, 'IsArray:', Array.isArray(evaluationForm.comment))
+    
     await evaluationFormRef.value.validate()
+    
+    // 调试信息：验证后检查comment字段类型
+    console.log('After validation - evaluationForm.comment:', evaluationForm.comment, 'Type:', typeof evaluationForm.comment, 'IsArray:', Array.isArray(evaluationForm.comment))
+    
     submitLoading.value = true
     
+    // 确保comment字段是字符串，防止验证错误导致的数组问题
+    const submitData = {
+      ...evaluationForm,
+      comment: Array.isArray(evaluationForm.comment) ? evaluationForm.comment.join('') : evaluationForm.comment
+    }
+    
+    console.log('Processed submitData.comment:', submitData.comment, 'Type:', typeof submitData.comment)
+    
     if (isEditing.value) {
-      await axios.put(`/api/courses/api/evaluations/${selectedEvaluation.value.id}/`, evaluationForm)
+      await axios.put(`/api/courses/evaluations/${selectedEvaluation.value.id}/`, submitData)
       ElMessage.success('评价更新成功')
     } else {
-      await axios.post('/api/courses/api/evaluations/', evaluationForm)
+      await axios.post('/api/courses/evaluations/', submitData)
       ElMessage.success('评价提交成功')
     }
     
@@ -365,8 +381,16 @@ const submitEvaluation = async () => {
     resetForm()
     loadEvaluations()
   } catch (error) {
+    // 检查是否是表单验证错误
+    if (error && typeof error === 'object' && !error.response) {
+      console.log('Form validation failed - evaluationForm.comment after validation error:', evaluationForm.comment, 'Type:', typeof evaluationForm.comment, 'IsArray:', Array.isArray(evaluationForm.comment))
+      ElMessage.error('请检查表单填写是否完整')
+      return
+    }
+    
     console.error('提交评价错误:', error)
-    ElMessage.error(error.response?.data?.error || '操作失败')
+    console.error('Error details:', error.response?.data)
+    ElMessage.error(error.response?.data?.message || error.response?.data?.error || '操作失败')
   } finally {
     submitLoading.value = false
   }
@@ -417,6 +441,14 @@ const resetForm = () => {
   })
   isEditing.value = false
   selectedEvaluation.value = null
+}
+
+const testCommentArray = () => {
+  console.log('Testing comment array issue...')
+  // 模拟comment变成数组的情况
+  evaluationForm.comment = ['这是一个测试评价']
+  console.log('Set evaluationForm.comment to array:', evaluationForm.comment)
+  ElMessage.info('已将comment设置为数组，请尝试提交评价查看错误')
 }
 
 // 工具方法
