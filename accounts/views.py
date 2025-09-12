@@ -85,6 +85,70 @@ def user_login(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+def upload_avatar(request):
+    """上传用户头像API"""
+    try:
+        if 'avatar' not in request.FILES:
+            return Response({
+                'success': False,
+                'message': '请选择要上传的头像文件'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        avatar_file = request.FILES['avatar']
+        
+        # 验证文件类型
+        allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+        if avatar_file.content_type not in allowed_types:
+            return Response({
+                'success': False,
+                'message': '不支持的文件类型，请上传 JPG、PNG、GIF 或 WebP 格式的图片'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 验证文件大小 (5MB)
+        if avatar_file.size > 5 * 1024 * 1024:
+            return Response({
+                'success': False,
+                'message': '文件大小不能超过5MB'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 生成文件名
+        import uuid
+        import os
+        from django.conf import settings
+        
+        file_extension = os.path.splitext(avatar_file.name)[1]
+        new_filename = f"avatar_{request.user.id}_{uuid.uuid4().hex[:8]}{file_extension}"
+        
+        # 保存文件
+        avatar_dir = os.path.join(settings.MEDIA_ROOT, 'avatars')
+        os.makedirs(avatar_dir, exist_ok=True)
+        
+        file_path = os.path.join(avatar_dir, new_filename)
+        
+        with open(file_path, 'wb+') as destination:
+            for chunk in avatar_file.chunks():
+                destination.write(chunk)
+        
+        # 更新用户头像字段
+        avatar_url = f"/media/avatars/{new_filename}"
+        request.user.avatar = avatar_url
+        request.user.save()
+        
+        return Response({
+            'success': True,
+            'message': '头像上传成功',
+            'avatar_url': avatar_url
+        })
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'头像上传失败: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def user_logout(request):
     """用户登出API"""
     try:
@@ -507,30 +571,69 @@ def approve_coach(request, coach_id):
 def coach_list(request):
     """获取教练员列表API"""
     try:
+        from django.core.paginator import Paginator
+        
         # 获取查询参数
         status_filter = request.GET.get('status', 'approved')
+        level_filter = request.GET.get('level')
         campus_id = request.GET.get('campus_id')
         search = request.GET.get('search', '')
+        ordering = request.GET.get('ordering', '-created_at')
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 12))
         
         # 构建查询条件
-        queryset = Coach.objects.filter(status=status_filter)
+        queryset = Coach.objects.select_related('user').all()
         
+        # 状态筛选
+        if status_filter and status_filter != 'all':
+            queryset = queryset.filter(status=status_filter)
+        
+        # 等级筛选
+        if level_filter and level_filter != 'all':
+            queryset = queryset.filter(coach_level=level_filter)
+        
+        # 校区筛选
         if campus_id:
             queryset = queryset.filter(user__campus_id=campus_id)
         
+        # 搜索筛选
         if search:
             queryset = queryset.filter(
                 Q(user__real_name__icontains=search) |
                 Q(user__username__icontains=search) |
-                Q(user__phone__icontains=search)
+                Q(user__phone__icontains=search) |
+                Q(achievements__icontains=search)
             )
         
-        serializer = CoachSerializer(queryset, many=True)
+        # 排序
+        if ordering:
+            if ordering == '-rating':
+                # 按评分排序（暂时使用创建时间，后续可以添加评分字段）
+                queryset = queryset.order_by('-created_at')
+            elif ordering == '-experience_years':
+                # 按经验排序（暂时使用创建时间，后续可以添加经验字段）
+                queryset = queryset.order_by('-created_at')
+            elif ordering == 'real_name':
+                queryset = queryset.order_by('user__real_name')
+            else:
+                queryset = queryset.order_by(ordering)
+        
+        # 分页
+        paginator = Paginator(queryset, page_size)
+        page_obj = paginator.get_page(page)
+        
+        serializer = CoachSerializer(page_obj.object_list, many=True)
         
         return Response({
             'success': True,
-            'data': serializer.data,
-            'count': queryset.count()
+            'results': serializer.data,
+            'count': paginator.count,
+            'num_pages': paginator.num_pages,
+            'current_page': page,
+            'page_size': page_size,
+            'has_next': page_obj.has_next(),
+            'has_previous': page_obj.has_previous()
         })
         
     except Exception as e:
@@ -545,13 +648,59 @@ def coach_list(request):
 def coach_detail(request, coach_id):
     """获取教练员详情API"""
     try:
-        coach = get_object_or_404(Coach, id=coach_id)
-        serializer = CoachSerializer(coach)
+        from django.shortcuts import get_object_or_404
         
-        return Response({
-            'success': True,
-            'data': serializer.data
-        })
+        coach = get_object_or_404(Coach.objects.select_related('user'), id=coach_id)
+        coach_data = CoachSerializer(coach).data
+        
+        # 添加额外的统计信息
+        coach_data['rating'] = 4.5  # 模拟评分，后续可以从评价系统获取
+        coach_data['rating_count'] = 25  # 模拟评价数量
+        coach_data['student_count'] = 15  # 模拟学员数量
+        coach_data['experience_years'] = 5  # 模拟经验年数
+        
+        # 添加技能标签（模拟数据）
+        coach_data['skills'] = ['乒乓球基础教学', '技术指导', '比赛训练', '青少年培训']
+        
+        # 添加课程信息（模拟数据）
+        coach_data['courses'] = [
+            {
+                'id': 1,
+                'title': '乒乓球基础入门课程',
+                'description': '适合初学者的乒乓球基础课程',
+                'price': 200,
+                'student_count': 12
+            },
+            {
+                'id': 2,
+                'title': '乒乓球进阶技巧课程',
+                'description': '提升乒乓球技巧的进阶课程',
+                'price': 300,
+                'student_count': 8
+            }
+        ]
+        
+        # 添加学员评价（模拟数据）
+        coach_data['reviews'] = [
+            {
+                'id': 1,
+                'student_name': '张同学',
+                'student_avatar': '/default-avatar.png',
+                'rating': 5,
+                'content': '教练非常专业，教学方法很好，进步很快！',
+                'created_at': '2024-01-15T10:30:00Z'
+            },
+            {
+                'id': 2,
+                'student_name': '李同学',
+                'student_avatar': '/default-avatar.png',
+                'rating': 4,
+                'content': '教练很耐心，技术指导很到位。',
+                'created_at': '2024-01-10T14:20:00Z'
+            }
+        ]
+        
+        return Response(coach_data)
         
     except Coach.DoesNotExist:
         return Response({

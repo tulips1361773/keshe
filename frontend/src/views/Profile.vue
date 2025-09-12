@@ -481,7 +481,72 @@ export default {
     }
 
     const handleAvatarUpload = () => {
-      ElMessage.info('头像上传功能开发中...')
+      // 创建文件输入元素
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.accept = 'image/*'
+      input.style.display = 'none'
+      
+      input.onchange = async (event) => {
+        const file = event.target.files[0]
+        if (!file) return
+        
+        // 验证文件类型
+        if (!file.type.startsWith('image/')) {
+          ElMessage.error('请选择图片文件')
+          return
+        }
+        
+        // 验证文件大小 (限制为5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          ElMessage.error('图片大小不能超过5MB')
+          return
+        }
+        
+        try {
+          // 显示上传进度
+          const loadingMessage = ElMessage({
+            message: '正在上传头像...',
+            type: 'info',
+            duration: 0
+          })
+          
+          // 创建FormData
+          const formData = new FormData()
+          formData.append('avatar', file)
+          
+          // 上传头像
+          const response = await axios.post('/accounts/api/upload-avatar/', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          })
+          
+          loadingMessage.close()
+          
+          if (response.data.success) {
+            // 更新头像URL
+            profileForm.avatar = response.data.avatar_url
+            ElMessage.success('头像上传成功')
+            
+            // 更新用户store中的头像
+            if (userStore.user) {
+              userStore.user.avatar = response.data.avatar_url
+            }
+          } else {
+            throw new Error(response.data.message || '上传失败')
+          }
+          
+        } catch (error) {
+          console.error('头像上传失败:', error)
+          ElMessage.error(error.response?.data?.message || '头像上传失败')
+        }
+      }
+      
+      // 触发文件选择
+      document.body.appendChild(input)
+      input.click()
+      document.body.removeChild(input)
     }
 
     const handleChangePassword = async () => {

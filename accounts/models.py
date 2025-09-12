@@ -25,6 +25,7 @@ class User(AbstractUser):
     )
     avatar = models.ImageField(
         upload_to='avatars/',
+        max_length=500,
         blank=True,
         null=True,
         verbose_name='头像'

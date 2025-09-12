@@ -85,3 +85,8 @@ ERROR 2025-09-12 16:08:34,230 log 15484 21048 Internal Server Error: /accounts/a
 ERROR 2025-09-12 16:08:34,235 log 15484 25948 Internal Server Error: /accounts/api/register/
 ERROR 2025-09-12 16:08:34,239 log 15484 25108 Internal Server Error: /accounts/api/register/
 ERROR 2025-09-12 16:10:45,878 log 19188 25756 Internal Server Error: /accounts/api/register/
+ERROR 2025-09-12 18:10:30,072 log 12520 26132 Internal Server Error: /accounts/api/register/
+ERROR 2025-09-12 18:15:12,486 log 7844 18416 Internal Server Error: /accounts/api/register/
+ERROR 2025-09-12 18:15:14,556 log 7844 24144 Internal Server Error: /accounts/api/register/
+ERROR 2025-09-12 18:15:38,661 log 3172 8028 Internal Server Error: /accounts/api/register/
+ERROR 2025-09-12 18:15:40,738 log 3172 17180 Internal Server Error: /accounts/api/register/

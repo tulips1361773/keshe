@@ -114,6 +114,31 @@
           <!-- 教练员专用字段 -->
           <el-form-item 
             v-if="registerForm.user_type === 'coach'"
+            prop="avatar"
+            label="头像照片"
+          >
+            <div class="avatar-upload-container">
+              <el-upload
+                class="avatar-uploader"
+                :show-file-list="false"
+                :before-upload="beforeAvatarUpload"
+                :on-success="handleAvatarSuccess"
+                :on-error="handleAvatarError"
+                action="#"
+                :http-request="uploadAvatar"
+              >
+                <img v-if="registerForm.avatar" :src="registerForm.avatar" class="avatar-preview" />
+                <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+              </el-upload>
+              <div class="upload-tips">
+                <p>点击上传头像照片（教练员必填）</p>
+                <p class="tips-text">支持 JPG、PNG 格式，文件大小不超过 2MB</p>
+              </div>
+            </div>
+          </el-form-item>
+
+          <el-form-item 
+            v-if="registerForm.user_type === 'coach'"
             prop="achievements"
           >
             <el-input
@@ -199,7 +224,8 @@ import {
   Lock,
   Right,
   House,
-  Star
+  Star,
+  Plus
 } from '@element-plus/icons-vue'
 
 export default {
@@ -213,7 +239,8 @@ export default {
     Lock,
     Right,
     House,
-    Star
+    Star,
+    Plus
   },
   setup() {
     const router = useRouter()
@@ -228,6 +255,7 @@ export default {
       password: '',
       confirmPassword: '',
       user_type: 'student',
+      avatar: '',
       achievements: '',
       agreement: false
     })
@@ -296,6 +324,22 @@ export default {
       user_type: [
         { required: true, message: '请选择用户类型', trigger: 'change' }
       ],
+      avatar: [
+        { 
+          validator: (rule, value, callback) => {
+            if (registerForm.user_type === 'coach') {
+              if (!value || value.trim() === '') {
+                callback(new Error('教练员必须上传头像照片'))
+              } else {
+                callback()
+              }
+            } else {
+              callback()
+            }
+          }, 
+          trigger: 'change' 
+        }
+      ],
       achievements: [
         { 
           validator: (rule, value, callback) => {
@@ -319,6 +363,40 @@ export default {
       ]
     }
 
+    // 头像上传相关方法
+    const beforeAvatarUpload = (file) => {
+      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG) {
+        ElMessage.error('头像图片只能是 JPG 或 PNG 格式!')
+        return false
+      }
+      if (!isLt2M) {
+        ElMessage.error('头像图片大小不能超过 2MB!')
+        return false
+      }
+      return true
+    }
+
+    const uploadAvatar = (options) => {
+      const { file } = options
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        registerForm.avatar = e.target.result
+        ElMessage.success('头像上传成功!')
+      }
+      reader.readAsDataURL(file)
+    }
+
+    const handleAvatarSuccess = (response, file) => {
+      // 处理上传成功
+    }
+
+    const handleAvatarError = (error) => {
+      ElMessage.error('头像上传失败，请重试!')
+    }
+
     const handleRegister = async () => {
       if (!registerFormRef.value) return
       
@@ -337,9 +415,10 @@ export default {
           user_type: registerForm.user_type
         }
 
-        // 如果是教练员，添加成绩描述
+        // 如果是教练员，添加成绩描述和头像
         if (registerForm.user_type === 'coach') {
           registerData.achievements = registerForm.achievements
+          registerData.avatar = registerForm.avatar
         }
 
         const result = await userStore.register(registerData)
@@ -373,7 +452,11 @@ export default {
       registerForm,
       registerRules,
       userStore,
-      handleRegister
+      handleRegister,
+      beforeAvatarUpload,
+      uploadAvatar,
+      handleAvatarSuccess,
+      handleAvatarError
     }
   }
 }
@@ -577,6 +660,74 @@ export default {
   
   .register-title {
     font-size: 1.5rem;
+  }
+}
+
+/* 头像上传样式 */
+.avatar-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar-uploader {
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-uploader:hover {
+  border-color: #409eff;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-preview {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.upload-tips {
+  flex: 1;
+}
+
+.upload-tips p {
+  margin: 0 0 5px 0;
+  color: #606266;
+  font-size: 14px;
+}
+
+.tips-text {
+  color: #909399;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .avatar-upload-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .upload-tips {
+    text-align: center;
   }
 }
 

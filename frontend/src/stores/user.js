@@ -57,7 +57,43 @@ export const useUserStore = defineStore('user', {
     async register(userData) {
       this.isLoading = true
       try {
-        const response = await axios.post('/accounts/api/register/', userData)
+        // 如果包含头像数据，需要使用FormData
+        let requestData = userData
+        let config = {}
+        
+        if (userData.avatar && userData.avatar.startsWith('data:')) {
+          // 将base64转换为文件并使用FormData
+          const formData = new FormData()
+          
+          // 添加其他字段
+          Object.keys(userData).forEach(key => {
+            if (key !== 'avatar') {
+              formData.append(key, userData[key])
+            }
+          })
+          
+          // 处理头像文件
+          const base64Data = userData.avatar.split(',')[1]
+          const mimeType = userData.avatar.split(',')[0].split(':')[1].split(';')[0]
+          const byteCharacters = atob(base64Data)
+          const byteNumbers = new Array(byteCharacters.length)
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i)
+          }
+          const byteArray = new Uint8Array(byteNumbers)
+          const file = new File([byteArray], 'avatar.jpg', { type: mimeType })
+          
+          formData.append('avatar', file)
+          
+          requestData = formData
+          config = {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        }
+        
+        const response = await axios.post('/accounts/api/register/', requestData, config)
         return { success: true, data: response.data }
       } catch (error) {
         console.log('注册API错误:', error)

@@ -22,6 +22,9 @@ urlpatterns = [
     path('api/coaches/', views.coach_list, name='api_coach_list'),
     path('api/coaches/<int:coach_id>/', views.coach_detail, name='api_coach_detail'),
     
+    # 头像上传API
+    path('api/upload-avatar/', views.upload_avatar, name='upload_avatar'),
+    
     # 传统Django视图
     path('login/', views.login_view, name='login'),
     path('dashboard/', views.dashboard_view, name='dashboard'),

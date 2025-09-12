@@ -15,6 +15,8 @@ import Evaluations from '@/views/Evaluations.vue'
 import Notifications from '@/views/Notifications.vue'
 import Competitions from '@/views/Competitions.vue'
 import CompetitionDetail from '@/views/CompetitionDetail.vue'
+import Coaches from '@/views/Coaches.vue'
+import CoachDetail from '@/views/CoachDetail.vue'
 
 const routes = [
   {
@@ -130,6 +132,24 @@ const routes = [
     component: CompetitionDetail,
     meta: {
       title: '比赛详情 - 乒乓球培训管理系统',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/coaches',
+    name: 'Coaches',
+    component: Coaches,
+    meta: {
+      title: '教练员中心 - 乒乓球培训管理系统',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/coaches/:id',
+    name: 'CoachDetail',
+    component: CoachDetail,
+    meta: {
+      title: '教练员详情 - 乒乓球培训管理系统',
       requiresAuth: true
     }
   },

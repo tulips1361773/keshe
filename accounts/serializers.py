@@ -60,12 +60,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8, max_length=16)
     password_confirm = serializers.CharField(write_only=True)
     achievements = serializers.CharField(required=False, allow_blank=True, write_only=True, help_text='教练员比赛成绩描述')
+    avatar = serializers.ImageField(required=False, allow_null=True, write_only=True, help_text='教练员头像照片')
     
     class Meta:
         model = User
         fields = [
             'username', 'password', 'password_confirm', 'real_name',
-            'user_type', 'phone', 'email', 'gender', 'achievements'
+            'user_type', 'phone', 'email', 'gender', 'achievements', 'avatar'
         ]
         extra_kwargs = {
             'password': {'write_only': True, 'min_length': 8, 'max_length': 16},
@@ -78,11 +79,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("两次输入的密码不一致")
         
-        # 教练员必须填写成就描述
+        # 教练员必须填写成就描述和上传头像
         if attrs.get('user_type') == 'coach':
             achievements = attrs.get('achievements', '').strip()
             if not achievements:
                 raise serializers.ValidationError("教练员必须填写比赛成绩描述")
+            
+            avatar = attrs.get('avatar')
+            if not avatar:
+                raise serializers.ValidationError("教练员必须上传头像照片")
         
         return attrs
     
@@ -126,12 +131,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
         achievements = validated_data.pop('achievements', '')  # 移除achievements字段
+        avatar = validated_data.pop('avatar', None)  # 移除avatar字段
         
         # 手动验证密码复杂度（确保验证生效）
         self.validate_password(password)
         
         user = User.objects.create_user(**validated_data)
         user.set_password(password)
+        
+        # 如果是教练员且有头像，保存头像
+        if user.user_type == 'coach' and avatar:
+            user.avatar = avatar
+        
         user.save()
         
         # 创建用户资料
@@ -281,6 +292,9 @@ class CoachSerializer(serializers.ModelSerializer):
     approved_by_name = serializers.CharField(source='approved_by.real_name', read_only=True)
     current_students_count = serializers.ReadOnlyField()
     is_approved = serializers.ReadOnlyField()
+    avatar = serializers.CharField(source='user.avatar', read_only=True)
+    real_name = serializers.CharField(source='user.real_name', read_only=True)
+    phone = serializers.CharField(source='user.phone', read_only=True)
     
     class Meta:
         model = Coach
@@ -288,7 +302,7 @@ class CoachSerializer(serializers.ModelSerializer):
             'id', 'user', 'user_info', 'coach_level', 'coach_level_display',
             'hourly_rate', 'achievements', 'max_students', 'status', 'status_display',
             'approved_by', 'approved_by_name', 'approved_at', 'current_students_count',
-            'is_approved', 'created_at', 'updated_at'
+            'is_approved', 'avatar', 'real_name', 'phone', 'created_at', 'updated_at'
         ]
         read_only_fields = [
             'id', 'user', 'hourly_rate', 'approved_by', 'approved_at',
