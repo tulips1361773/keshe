@@ -25,7 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     
     # API路由
-    path('api/accounts/', include('accounts.urls')),
+    path('accounts/', include('accounts.urls')),
     path('api/campus/', include('campus.urls')),
     path('api/courses/', include('courses.urls')),
     path('api/payments/', include('payments.urls')),
@@ -33,7 +33,6 @@ urlpatterns = [
     path('api/notifications/', include('notifications.urls')),
     
     # 传统Django视图路由
-    path('accounts/', include('accounts.urls')),
     path('campus/', include('campus.urls')),
     path('courses/', include('courses.urls')),
     path('payments/', include('payments.urls')),

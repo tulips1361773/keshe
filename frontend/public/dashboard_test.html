@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard API 测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-title {
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .login-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .login-form input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard API 功能测试</h1>
+        
+        <!-- 登录测试 -->
+        <div class="test-section">
+            <div class="test-title">1. 用户登录测试</div>
+            <div class="login-form">
+                <input type="text" id="username" placeholder="用户名" value="admin01">
+                <input type="password" id="password" placeholder="密码" value="admin123">
+                <button onclick="testLogin()">登录</button>
+                <button onclick="testLogout()">退出</button>
+            </div>
+            <div id="login-result" class="result"></div>
+        </div>
+
+        <!-- 用户资料测试 -->
+        <div class="test-section">
+            <div class="test-title">2. 用户资料 API 测试</div>
+            <button onclick="testProfile()">获取用户资料</button>
+            <div id="profile-result" class="result"></div>
+        </div>
+
+        <!-- 统计数据测试 -->
+        <div class="test-section">
+            <div class="test-title">3. 统计数据 API 测试</div>
+            <button onclick="testStats()">获取统计数据</button>
+            <div id="stats-result" class="result"></div>
+        </div>
+
+        <!-- 通知测试 -->
+        <div class="test-section">
+            <div class="test-title">4. 通知 API 测试</div>
+            <button onclick="testNotifications()">获取通知列表</button>
+            <button onclick="testUnreadCount()">获取未读数量</button>
+            <div id="notifications-result" class="result"></div>
+        </div>
+
+        <!-- 综合测试 -->
+        <div class="test-section">
+            <div class="test-title">5. Dashboard 数据加载测试</div>
+            <button onclick="testDashboardData()">模拟 Dashboard 数据加载</button>
+            <div id="dashboard-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = localStorage.getItem('auth_token');
+        
+        // 设置请求头
+        function getHeaders() {
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            if (authToken) {
+                headers['Authorization'] = `Token ${authToken}`;
+            }
+            return headers;
+        }
+
+        // 显示结果
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+
+        // 登录测试
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/accounts/api/login/', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    authToken = data.data.token;
+                    localStorage.setItem('auth_token', authToken);
+                    showResult('login-result', `登录成功！\n用户: ${data.data.user.real_name}\nToken: ${authToken.substring(0, 20)}...`, 'success');
+                } else {
+                    showResult('login-result', `登录失败: ${data.message || '未知错误'}`, 'error');
+                }
+            } catch (error) {
+                showResult('login-result', `登录错误: ${error.message}`, 'error');
+            }
+        }
+
+        // 退出登录
+        function testLogout() {
+            authToken = null;
+            localStorage.removeItem('auth_token');
+            showResult('login-result', '已退出登录', 'info');
+        }
+
+        // 用户资料测试
+        async function testProfile() {
+            if (!authToken) {
+                showResult('profile-result', '请先登录', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/accounts/api/profile/', {
+                    headers: getHeaders()
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('profile-result', `用户资料获取成功:\n${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult('profile-result', `获取失败: ${data.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                showResult('profile-result', `请求错误: ${error.message}`, 'error');
+            }
+        }
+
+        // 统计数据测试
+        async function testStats() {
+            if (!authToken) {
+                showResult('stats-result', '请先登录', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/accounts/api/stats/', {
+                    headers: getHeaders()
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('stats-result', `统计数据获取成功:\n${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult('stats-result', `获取失败: ${data.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                showResult('stats-result', `请求错误: ${error.message}`, 'error');
+            }
+        }
+
+        // 通知测试
+        async function testNotifications() {
+            if (!authToken) {
+                showResult('notifications-result', '请先登录', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/notifications/list/?page=1&page_size=5', {
+                    headers: getHeaders()
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('notifications-result', `通知列表获取成功:\n${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult('notifications-result', `获取失败: ${data.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                showResult('notifications-result', `请求错误: ${error.message}`, 'error');
+            }
+        }
+
+        // 未读数量测试
+        async function testUnreadCount() {
+            if (!authToken) {
+                showResult('notifications-result', '请先登录', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/notifications/unread-count/', {
+                    headers: getHeaders()
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('notifications-result', `未读数量获取成功:\n${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult('notifications-result', `获取失败: ${data.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                showResult('notifications-result', `请求错误: ${error.message}`, 'error');
+            }
+        }
+
+        // Dashboard 数据加载测试
+        async function testDashboardData() {
+            if (!authToken) {
+                showResult('dashboard-result', '请先登录', 'error');
+                return;
+            }
+            
+            showResult('dashboard-result', '正在加载 Dashboard 数据...', 'info');
+            
+            const results = {};
+            
+            try {
+                // 并行请求所有 API
+                const [profileRes, statsRes, notificationsRes, unreadRes] = await Promise.all([
+                    fetch('/accounts/api/profile/', { headers: getHeaders() }),
+                    fetch('/accounts/api/stats/', { headers: getHeaders() }),
+                    fetch('/api/notifications/list/?page=1&page_size=5', { headers: getHeaders() }),
+                    fetch('/api/notifications/unread-count/', { headers: getHeaders() })
+                ]);
+                
+                results.profile = await profileRes.json();
+                results.stats = await statsRes.json();
+                results.notifications = await notificationsRes.json();
+                results.unreadCount = await unreadRes.json();
+                
+                const summary = {
+                    profile_status: profileRes.ok ? '✓' : '✗',
+                    stats_status: statsRes.ok ? '✓' : '✗',
+                    notifications_status: notificationsRes.ok ? '✓' : '✗',
+                    unread_count_status: unreadRes.ok ? '✓' : '✗',
+                    user_name: results.profile.data?.user?.real_name || 'N/A',
+                    total_courses: results.stats.data?.total_courses || 0,
+                    unread_messages: results.unreadCount.count || 0,
+                    notification_count: results.notifications.results?.length || 0
+                };
+                
+                showResult('dashboard-result', 
+                    `Dashboard 数据加载完成:\n\n` +
+                    `API 状态检查:\n` +
+                    `- 用户资料: ${summary.profile_status}\n` +
+                    `- 统计数据: ${summary.stats_status}\n` +
+                    `- 通知列表: ${summary.notifications_status}\n` +
+                    `- 未读数量: ${summary.unread_count_status}\n\n` +
+                    `数据摘要:\n` +
+                    `- 用户姓名: ${summary.user_name}\n` +
+                    `- 课程总数: ${summary.total_courses}\n` +
+                    `- 未读消息: ${summary.unread_messages}\n` +
+                    `- 通知数量: ${summary.notification_count}\n\n` +
+                    `详细数据:\n${JSON.stringify(results, null, 2)}`, 
+                    'success'
+                );
+                
+            } catch (error) {
+                showResult('dashboard-result', `Dashboard 数据加载失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时检查登录状态
+        window.onload = function() {
+            if (authToken) {
+                showResult('login-result', `已有登录令牌: ${authToken.substring(0, 20)}...`, 'info');
+            } else {
+                showResult('login-result', '未登录，请先登录测试', 'info');
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1436,3 +1436,596 @@ django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. Y
 [2025-09-12 10:25:18] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 942
 [2025-09-12 10:25:18] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
 [2025-09-12 10:25:18] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:17:21] INFO django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 200 52
+[2025-09-12 11:17:23] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 942
+[2025-09-12 11:17:23] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:17:23] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:17:23] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:17:25] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 942
+[2025-09-12 11:17:25] INFO django.server: "GET /api/payments/api/account/ HTTP/1.1" 200 230
+[2025-09-12 11:17:25] INFO django.server: "GET /api/payments/api/account/transactions/?page=1&page_size=10&transaction_type=&date_from=&date_to= HTTP/1.1" 200 121
+[2025-09-12 11:17:27] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:17:27] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 942
+[2025-09-12 11:17:27] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:17:27] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:17:28] INFO django.server: "OPTIONS /api/courses/evaluations/?page=1&page_size=10&course=&coach=&rating= HTTP/1.1" 200 0
+[2025-09-12 11:17:28] INFO django.server: "OPTIONS /api/courses/list/ HTTP/1.1" 200 0
+[2025-09-12 11:17:28] INFO django.server: "OPTIONS /api/courses/list/ HTTP/1.1" 200 0
+[2025-09-12 11:17:28] INFO django.server: "OPTIONS /api/reservations/coaches/ HTTP/1.1" 200 0
+[2025-09-12 11:17:28] INFO django.server: "GET /api/courses/evaluations/?page=1&page_size=10&course=&coach=&rating= HTTP/1.1" 200 121
+[2025-09-12 11:17:28] INFO django.server: "GET /api/reservations/coaches/ HTTP/1.1" 200 300
+[2025-09-12 11:17:28] INFO django.server: "GET /api/courses/list/ HTTP/1.1" 200 1986
+[2025-09-12 11:17:28] INFO django.server: "GET /api/courses/list/ HTTP/1.1" 200 1986
+[2025-09-12 11:17:30] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 942
+[2025-09-12 11:17:30] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:17:30] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:17:30] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:17:31] INFO django.server: "GET /api/courses/evaluations/?page=1&page_size=10&course=&coach=&rating= HTTP/1.1" 200 121
+[2025-09-12 11:17:31] INFO django.server: "GET /api/reservations/coaches/ HTTP/1.1" 200 300
+[2025-09-12 11:17:31] INFO django.server: "GET /api/courses/list/ HTTP/1.1" 200 1986
+[2025-09-12 11:17:31] INFO django.server: "GET /api/courses/list/ HTTP/1.1" 200 1986
+[2025-09-12 11:17:32] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 942
+[2025-09-12 11:17:32] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:17:32] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:17:32] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:20:51] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+[2025-09-12 11:20:52] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 11:23:11] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 11:24:19] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:24:19] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:24:19] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:24:19] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:24:19] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:24:19] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:24:19] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:24:27] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:24:27] WARNING django.server: "GET /api/payments/api/account/ HTTP/1.1" 403 34
+[2025-09-12 11:24:27] WARNING django.server: "GET /api/payments/api/account/transactions/?page=1&page_size=10&transaction_type=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:24:30] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:24:30] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:24:30] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:24:30] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:24:31] WARNING django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:25:43] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:25:43] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:25:43] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:25:43] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:26:18] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:26:18] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:26:18] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:26:18] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:26:22] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 884
+[2025-09-12 11:26:22] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:26:22] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:26:22] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:26:22] WARNING django.server: "GET /api/payments/account/ HTTP/1.1" 404 6818
+[2025-09-12 11:26:22] WARNING django.server: "GET /api/payments/transactions/?page=1&page_size=10 HTTP/1.1" 404 6857
+[2025-09-12 11:26:22] INFO django.server: "GET /api/reservations/bookings/?page=1&page_size=10 HTTP/1.1" 200 52
+[2025-09-12 11:26:34] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:26:34] WARNING django.server: "GET /api/payments/api/account/ HTTP/1.1" 403 34
+[2025-09-12 11:26:34] WARNING django.server: "GET /api/payments/api/account/transactions/?page=1&page_size=10&transaction_type=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:26:53] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 884
+[2025-09-12 11:26:53] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:26:53] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:26:53] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:26:53] INFO django.server: "GET /payments/api/account/ HTTP/1.1" 200 224
+[2025-09-12 11:26:53] INFO django.server: "GET /payments/api/account/transactions/ HTTP/1.1" 200 121
+[2025-09-12 11:26:53] INFO django.server: "GET /api/reservations/bookings/?page=1&page_size=10 HTTP/1.1" 200 52
+[2025-09-12 11:27:00] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:27:00] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:27:00] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:27:00] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:27:02] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:27:02] WARNING django.server: "GET /api/payments/api/account/ HTTP/1.1" 403 34
+[2025-09-12 11:27:02] WARNING django.server: "GET /api/payments/api/account/transactions/?page=1&page_size=10&transaction_type=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:27:03] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:27:03] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:27:03] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:27:03] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:27:13] WARNING django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:27:16] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:27:16] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:27:16] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:27:16] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:27:17] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:27:17] WARNING django.server: "GET /api/payments/api/account/ HTTP/1.1" 403 34
+[2025-09-12 11:27:17] WARNING django.server: "GET /api/payments/api/account/transactions/?page=1&page_size=10&transaction_type=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:27:20] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:27:20] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:27:20] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:27:20] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:27:22] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=10&message_type=&is_read=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:27:22] WARNING django.server: "GET /api/notifications/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:28:15] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:28:15] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:28:15] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:28:15] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:28:39] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:28:39] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:28:39] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:28:39] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:28:39] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:28:39] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:28:39] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:29:30] INFO django.server: "OPTIONS /notifications/unread-count/ HTTP/1.1" 200 0
+[2025-09-12 11:29:30] INFO django.server: "OPTIONS /notifications/list/?page=1&page_size=5 HTTP/1.1" 200 0
+[2025-09-12 11:29:30] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:29:30] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:29:30] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:29:30] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:29:38] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:29:38] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:29:38] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:29:38] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:29:38] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:29:38] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:29:38] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:29:53] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:29:53] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:29:53] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:29:53] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:29:53] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:29:53] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:29:53] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:29:54] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:29:54] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:29:54] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:29:54] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:29:57] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:29:57] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:29:57] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:29:57] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:30:33] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\models.py changed, reloading.
+[2025-09-12 11:30:34] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 11:30:36] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\models.py changed, reloading.
+[2025-09-12 11:30:36] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 11:31:13] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 884
+[2025-09-12 11:31:13] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:31:13] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:31:13] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:31:13] INFO django.server: "GET /payments/api/account/ HTTP/1.1" 200 224
+[2025-09-12 11:31:13] INFO django.server: "GET /payments/api/account/transactions/ HTTP/1.1" 200 121
+[2025-09-12 11:31:13] INFO django.server: "GET /api/reservations/bookings/?page=1&page_size=10 HTTP/1.1" 200 52
+[2025-09-12 11:31:30] WARNING django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:31:32] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:31:32] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:31:33] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:31:33] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:31:33] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:31:34] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:33:40] INFO django.server: "OPTIONS /accounts/api/stats/ HTTP/1.1" 200 0
+[2025-09-12 11:33:40] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:33:41] INFO django.server: "OPTIONS /notifications/list/?page=1&page_size=5 HTTP/1.1" 200 0
+[2025-09-12 11:33:41] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:33:44] INFO django.server: "OPTIONS /notifications/unread-count/ HTTP/1.1" 200 0
+[2025-09-12 11:33:44] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:33:45] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:33:45] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:33:46] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:33:50] INFO django.server: "HEAD /admin/ HTTP/1.1" 302 0
+[2025-09-12 11:33:51] INFO django.server: "HEAD /admin/login/?next=/admin/ HTTP/1.1" 200 0
+[2025-09-12 11:33:51] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:33:56] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:33:56] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:33:56] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:33:56] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:33:57] INFO django.server: "OPTIONS /accounts/api/profile/ HTTP/1.1" 200 0
+[2025-09-12 11:33:57] INFO django.server: "OPTIONS /accounts/api/profile/ HTTP/1.1" 200 0
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:33:57] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:33:57] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 884
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 884
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 884
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:33:57] INFO django.server: "OPTIONS /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 200 0
+[2025-09-12 11:33:57] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 884
+[2025-09-12 11:33:57] INFO django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 200 52
+[2025-09-12 11:34:12] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:34:12] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:34:12] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:34:12] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:34:15] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:34:15] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:34:15] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:34:15] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:34:21] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:34:22] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:34:22] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:34:23] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:34:23] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:34:24] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:34:24] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:34:24] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:34:24] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:34:25] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:34:25] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:34:48] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:34:48] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:34:48] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:34:48] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:35:08] INFO django.utils.autoreload: D:\code\django_learning\keshe\notifications\views.py changed, reloading.
+[2025-09-12 11:35:09] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 11:35:15] INFO django.utils.autoreload: D:\code\django_learning\keshe\notifications\views.py changed, reloading.
+[2025-09-12 11:35:16] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 11:35:33] INFO django.utils.autoreload: D:\code\django_learning\keshe\notifications\models.py changed, reloading.
+[2025-09-12 11:35:34] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 11:35:40] INFO django.utils.autoreload: D:\code\django_learning\keshe\notifications\models.py changed, reloading.
+[2025-09-12 11:35:41] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 11:36:02] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:36:02] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:36:03] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:36:05] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:36:05] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:36:05] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:36:05] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:36:11] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:36:11] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:36:11] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:36:11] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:36:29] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:36:30] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:36:30] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 884
+[2025-09-12 11:36:30] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:36:31] INFO django.server: "OPTIONS /api/notifications/unread-count/ HTTP/1.1" 200 0
+[2025-09-12 11:36:31] INFO django.server: "OPTIONS /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 0
+[2025-09-12 11:36:31] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 884
+[2025-09-12 11:36:31] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:36:31] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:36:31] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:36:42] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:36:42] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:36:42] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:36:42] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:36:42] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:36:42] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:36:42] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:37:01] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:37:01] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:37:02] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:37:47] WARNING django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:37:50] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:37:50] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:37:50] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:37:50] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:37:54] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:37:54] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:37:54] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:37:54] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:37:58] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:37:59] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:37:59] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:37:59] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:37:59] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:38:03] INFO django.server: "OPTIONS /api/notifications/unread-count/ HTTP/1.1" 200 0
+[2025-09-12 11:38:03] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:38:05] INFO django.server: "OPTIONS /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 0
+[2025-09-12 11:38:05] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:38:06] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:38:07] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:38:08] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:38:20] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:38:20] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:38:21] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:38:22] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:38:24] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:38:25] WARNING django.server: "GET /notifications/unread-count/ HTTP/1.1" 404 3627
+[2025-09-12 11:38:25] WARNING django.server: "GET /notifications/list/?page=1&page_size=5 HTTP/1.1" 404 3626
+[2025-09-12 11:38:27] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:38:27] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:38:28] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:38:34] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=10&message_type=&is_read=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:38:34] WARNING django.server: "GET /api/notifications/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:38:36] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:38:36] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:38:36] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:38:36] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:38:37] WARNING django.server: "GET /api/courses/list/ HTTP/1.1" 403 34
+[2025-09-12 11:38:37] WARNING django.server: "GET /api/courses/evaluations/?page=1&page_size=10&course=&coach=&rating= HTTP/1.1" 403 34
+[2025-09-12 11:38:37] WARNING django.server: "GET /api/reservations/coaches/ HTTP/1.1" 403 34
+[2025-09-12 11:38:37] WARNING django.server: "GET /api/courses/list/ HTTP/1.1" 403 34
+[2025-09-12 11:38:39] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:38:39] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:38:39] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:38:39] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:38:40] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:38:40] WARNING django.server: "GET /api/payments/api/account/ HTTP/1.1" 403 34
+[2025-09-12 11:38:40] WARNING django.server: "GET /api/payments/api/account/transactions/?page=1&page_size=10&transaction_type=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 11:38:43] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:38:43] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:38:44] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:39:59] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:39:59] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:39:59] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 11:39:59] INFO django.server: "OPTIONS /accounts/api/profile/ HTTP/1.1" 200 0
+[2025-09-12 11:39:59] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 884
+[2025-09-12 11:40:00] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 11:40:00] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 11:40:23] INFO django.server: "GET /payments/ HTTP/1.1" 200 2573
+[2025-09-12 11:40:23] INFO django.server: "GET /payments/ HTTP/1.1" 200 2573
+[2025-09-12 11:40:25] WARNING django.server: "GET /api/payments/api/account/ HTTP/1.1" 403 5024
+[2025-09-12 11:40:35] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:40:35] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:40:35] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:40:35] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:40:36] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:40:36] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:40:36] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:40:36] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:43:07] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:43:07] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:43:07] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:43:07] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:43:59] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-12 11:43:59] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 11:44:09] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:44:09] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:44:09] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:44:09] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:44:26] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:44:26] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 11:44:26] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:44:26] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:44:30] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 11:44:30] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 11:44:30] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 11:44:30] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 11:47:25] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:47:25] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:47:25] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 11:47:25] ERROR django.security.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "D:\Anaconda\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Anaconda\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+  File "D:\Anaconda\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+[2025-09-12 12:00:53] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+[2025-09-12 12:00:54] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 12:01:11] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 12:01:11] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 12:01:11] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 12:01:11] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 12:01:17] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 12:01:17] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 12:01:17] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 12:01:17] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 12:04:53] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 12:05:06] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 12:05:06] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:33:48] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:33:55] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:33:57] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:34:02] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:34:03] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:34:08] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 14:34:08] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 14:34:08] INFO django.server: "OPTIONS /accounts/api/profile/ HTTP/1.1" 200 0
+[2025-09-12 14:34:08] INFO django.server: "OPTIONS /accounts/api/stats/ HTTP/1.1" 200 0
+[2025-09-12 14:34:08] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:34:08] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 14:34:10] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:34:10] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 14:34:10] INFO django.server: "OPTIONS /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 0
+[2025-09-12 14:34:10] INFO django.server: "OPTIONS /api/notifications/unread-count/ HTTP/1.1" 200 0
+[2025-09-12 14:34:10] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 14:34:10] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 14:34:59] INFO django.server: "OPTIONS /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 200 0
+[2025-09-12 14:34:59] WARNING django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 14:35:02] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 14:35:02] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:35:02] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 14:35:02] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 14:35:21] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-12 14:35:22] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 14:36:02] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-12 14:36:03] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 14:36:22] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 14:36:22] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 14:36:22] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 14:36:22] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:36:22] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:36:22] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 14:36:22] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 14:36:26] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 14:36:26] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 14:36:26] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:36:26] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 14:36:26] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:36:26] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 14:36:26] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 14:36:28] WARNING django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 14:36:37] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:36:37] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 14:36:37] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 14:36:37] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 14:36:42] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:36:42] INFO django.server: "OPTIONS /api/payments/api/account/transactions/?page=1&page_size=10&transaction_type=&date_from=&date_to= HTTP/1.1" 200 0
+[2025-09-12 14:36:42] INFO django.server: "OPTIONS /api/payments/api/account/ HTTP/1.1" 200 0
+[2025-09-12 14:36:42] WARNING django.server: "GET /api/payments/api/account/ HTTP/1.1" 403 34
+[2025-09-12 14:36:42] WARNING django.server: "GET /api/payments/api/account/transactions/?page=1&page_size=10&transaction_type=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 14:40:28] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 14:40:53] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:41:05] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:41:11] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:41:12] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:41:14] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:41:15] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:41:15] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:41:15] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:41:20] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 401 54
+[2025-09-12 14:41:24] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 14:41:24] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 14:41:24] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 14:41:24] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:41:26] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:41:26] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 14:41:26] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 14:41:26] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 14:41:29] INFO django.server: "OPTIONS /api/notifications/stats/ HTTP/1.1" 200 0
+[2025-09-12 14:41:29] INFO django.server: "OPTIONS /api/notifications/list/?page=1&page_size=10&message_type=&is_read=&date_from=&date_to= HTTP/1.1" 200 0
+[2025-09-12 14:41:29] WARNING django.server: "GET /api/notifications/stats/ HTTP/1.1" 403 34
+[2025-09-12 14:41:29] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=10&message_type=&is_read=&date_from=&date_to= HTTP/1.1" 403 34
+[2025-09-12 14:44:42] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 34
+[2025-09-12 14:44:42] WARNING django.server: "GET /accounts/api/profile/ HTTP/1.1" 403 34
+[2025-09-12 14:44:42] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-12 14:44:42] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-12 14:44:47] INFO django.server: "OPTIONS /accounts/api/logout/ HTTP/1.1" 200 0
+[2025-09-12 14:44:47] WARNING django.server: "POST /accounts/api/logout/ HTTP/1.1" 403 34
+[2025-09-12 14:44:47] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 43
+[2025-09-12 14:45:17] INFO django.server: "OPTIONS /accounts/api/register/ HTTP/1.1" 200 0
+[2025-09-12 14:45:18] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 372
+[2025-09-12 14:45:25] INFO django.server: "OPTIONS /accounts/api/login/ HTTP/1.1" 200 0
+[2025-09-12 14:45:26] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 453
+[2025-09-12 14:45:26] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 928
+[2025-09-12 14:45:26] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 14:45:26] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 14:45:26] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 14:45:31] INFO django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 200 52
+[2025-09-12 14:45:33] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 928
+[2025-09-12 14:45:33] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 14:45:33] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 14:45:33] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 14:45:34] INFO django.server: "GET /api/notifications/list/?page=1&page_size=10&message_type=&is_read=&date_from=&date_to= HTTP/1.1" 200 112
+[2025-09-12 14:45:34] INFO django.server: "GET /api/notifications/stats/ HTTP/1.1" 200 136
+[2025-09-12 14:45:36] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 928
+[2025-09-12 14:45:36] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 14:45:36] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 14:45:36] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 14:45:38] INFO django.server: "OPTIONS /api/courses/list/ HTTP/1.1" 200 0
+[2025-09-12 14:45:38] INFO django.server: "OPTIONS /api/courses/evaluations/?page=1&page_size=10&course=&coach=&rating= HTTP/1.1" 200 0
+[2025-09-12 14:45:38] INFO django.server: "OPTIONS /api/reservations/coaches/ HTTP/1.1" 200 0
+[2025-09-12 14:45:38] INFO django.server: "OPTIONS /api/courses/list/ HTTP/1.1" 200 0
+[2025-09-12 14:45:38] INFO django.server: "GET /api/courses/evaluations/?page=1&page_size=10&course=&coach=&rating= HTTP/1.1" 200 121
+[2025-09-12 14:45:38] INFO django.server: "GET /api/reservations/coaches/ HTTP/1.1" 200 86
+[2025-09-12 14:45:38] INFO django.server: "GET /api/courses/list/ HTTP/1.1" 200 771
+[2025-09-12 14:45:38] INFO django.server: "GET /api/courses/list/ HTTP/1.1" 200 771
+[2025-09-12 14:45:41] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 928
+[2025-09-12 14:45:41] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 14:45:41] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 14:45:41] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 14:45:43] INFO django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 200 52
+[2025-09-12 14:45:45] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 928
+[2025-09-12 14:45:45] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 14:45:45] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 14:45:45] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111

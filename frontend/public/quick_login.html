@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速登录测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .success-result {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error-result {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info-result {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .link {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+        .link:hover {
+            background: #5a6268;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 快速登录测试</h1>
+        
+        <div class="section">
+            <h3>1. 快速设置认证</h3>
+            <p>使用预设的token快速设置认证状态，跳过登录流程。</p>
+            <button onclick="quickSetAuth()" class="success">快速设置认证</button>
+            <button onclick="checkAuthStatus()">检查认证状态</button>
+            <button onclick="clearAuth()">清除认证</button>
+            <div id="authResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>2. 测试API调用</h3>
+            <p>测试各个API端点是否正常工作。</p>
+            <button onclick="testAllAPIs()">测试所有API</button>
+            <button onclick="testStatsAPI()">测试统计API</button>
+            <button onclick="testNotificationsAPI()">测试通知API</button>
+            <div id="apiResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>3. 跳转到主应用</h3>
+            <p>设置认证后，可以跳转到主应用测试。</p>
+            <a href="http://localhost:3001" class="link" target="_blank">打开主应用</a>
+            <a href="http://localhost:3001/dashboard" class="link" target="_blank">打开Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        const TEST_TOKEN = '2f4e9746ba1c15900dd4df0858e5dd67a099a79e';
+        
+        function quickSetAuth() {
+            try {
+                // 设置token
+                localStorage.setItem('token', TEST_TOKEN);
+                
+                // 模拟用户信息（根据实际情况调整）
+                const mockUser = {
+                    id: 1,
+                    username: 'testuser',
+                    real_name: '测试用户',
+                    user_type: 'student',
+                    email: 'test@example.com',
+                    avatar: null
+                };
+                
+                // 设置用户信息到localStorage（模拟Pinia store）
+                localStorage.setItem('user', JSON.stringify(mockUser));
+                
+                showResult('authResult', '✅ 认证设置成功！\n' + 
+                    `Token: ${TEST_TOKEN.substring(0, 20)}...\n` + 
+                    `用户: ${mockUser.username} (${mockUser.real_name})`, 'success-result');
+                    
+            } catch (error) {
+                showResult('authResult', `❌ 设置认证失败: ${error.message}`, 'error-result');
+            }
+        }
+        
+        function checkAuthStatus() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            let status = '认证状态检查:\n';
+            
+            if (token) {
+                status += `✅ Token: ${token.substring(0, 20)}...\n`;
+            } else {
+                status += '❌ 未设置Token\n';
+            }
+            
+            if (user) {
+                try {
+                    const userObj = JSON.parse(user);
+                    status += `✅ 用户: ${userObj.username} (${userObj.real_name})\n`;
+                } catch (e) {
+                    status += '❌ 用户信息格式错误\n';
+                }
+            } else {
+                status += '❌ 未设置用户信息\n';
+            }
+            
+            const resultClass = (token && user) ? 'success-result' : 'error-result';
+            showResult('authResult', status, resultClass);
+        }
+        
+        function clearAuth() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            showResult('authResult', '🗑️ 认证信息已清除', 'info-result');
+        }
+        
+        async function testStatsAPI() {
+            showResult('apiResult', '正在测试统计API...', 'info-result');
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showResult('apiResult', '❌ 未设置Token，请先设置认证', 'error-result');
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE}/accounts/api/stats/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const responseText = await response.text();
+                console.log('统计API响应:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    showResult('apiResult', `❌ 统计API响应不是有效JSON:\n状态码: ${response.status}\n响应: ${responseText}`, 'error-result');
+                    return;
+                }
+                
+                const message = `${response.ok ? '✅' : '❌'} 统计API\n状态码: ${response.status}\n响应: ${JSON.stringify(data, null, 2)}`;
+                showResult('apiResult', message, response.ok ? 'success-result' : 'error-result');
+                
+            } catch (error) {
+                showResult('apiResult', `❌ 统计API错误: ${error.message}`, 'error-result');
+            }
+        }
+        
+        async function testNotificationsAPI() {
+            showResult('apiResult', '正在测试通知API...', 'info-result');
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showResult('apiResult', '❌ 未设置Token，请先设置认证', 'error-result');
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE}/api/notifications/list/?page=1&page_size=5`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const responseText = await response.text();
+                console.log('通知API响应:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    showResult('apiResult', `❌ 通知API响应不是有效JSON:\n状态码: ${response.status}\n响应: ${responseText}`, 'error-result');
+                    return;
+                }
+                
+                const message = `${response.ok ? '✅' : '❌'} 通知API\n状态码: ${response.status}\n响应: ${JSON.stringify(data, null, 2)}`;
+                showResult('apiResult', message, response.ok ? 'success-result' : 'error-result');
+                
+            } catch (error) {
+                showResult('apiResult', `❌ 通知API错误: ${error.message}`, 'error-result');
+            }
+        }
+        
+        async function testAllAPIs() {
+            showResult('apiResult', '正在测试所有API...', 'info-result');
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showResult('apiResult', '❌ 未设置Token，请先设置认证', 'error-result');
+                return;
+            }
+            
+            const apis = [
+                { name: '统计API', url: '/accounts/api/stats/' },
+                { name: '通知列表API', url: '/api/notifications/list/?page=1&page_size=5' },
+                { name: '未读消息API', url: '/api/notifications/unread-count/' },
+                { name: '用户资料API', url: '/accounts/api/profile/' }
+            ];
+            
+            let results = '所有API测试结果:\n\n';
+            
+            for (const api of apis) {
+                try {
+                    const response = await fetch(`${API_BASE}${api.url}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Token ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include'
+                    });
+                    
+                    const status = response.ok ? '✅' : '❌';
+                    results += `${status} ${api.name}: ${response.status}\n`;
+                    
+                } catch (error) {
+                    results += `❌ ${api.name}: 错误 - ${error.message}\n`;
+                }
+            }
+            
+            showResult('apiResult', results, 'info-result');
+        }
+        
+        function showResult(elementId, message, className) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${className}`;
+        }
+        
+        // 页面加载时自动检查认证状态
+        window.onload = function() {
+            checkAuthStatus();
+            console.log('快速登录测试页面已加载');
+        };
+    </script>
+</body>
+</html>

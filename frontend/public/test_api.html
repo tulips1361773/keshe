@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 前端API连接测试</h1>
+        
+        <div class="section">
+            <h3>📋 Token设置</h3>
+            <input type="text" id="tokenInput" value="2f4e9746ba1c15900dd4df0858e5dd67a099a79e" placeholder="输入Token">
+            <button onclick="setToken()">设置Token到localStorage</button>
+            <button onclick="checkToken()">检查当前Token</button>
+            <div id="tokenStatus" class="status"></div>
+        </div>
+        
+        <div class="section">
+            <h3>🌐 网络连接测试</h3>
+            <button onclick="testBackendConnection()">测试后端连接</button>
+            <button onclick="testCORS()">测试CORS设置</button>
+            <div id="networkResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>🧪 API端点测试</h3>
+            <button onclick="testStatsAPI()">测试统计数据API</button>
+            <button onclick="testNotificationsAPI()">测试通知列表API</button>
+            <button onclick="testUnreadCountAPI()">测试未读消息API</button>
+            <button onclick="testAllAPIs()">测试所有API</button>
+            <div id="apiResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>🔍 浏览器环境检查</h3>
+            <button onclick="checkBrowserEnv()">检查浏览器环境</button>
+            <div id="envResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        
+        // Token管理
+        function setToken() {
+            const token = document.getElementById('tokenInput').value;
+            if (token) {
+                localStorage.setItem('token', token);
+                showStatus('tokenStatus', `✅ Token已设置: ${token.substring(0, 20)}...`, 'success');
+            } else {
+                showStatus('tokenStatus', '❌ 请输入Token', 'error');
+            }
+        }
+        
+        function checkToken() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                showStatus('tokenStatus', `✅ 当前Token: ${token.substring(0, 20)}...`, 'info');
+            } else {
+                showStatus('tokenStatus', '❌ 未设置Token', 'error');
+            }
+        }
+        
+        // 网络连接测试
+        async function testBackendConnection() {
+            showResult('networkResult', '正在测试后端连接...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/admin/`, {
+                    method: 'HEAD',
+                    mode: 'no-cors'
+                });
+                showResult('networkResult', '✅ 后端服务器连接正常', 'success');
+            } catch (error) {
+                showResult('networkResult', `❌ 后端连接失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCORS() {
+            showResult('networkResult', '正在测试CORS设置...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/accounts/api/csrf-token/`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('networkResult', `✅ CORS设置正常\n响应: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult('networkResult', `⚠️ CORS可能有问题\n状态码: ${response.status}\n状态文本: ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                showResult('networkResult', `❌ CORS测试失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // API测试函数
+        async function testStatsAPI() {
+            await testAPI('/accounts/api/stats/', '统计数据API');
+        }
+        
+        async function testNotificationsAPI() {
+            await testAPI('/notifications/list/?page=1&page_size=5', '通知列表API');
+        }
+        
+        async function testUnreadCountAPI() {
+            await testAPI('/notifications/unread-count/', '未读消息API');
+        }
+        
+        async function testAllAPIs() {
+            const apis = [
+                { url: '/accounts/api/stats/', name: '统计数据API' },
+                { url: '/notifications/list/?page=1&page_size=5', name: '通知列表API' },
+                { url: '/notifications/unread-count/', name: '未读消息API' }
+            ];
+            
+            showResult('apiResult', '开始测试所有API...\n', 'info');
+            
+            for (const api of apis) {
+                await testAPI(api.url, api.name, false);
+                await new Promise(resolve => setTimeout(resolve, 500)); // 延迟500ms
+            }
+        }
+        
+        async function testAPI(endpoint, name, clearResult = true) {
+            if (clearResult) {
+                showResult('apiResult', `正在测试 ${name}...`, 'info');
+            } else {
+                appendResult('apiResult', `\n正在测试 ${name}...`);
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    const message = `❌ ${name} 失败: 未设置Token`;
+                    if (clearResult) {
+                        showResult('apiResult', message, 'error');
+                    } else {
+                        appendResult('apiResult', message);
+                    }
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                const message = `${response.ok ? '✅' : '❌'} ${name}\n状态码: ${response.status}\n响应: ${JSON.stringify(data, null, 2)}`;
+                
+                if (clearResult) {
+                    showResult('apiResult', message, response.ok ? 'success' : 'error');
+                } else {
+                    appendResult('apiResult', message);
+                }
+                
+            } catch (error) {
+                const message = `❌ ${name} 错误: ${error.message}`;
+                if (clearResult) {
+                    showResult('apiResult', message, 'error');
+                } else {
+                    appendResult('apiResult', message);
+                }
+            }
+        }
+        
+        // 浏览器环境检查
+        function checkBrowserEnv() {
+            const info = {
+                userAgent: navigator.userAgent,
+                url: window.location.href,
+                origin: window.location.origin,
+                localStorage: !!window.localStorage,
+                fetch: !!window.fetch,
+                token: localStorage.getItem('token') ? '已设置' : '未设置',
+                cookies: document.cookie || '无cookies'
+            };
+            
+            showResult('envResult', `浏览器环境信息:\n${JSON.stringify(info, null, 2)}`, 'info');
+        }
+        
+        // 辅助函数
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+        
+        function appendResult(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent += message;
+        }
+        
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+        
+        // 页面加载时自动检查
+        window.onload = function() {
+            checkToken();
+            console.log('API测试页面已加载');
+            console.log('localStorage token:', localStorage.getItem('token'));
+        };
+        
+        // 监听错误
+        window.addEventListener('error', function(e) {
+            console.error('页面错误:', e.error);
+        });
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('未处理的Promise拒绝:', e.reason);
+        });
+    </script>
+</body>
+</html>

@@ -331,7 +331,7 @@ def user_stats(request):
             total_courses = Course.objects.filter(coach=user).count()
             active_courses = Course.objects.filter(
                 coach=user, 
-                status='active'
+                status='published'
             ).count()
             total_students = CourseEnrollment.objects.filter(
                 course__coach=user
