@@ -104,11 +104,33 @@
 
             <el-row :gutter="24">
               <el-col :span="12">
+                <el-form-item label="性别" prop="gender">
+                  <el-select v-model="profileForm.gender" placeholder="请选择性别" style="width: 100%">
+                    <el-option label="男" value="male" />
+                    <el-option label="女" value="female" />
+                    <el-option label="未知" value="unknown" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              
+              <el-col :span="12">
                 <el-form-item label="用户类型">
                   <el-select v-model="profileForm.user_type" disabled style="width: 100%">
                     <el-option label="学员" value="student" />
                     <el-option label="教练" value="coach" />
                   </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row :gutter="24">
+              <el-col :span="12">
+                <el-form-item label="地址" prop="address">
+                  <el-input
+                    v-model="profileForm.address"
+                    placeholder="请输入地址"
+                    clearable
+                  />
                 </el-form-item>
               </el-col>
               
@@ -117,6 +139,52 @@
                   <el-tag :type="profileForm.is_active ? 'success' : 'danger'">
                     {{ profileForm.is_active ? '活跃' : '未激活' }}
                   </el-tag>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row :gutter="24">
+              <el-col :span="12">
+                <el-form-item label="紧急联系人" prop="emergency_contact">
+                  <el-input
+                    v-model="profileForm.emergency_contact"
+                    placeholder="请输入紧急联系人"
+                    clearable
+                  />
+                </el-form-item>
+              </el-col>
+              
+              <el-col :span="12">
+                <el-form-item label="紧急联系电话" prop="emergency_phone">
+                  <el-input
+                    v-model="profileForm.emergency_phone"
+                    placeholder="请输入紧急联系电话"
+                    clearable
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row :gutter="24">
+              <el-col :span="12">
+                <el-form-item label="技能" prop="skills">
+                  <el-input
+                    v-model="profileForm.skills"
+                    placeholder="请输入技能"
+                    clearable
+                  />
+                </el-form-item>
+              </el-col>
+              
+              <el-col :span="12">
+                <el-form-item label="经验年数" prop="experience_years">
+                  <el-input-number
+                    v-model="profileForm.experience_years"
+                    :min="0"
+                    :max="50"
+                    placeholder="请输入经验年数"
+                    style="width: 100%"
+                  />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -262,6 +330,12 @@ export default {
       real_name: '',
       phone: '',
       email: '',
+      gender: 'unknown',
+      address: '',
+      emergency_contact: '',
+      emergency_phone: '',
+      skills: '',
+      experience_years: 0,
       user_type: 'student',
       is_active: true,
       date_joined: '',
@@ -288,6 +362,18 @@ export default {
       ],
       email: [
         { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+      ],
+      emergency_phone: [
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+      ],
+      address: [
+        { max: 200, message: '地址长度不能超过200个字符', trigger: 'blur' }
+      ],
+      emergency_contact: [
+        { max: 50, message: '紧急联系人姓名长度不能超过50个字符', trigger: 'blur' }
+      ],
+      skills: [
+        { max: 200, message: '技能描述长度不能超过200个字符', trigger: 'blur' }
       ]
     }
 
@@ -307,8 +393,8 @@ export default {
       ],
       newPassword: [
         { required: true, message: '请输入新密码', trigger: 'blur' },
-        { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' },
-        { pattern: /^(?=.*[a-zA-Z])(?=.*\d)/, message: '密码必须包含字母和数字', trigger: 'blur' }
+        { min: 8, max: 16, message: '密码长度必须为8-16位', trigger: 'blur' },
+        { pattern: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>_~`\-+=\[\]\\;/]).*$/, message: '密码必须包含字母、数字和特殊字符', trigger: 'blur' }
       ],
       confirmPassword: [
         { validator: validateConfirmPassword, trigger: 'blur' }
@@ -340,6 +426,12 @@ export default {
             real_name: user.real_name || '',
             phone: user.phone || '',
             email: user.email || '',
+            gender: user.gender || 'unknown',
+            address: user.address || '',
+            emergency_contact: user.emergency_contact || '',
+            emergency_phone: user.emergency_phone || '',
+            skills: user.skills || '',
+            experience_years: user.experience_years || 0,
             user_type: user.user_type || 'student',
             is_active: user.is_active !== false,
             date_joined: user.date_joined || '',
@@ -366,6 +458,12 @@ export default {
           real_name: profileForm.real_name,
           phone: profileForm.phone,
           email: profileForm.email,
+          gender: profileForm.gender,
+          address: profileForm.address,
+          emergency_contact: profileForm.emergency_contact,
+          emergency_phone: profileForm.emergency_phone,
+          skills: profileForm.skills,
+          experience_years: profileForm.experience_years,
           bio: profileForm.bio
         }
 
@@ -396,8 +494,9 @@ export default {
         changingPassword.value = true
         
         const passwordData = {
-          current_password: passwordForm.currentPassword,
-          new_password: passwordForm.newPassword
+          old_password: passwordForm.currentPassword,
+          new_password: passwordForm.newPassword,
+          confirm_password: passwordForm.confirmPassword
         }
         
         await axios.post('/accounts/api/change-password/', passwordData)

@@ -2421,3 +2421,467 @@ django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. Y
 [2025-09-12 15:52:04] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
 [2025-09-12 15:52:04] INFO django.server: "GET /admin/competitions/competitiongroupmember/ HTTP/1.1" 200 12757
 [2025-09-12 15:52:04] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 15:54:06] INFO django.server: "GET /admin/campus/campuscoach/ HTTP/1.1" 200 13824
+[2025-09-12 15:54:06] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 15:54:09] INFO django.server: "GET /admin/accounts/userprofile/ HTTP/1.1" 200 16453
+[2025-09-12 15:54:09] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 15:54:11] INFO django.server: "GET /admin/accounts/user/ HTTP/1.1" 200 18081
+[2025-09-12 15:54:11] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 15:54:12] INFO django.server: "GET /admin/accounts/userprofile/ HTTP/1.1" 200 16453
+[2025-09-12 15:54:12] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 15:54:13] INFO django.server: "GET /admin/accounts/userprofile/5/change/ HTTP/1.1" 200 17803
+[2025-09-12 15:54:13] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 15:54:20] INFO django.server: "GET /admin/accounts/userprofile/ HTTP/1.1" 200 16453
+[2025-09-12 15:54:22] INFO django.server: "GET /admin/accounts/userprofile/4/change/ HTTP/1.1" 200 17696
+[2025-09-12 15:54:22] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 15:54:26] INFO django.server: "GET /admin/accounts/userprofile/ HTTP/1.1" 200 16453
+[2025-09-12 15:58:41] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\models.py changed, reloading.
+[2025-09-12 15:58:42] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 15:59:12] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 15:59:12] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 15:59:38] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 15:59:38] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 15:59:54] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 15:59:55] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:00:49] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-12 16:00:50] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:01:03] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\urls.py changed, reloading.
+[2025-09-12 16:01:03] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:03:32] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 438
+[2025-09-12 16:03:32] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:03:32] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:03:32] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:03:32] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:03:33] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 387
+[2025-09-12 16:03:33] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 385
+[2025-09-12 16:03:34] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 394
+[2025-09-12 16:03:34] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 394
+[2025-09-12 16:03:35] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 394
+[2025-09-12 16:03:35] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 394
+[2025-09-12 16:03:36] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 394
+[2025-09-12 16:03:36] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 394
+[2025-09-12 16:03:37] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 452
+[2025-09-12 16:03:37] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:03:37] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:03:51] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 16:03:51] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:04:05] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 16:04:05] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:04:14] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 438
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:04:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:04:15] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 452
+[2025-09-12 16:04:15] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:04:15] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:04:35] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:04:35] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:04:35] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:04:35] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:04:35] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:04:35] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:04:35] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:04:35] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:04:36] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:04:36] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:04:36] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:04:37] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:04:37] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:04:37] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:05:12] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:05:12] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:05:12] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:05:12] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:05:12] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:05:12] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:05:12] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:05:13] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:05:13] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:05:14] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:05:14] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:05:14] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:05:15] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:05:15] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 97
+[2025-09-12 16:05:39] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 450
+[2025-09-12 16:05:39] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:05:39] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:05:39] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:05:39] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 16:05:39] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:05:39] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:05:40] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 396
+[2025-09-12 16:05:40] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 396
+[2025-09-12 16:05:41] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 396
+[2025-09-12 16:05:41] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 396
+[2025-09-12 16:05:42] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 396
+[2025-09-12 16:05:42] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 396
+[2025-09-12 16:05:43] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 464
+[2025-09-12 16:05:43] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 16:05:43] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 16:06:16] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-12 16:06:17] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:06:32] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-12 16:06:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:06:40] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 94
+[2025-09-12 16:07:12] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 16:07:13] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:07:26] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 16:07:26] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:34] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 91
+[2025-09-12 16:08:49] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 16:08:49] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:09:13] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 450
+[2025-09-12 16:09:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:09:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:09:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:09:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:09:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 72
+[2025-09-12 16:09:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 78
+[2025-09-12 16:09:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 79
+[2025-09-12 16:09:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:09:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:09:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 60
+[2025-09-12 16:09:13] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 396
+[2025-09-12 16:09:14] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 464
+[2025-09-12 16:09:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 72
+[2025-09-12 16:09:14] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 73
+[2025-09-12 16:10:11] WARNING django.server: "POST /api/accounts/register/ HTTP/1.1" 404 13933
+[2025-09-12 16:10:11] WARNING django.server: "POST /api/accounts/register/ HTTP/1.1" 404 13933
+[2025-09-12 16:10:45] ERROR django.server: "POST /accounts/api/register/ HTTP/1.1" 500 99
+[2025-09-12 16:10:46] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 441
+[2025-09-12 16:11:23] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 16:11:24] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:11:33] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 442
+[2025-09-12 16:11:33] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 523
+[2025-09-12 16:11:34] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 522
+[2025-09-12 16:11:35] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 442
+[2025-09-12 16:11:52] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-12 16:11:52] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:12:02] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 16:12:03] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:12:10] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 442
+[2025-09-12 16:12:11] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 400 75
+[2025-09-12 16:12:11] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 522
+[2025-09-12 16:12:11] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 69
+[2025-09-12 16:13:17] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 450
+[2025-09-12 16:13:18] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 531
+[2025-09-12 16:13:18] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 1092
+[2025-09-12 16:13:18] INFO django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 200 1226
+[2025-09-12 16:13:19] INFO django.server: "POST /accounts/api/change-password/ HTTP/1.1" 200 47
+[2025-09-12 16:13:19] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 559
+[2025-09-12 16:13:20] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 559
+[2025-09-12 16:13:20] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 45
+[2025-09-12 16:13:21] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 63
+[2025-09-12 16:13:21] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 58
+[2025-09-12 16:13:21] INFO django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 200 1208
+[2025-09-12 16:13:21] INFO django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 200 1192
+[2025-09-12 16:14:04] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 16:14:05] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:14:22] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-12 16:14:23] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:14:36] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-12 16:14:36] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:14:45] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 450
+[2025-09-12 16:14:45] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 531
+[2025-09-12 16:14:45] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 1092
+[2025-09-12 16:14:45] INFO django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 200 1226
+[2025-09-12 16:14:46] INFO django.server: "POST /accounts/api/change-password/ HTTP/1.1" 200 47
+[2025-09-12 16:14:47] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 559
+[2025-09-12 16:14:47] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 559
+[2025-09-12 16:14:48] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 45
+[2025-09-12 16:14:48] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 63
+[2025-09-12 16:14:49] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 58
+[2025-09-12 16:14:49] WARNING django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 400 63
+[2025-09-12 16:14:49] WARNING django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 400 54
+[2025-09-12 16:17:22] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:17:22] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:17:22] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:17:22] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 944
+[2025-09-12 16:17:22] INFO django.server: "GET /api/reservations/bookings/?page=1&page_size=10&status=&date_from=&date_to= HTTP/1.1" 200 52
+[2025-09-12 16:17:22] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:17:22] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 944
+[2025-09-12 16:17:22] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 16:17:22] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 16:17:22] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 723
+[2025-09-12 16:17:22] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 944
+[2025-09-12 16:19:33] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 450
+[2025-09-12 16:19:33] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 531
+[2025-09-12 16:19:33] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 1092
+[2025-09-12 16:19:34] WARNING django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 400 63
+[2025-09-12 16:19:34] INFO django.server: "POST /accounts/api/change-password/ HTTP/1.1" 200 47
+[2025-09-12 16:19:35] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 531
+[2025-09-12 16:19:35] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 531
+[2025-09-12 16:19:36] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 45
+[2025-09-12 16:19:36] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 63
+[2025-09-12 16:19:37] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 58
+[2025-09-12 16:19:37] WARNING django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 400 63
+[2025-09-12 16:19:37] WARNING django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 400 54
+[2025-09-12 16:20:02] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 450
+[2025-09-12 16:20:02] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 531
+[2025-09-12 16:20:02] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 1092
+[2025-09-12 16:20:02] INFO django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 200 1264
+[2025-09-12 16:20:03] INFO django.server: "POST /accounts/api/change-password/ HTTP/1.1" 200 47
+[2025-09-12 16:20:04] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 578
+[2025-09-12 16:20:04] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 578
+[2025-09-12 16:20:05] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 45
+[2025-09-12 16:20:05] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 63
+[2025-09-12 16:20:05] WARNING django.server: "POST /accounts/api/change-password/ HTTP/1.1" 400 58
+[2025-09-12 16:20:05] WARNING django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 400 63
+[2025-09-12 16:20:05] WARNING django.server: "PUT /accounts/api/profile/update/ HTTP/1.1" 400 54
+[2025-09-12 16:20:28] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:20:28] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:20:28] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 16:20:28] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 928
+[2025-09-12 16:20:29] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 928
+[2025-09-12 16:20:29] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 16:20:29] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 16:20:29] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 16:20:35] INFO django.server: "POST /accounts/api/logout/ HTTP/1.1" 200 41
+[2025-09-12 16:20:35] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 43
+[2025-09-12 16:21:13] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 78
+[2025-09-12 16:21:23] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 60
+[2025-09-12 16:21:32] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 60
+[2025-09-12 16:21:38] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 60
+[2025-09-12 16:21:42] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 60
+[2025-09-12 16:21:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 60
+[2025-09-12 16:23:21] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 450
+[2025-09-12 16:23:21] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:23:21] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:23:21] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:23:21] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:23:21] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 72
+[2025-09-12 16:23:21] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 78
+[2025-09-12 16:23:21] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 79
+[2025-09-12 16:23:21] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:23:21] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:23:21] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 60
+[2025-09-12 16:23:22] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 396
+[2025-09-12 16:23:22] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 464
+[2025-09-12 16:23:22] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 72
+[2025-09-12 16:23:22] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 73
+[2025-09-12 16:23:38] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:23:38] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:23:38] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 43
+[2025-09-12 16:25:17] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:25:17] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:25:17] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 43
+[2025-09-12 16:26:17] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:26:24] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 16:28:50] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\serializers.py changed, reloading.
+[2025-09-12 16:28:50] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 16:29:44] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 450
+[2025-09-12 16:29:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:29:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:29:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:29:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:29:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 72
+[2025-09-12 16:29:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 78
+[2025-09-12 16:29:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 79
+[2025-09-12 16:29:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:29:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 16:29:44] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 60
+[2025-09-12 16:29:45] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 396
+[2025-09-12 16:29:46] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 464
+[2025-09-12 16:29:46] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 72
+[2025-09-12 16:29:46] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 73
+[2025-09-12 16:35:26] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 17:05:50] INFO django.server: "OPTIONS /accounts/api/register/ HTTP/1.1" 200 0
+[2025-09-12 17:05:50] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 17:06:00] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 17:07:30] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 17:07:37] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 17:07:37] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 17:07:37] INFO django.server: "OPTIONS /accounts/api/profile/ HTTP/1.1" 200 0
+[2025-09-12 17:07:37] INFO django.server: "OPTIONS /accounts/api/profile/ HTTP/1.1" 200 0
+[2025-09-12 17:07:37] INFO django.server: "OPTIONS /accounts/api/stats/ HTTP/1.1" 200 0
+[2025-09-12 17:07:37] INFO django.server: "OPTIONS /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 0
+[2025-09-12 17:07:37] INFO django.server: "OPTIONS /api/notifications/unread-count/ HTTP/1.1" 200 0
+[2025-09-12 17:07:37] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 944
+[2025-09-12 17:07:37] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 17:07:37] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 17:07:37] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 723
+[2025-09-12 17:07:37] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 944
+[2025-09-12 17:07:40] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 17:07:40] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 17:07:41] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 944
+[2025-09-12 17:07:41] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-12 17:07:41] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 17:07:41] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 944
+[2025-09-12 17:07:41] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 723
+[2025-09-12 17:07:44] INFO django.server: "OPTIONS /accounts/api/logout/ HTTP/1.1" 200 0
+[2025-09-12 17:07:44] INFO django.server: "POST /accounts/api/logout/ HTTP/1.1" 200 41
+[2025-09-12 17:07:44] WARNING django.server: "GET /accounts/api/stats/ HTTP/1.1" 403 43
+[2025-09-12 17:08:19] INFO django.server: "OPTIONS /accounts/api/register/ HTTP/1.1" 200 0
+[2025-09-12 17:08:19] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 54
+[2025-09-12 17:09:21] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 17:09:47] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 17:09:54] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 69
+[2025-09-12 17:10:21] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 427
+[2025-09-12 17:10:23] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 428
+[2025-09-12 17:10:24] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 60
+[2025-09-12 17:11:55] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 17:13:04] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 421
+[2025-09-12 17:13:07] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 69
+[2025-09-12 17:13:10] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 394
+[2025-09-12 17:15:24] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 73
+[2025-09-12 17:15:29] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 73
+[2025-09-12 17:15:39] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 382
+[2025-09-12 17:15:48] INFO django.server: "OPTIONS /accounts/api/login/ HTTP/1.1" 200 0
+[2025-09-12 17:15:48] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 400 75
+[2025-09-12 17:15:49] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 400 75
+[2025-09-12 17:15:55] INFO django.server: "GET /admin/accounts/userprofile/ HTTP/1.1" 200 34069
+[2025-09-12 17:15:55] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:16:06] INFO django.server: "GET /admin/accounts/userprofile/59/change/ HTTP/1.1" 200 20656
+[2025-09-12 17:16:06] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:16:08] INFO django.server: "GET /admin/accounts/userprofile/ HTTP/1.1" 200 34069
+[2025-09-12 17:18:34] INFO django.server: "GET /admin?ide_webview_request_time=1757668714626 HTTP/1.1" 301 0
+[2025-09-12 17:18:35] INFO django.server: "GET /admin/?ide_webview_request_time=1757668714626 HTTP/1.1" 302 0
+[2025-09-12 17:18:35] INFO django.server: "GET /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757668714626 HTTP/1.1" 200 4277
+[2025-09-12 17:18:35] INFO django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 21310
+[2025-09-12 17:18:35] INFO django.server: "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2694
+[2025-09-12 17:18:35] INFO django.server: "GET /static/admin/css/login.css HTTP/1.1" 200 958
+[2025-09-12 17:18:35] INFO django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 18559
+[2025-09-12 17:18:35] INFO django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+[2025-09-12 17:18:35] INFO django.server: "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+[2025-09-12 17:18:35] INFO django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929
+[2025-09-12 17:18:35] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:18:49] INFO django.server: "POST /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757668714626 HTTP/1.1" 302 0
+[2025-09-12 17:18:49] INFO django.server: "GET /admin/?ide_webview_request_time=1757668714626 HTTP/1.1" 200 12502
+[2025-09-12 17:18:49] INFO django.server: "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+[2025-09-12 17:18:49] INFO django.server: "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+[2025-09-12 17:18:49] INFO django.server: "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+[2025-09-12 17:18:49] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:19:05] INFO django.server: "GET /admin/campus/campuscoach/ HTTP/1.1" 200 13905
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/css/changelists.css HTTP/1.1" 200 6566
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/js/core.js HTTP/1.1" 200 5682
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 8943
+[2025-09-12 17:19:05] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/js/actions.js HTTP/1.1" 200 7872
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 292458
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 232381
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+[2025-09-12 17:19:05] INFO django.server: "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+[2025-09-12 17:19:05] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:19:14] INFO django.server: "GET /admin/accounts/user/ HTTP/1.1" 200 39402
+[2025-09-12 17:19:14] INFO django.server: "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+[2025-09-12 17:19:14] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:19:14] INFO django.server: "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+[2025-09-12 17:19:14] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:19:16] INFO django.server: "GET /admin/campus/campuscoach/ HTTP/1.1" 200 13905
+[2025-09-12 17:19:16] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:19:16] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:19:18] INFO django.server: "GET /admin/accounts/userprofile/ HTTP/1.1" 200 34069
+[2025-09-12 17:19:18] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:19:18] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:19:20] INFO django.server: "GET /admin/accounts/userprofile/59/change/ HTTP/1.1" 200 20656
+[2025-09-12 17:19:20] INFO django.server: "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+[2025-09-12 17:19:20] INFO django.server: "GET /static/admin/css/forms.css HTTP/1.1" 200 9090
+[2025-09-12 17:19:20] INFO django.server: "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+[2025-09-12 17:19:20] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:19:20] INFO django.server: "GET /static/admin/css/widgets.css HTTP/1.1" 200 11921
+[2025-09-12 17:19:20] INFO django.server: "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+[2025-09-12 17:19:20] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:19:41] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\admin.py changed, reloading.
+[2025-09-12 17:19:42] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 17:20:47] INFO django.server: "GET /admin?ide_webview_request_time=1757668847411 HTTP/1.1" 301 0
+[2025-09-12 17:20:48] INFO django.server: "GET /admin/?ide_webview_request_time=1757668847411 HTTP/1.1" 200 12929
+[2025-09-12 17:20:48] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:20:55] INFO django.server: "GET /admin/accounts/coach/ HTTP/1.1" 200 19938
+[2025-09-12 17:20:55] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:20:55] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:21:05] INFO django.server: "GET /admin/accounts/coach/?status__exact=pending HTTP/1.1" 200 21031
+[2025-09-12 17:21:05] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:21:05] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:21:16] INFO django.server: "GET /admin/accounts/coach/6/change/?_changelist_filters=status__exact%3Dpending HTTP/1.1" 200 22174
+[2025-09-12 17:21:16] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:21:17] INFO django.server: "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+[2025-09-12 17:21:17] INFO django.server: "GET /static/admin/js/collapse.js HTTP/1.1" 200 1803
+[2025-09-12 17:21:17] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:21:24] INFO django.server: "POST /admin/accounts/coach/6/change/?_changelist_filters=status__exact%3Dpending HTTP/1.1" 302 0
+[2025-09-12 17:21:24] INFO django.server: "GET /admin/accounts/coach/?status__exact=pending HTTP/1.1" 200 20820
+[2025-09-12 17:21:24] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:21:24] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:21:27] INFO django.server: "GET /admin/accounts/coach/?status__exact=approved HTTP/1.1" 200 18537
+[2025-09-12 17:21:27] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:21:27] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:21:30] INFO django.server: "GET /admin/accounts/coach/? HTTP/1.1" 200 19946
+[2025-09-12 17:21:30] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:21:30] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:21:46] INFO django.server: "GET /admin/accounts/user/ HTTP/1.1" 200 39698
+[2025-09-12 17:21:46] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:21:46] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:21:49] INFO django.server: "GET /admin/accounts/coach/ HTTP/1.1" 200 19946
+[2025-09-12 17:21:49] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:21:49] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:22:25] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 421
+[2025-09-12 17:22:27] WARNING django.server: "POST /accounts/api/register/ HTTP/1.1" 400 69
+[2025-09-12 17:22:29] INFO django.server: "POST /accounts/api/register/ HTTP/1.1" 201 395
+[2025-09-12 17:22:55] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 400 75
+[2025-09-12 17:22:58] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 400 75
+[2025-09-12 17:23:09] INFO django.server: "GET /admin/accounts/userprofile/ HTTP/1.1" 200 35185
+[2025-09-12 17:23:09] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:23:14] INFO django.server: "GET /admin/accounts/coach/ HTTP/1.1" 200 20415
+[2025-09-12 17:23:14] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:23:16] INFO django.server: "GET /admin/accounts/coach/?status__exact=pending HTTP/1.1" 200 21120
+[2025-09-12 17:23:16] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:23:20] INFO django.server: "GET /admin/accounts/coach/?status__exact=approved HTTP/1.1" 200 18537
+[2025-09-12 17:23:20] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:23:29] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 400 75
+[2025-09-12 17:23:31] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-12 17:23:39] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 400 75
+[2025-09-12 17:23:39] WARNING django.server: "POST /accounts/api/login/ HTTP/1.1" 400 75
+[2025-09-12 17:25:12] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 462
+[2025-09-12 17:25:12] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 954
+[2025-09-12 17:25:12] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-12 17:25:12] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-12 17:25:12] INFO django.server: "GET /accounts/api/stats/ HTTP/1.1" 200 100
+[2025-09-12 17:25:51] INFO django.server: "OPTIONS /accounts/api/login/ HTTP/1.1" 200 0
+[2025-09-12 17:25:51] INFO django.server: "POST /accounts/api/login/ HTTP/1.1" 200 462
+[2025-09-12 17:26:58] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\admin.py changed, reloading.
+[2025-09-12 17:26:58] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 17:27:13] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\views.py changed, reloading.
+[2025-09-12 17:27:14] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 17:30:18] INFO django.server: "GET /admin/accounts/coach/ HTTP/1.1" 200 20415
+[2025-09-12 17:30:18] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:30:18] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622
+[2025-09-12 17:30:24] INFO django.server: "GET /admin/accounts/coach/7/change/ HTTP/1.1" 200 22093
+[2025-09-12 17:30:24] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 17:30:24] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5622

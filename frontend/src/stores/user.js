@@ -140,7 +140,7 @@ export const useUserStore = defineStore('user', {
     async updateProfile(profileData) {
       this.isLoading = true
       try {
-        const response = await axios.put('/accounts/api/profile/', profileData)
+        const response = await axios.put('/accounts/api/profile/update/', profileData)
         this.setUser(response.data.user)
         return { success: true, data: response.data }
       } catch (error) {

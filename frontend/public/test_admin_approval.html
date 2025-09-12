@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员审核功能测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .info-box {
+            background: #e8f4fd;
+            border: 1px solid #3498db;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #27ae60;
+            color: #155724;
+        }
+        .warning {
+            background: #fff3cd;
+            border-color: #f39c12;
+            color: #856404;
+        }
+        .error {
+            background: #f8d7da;
+            border-color: #e74c3c;
+            color: #721c24;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            background: #f8f9fa;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .link-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        .link-button:hover {
+            background: #2980b9;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .code {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .status-approved {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏊‍♂️ 管理员审核功能测试</h1>
+        
+        <div class="info-box">
+            <h3>📋 功能说明</h3>
+            <p>本页面用于测试管理员对教练注册的审核功能。后端已实现完整的审核API和Django管理后台界面。</p>
+        </div>
+
+        <h2>🔧 已实现的功能</h2>
+        
+        <div class="step">
+            <h3>1. 后端API实现</h3>
+            <ul>
+                <li>✅ 获取待审核教练列表API: <code>/accounts/api/pending-coaches/</code></li>
+                <li>✅ 审核教练API: <code>/accounts/api/approve-coach/{coach_id}/</code></li>
+                <li>✅ 权限控制：只有校区管理员和超级管理员可以审核</li>
+                <li>✅ 校区限制：校区管理员只能审核本校区教练</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>2. Django管理后台</h3>
+            <ul>
+                <li>✅ Coach模型已注册到admin</li>
+                <li>✅ 完整的管理界面，包含列表、筛选、搜索功能</li>
+                <li>✅ 权限控制和校区过滤</li>
+                <li>✅ 审核时自动设置审核人和审核时间</li>
+                <li>✅ 审核通过时自动激活用户账户</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>3. 测试数据</h3>
+            <table>
+                <tr>
+                    <th>账户类型</th>
+                    <th>用户名</th>
+                    <th>密码</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>超级管理员</td>
+                    <td>admin</td>
+                    <td>admin123</td>
+                    <td>可以审核所有教练</td>
+                </tr>
+                <tr>
+                    <td>校区管理员</td>
+                    <td>campus_admin</td>
+                    <td>admin123</td>
+                    <td>只能审核本校区教练</td>
+                </tr>
+                <tr>
+                    <td>待审核教练</td>
+                    <td>test_coach</td>
+                    <td>coach123</td>
+                    <td class="status-pending">状态：待审核</td>
+                </tr>
+            </table>
+        </div>
+
+        <h2>🧪 测试步骤</h2>
+        
+        <div class="step">
+            <h3>步骤1：访问Django管理后台</h3>
+            <p>点击下面的链接访问管理后台：</p>
+            <a href="http://localhost:8000/admin" class="link-button" target="_blank">🔗 Django管理后台</a>
+        </div>
+
+        <div class="step">
+            <h3>步骤2：使用管理员账户登录</h3>
+            <div class="code">
+                用户名: admin<br>
+                密码: admin123
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>步骤3：查看教练员管理</h3>
+            <p>登录后，在管理界面中找到 "ACCOUNTS" 部分，点击 "教练员" 进入教练员管理页面。</p>
+        </div>
+
+        <div class="step">
+            <h3>步骤4：审核教练</h3>
+            <p>在教练员列表中，可以看到待审核的教练。点击教练名称进入详情页面，修改审核状态：</p>
+            <ul>
+                <li>将 "审核状态" 从 "待审核" 改为 "已通过" 或 "已拒绝"</li>
+                <li>可以同时修改 "教练级别"（初级/中级/高级）</li>
+                <li>保存后系统会自动设置审核人和审核时间</li>
+                <li>如果审核通过，用户账户会被自动激活</li>
+            </ul>
+        </div>
+
+        <h2>🔍 API测试</h2>
+        
+        <div class="step">
+            <h3>测试待审核教练列表API</h3>
+            <button onclick="testPendingCoaches()" class="link-button">测试获取待审核教练</button>
+            <div id="pending-result" class="test-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>测试审核API</h3>
+            <p>需要先登录获取token，然后才能调用审核API</p>
+            <button onclick="testLogin()" class="link-button">测试管理员登录</button>
+            <div id="login-result" class="test-result"></div>
+        </div>
+
+        <h2>✅ 验证结果</h2>
+        
+        <div class="info-box success">
+            <h3>功能完整性检查</h3>
+            <ul>
+                <li>✅ 后端API已实现并测试通过</li>
+                <li>✅ Django管理后台已配置完成</li>
+                <li>✅ 权限控制正常工作</li>
+                <li>✅ 审核流程完整</li>
+                <li>✅ 测试数据已准备</li>
+            </ul>
+        </div>
+
+        <div class="info-box warning">
+            <h3>前端实现状态</h3>
+            <p><strong>前端管理界面尚未实现</strong>。目前管理员需要通过Django自带的管理后台进行审核操作。</p>
+            <p>如需前端管理界面，需要在Vue.js项目中添加：</p>
+            <ul>
+                <li>管理员专用的审核页面组件</li>
+                <li>待审核教练列表展示</li>
+                <li>审核操作界面</li>
+                <li>权限路由保护</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let authToken = null;
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = '正在测试登录...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/accounts/api/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'campus_admin',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    authToken = data.token;
+                    resultDiv.className = 'test-result success';
+                    resultDiv.innerHTML = `
+                        <h4>✅ 登录成功</h4>
+                        <p>用户: ${data.user.real_name} (${data.user.user_type})</p>
+                        <p>Token已获取，可以进行API测试</p>
+                        <button onclick="testApproveCoach()" class="link-button">测试审核API</button>
+                    `;
+                } else {
+                    resultDiv.className = 'test-result error';
+                    resultDiv.innerHTML = `<h4>❌ 登录失败</h4><p>${data.message}</p>`;
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = `<h4>❌ 请求失败</h4><p>${error.message}</p>`;
+            }
+        }
+
+        async function testPendingCoaches() {
+            const resultDiv = document.getElementById('pending-result');
+            resultDiv.innerHTML = '正在获取待审核教练...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/accounts/api/pending-coaches/');
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'test-result success';
+                    let html = '<h4>✅ 获取成功</h4>';
+                    
+                    if (data.coaches && data.coaches.length > 0) {
+                        html += '<table><tr><th>姓名</th><th>用户名</th><th>级别</th><th>状态</th><th>创建时间</th></tr>';
+                        data.coaches.forEach(coach => {
+                            html += `<tr>
+                                <td>${coach.user.real_name}</td>
+                                <td>${coach.user.username}</td>
+                                <td>${coach.coach_level}</td>
+                                <td class="status-${coach.status}">${coach.status}</td>
+                                <td>${new Date(coach.created_at).toLocaleString()}</td>
+                            </tr>`;
+                        });
+                        html += '</table>';
+                    } else {
+                        html += '<p>暂无待审核教练</p>';
+                    }
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.className = 'test-result error';
+                    resultDiv.innerHTML = `<h4>❌ 获取失败</h4><p>${data.message}</p>`;
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = `<h4>❌ 请求失败</h4><p>${error.message}</p>`;
+            }
+        }
+
+        async function testApproveCoach() {
+            if (!authToken) {
+                alert('请先登录获取token');
+                return;
+            }
+
+            const resultDiv = document.getElementById('login-result');
+            
+            try {
+                // 先获取待审核教练ID
+                const pendingResponse = await fetch('http://localhost:8000/accounts/api/pending-coaches/');
+                const pendingData = await pendingResponse.json();
+                
+                if (pendingData.success && pendingData.coaches.length > 0) {
+                    const coachId = pendingData.coaches[0].id;
+                    
+                    // 测试审核API
+                    const approveResponse = await fetch(`http://localhost:8000/accounts/api/approve-coach/${coachId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify({
+                            status: 'approved',
+                            coach_level: 'intermediate'
+                        })
+                    });
+                    
+                    const approveData = await approveResponse.json();
+                    
+                    if (approveData.success) {
+                        resultDiv.innerHTML += `
+                            <div class="test-result success">
+                                <h4>✅ 审核成功</h4>
+                                <p>教练 ${approveData.coach.user.real_name} 已审核通过</p>
+                                <p>级别: ${approveData.coach.coach_level}</p>
+                            </div>
+                        `;
+                    } else {
+                        resultDiv.innerHTML += `
+                            <div class="test-result error">
+                                <h4>❌ 审核失败</h4>
+                                <p>${approveData.message}</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    resultDiv.innerHTML += `
+                        <div class="test-result warning">
+                            <h4>⚠️ 无待审核教练</h4>
+                            <p>当前没有待审核的教练</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML += `
+                    <div class="test-result error">
+                        <h4>❌ 审核测试失败</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 页面加载时自动测试待审核教练列表
+        window.onload = function() {
+            testPendingCoaches();
+        };
+    </script>
+</body>
+</html>

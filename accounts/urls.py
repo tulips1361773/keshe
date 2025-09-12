@@ -16,6 +16,12 @@ urlpatterns = [
     path('api/change-password/', views.change_password, name='api_change_password'),
     path('api/stats/', views.user_stats, name='api_user_stats'),
     
+    # 教练员管理API
+    path('api/coaches/pending/', views.pending_coaches, name='api_pending_coaches'),
+    path('api/coaches/<int:coach_id>/approve/', views.approve_coach, name='api_approve_coach'),
+    path('api/coaches/', views.coach_list, name='api_coach_list'),
+    path('api/coaches/<int:coach_id>/', views.coach_detail, name='api_coach_detail'),
+    
     # 传统Django视图
     path('login/', views.login_view, name='login'),
     path('dashboard/', views.dashboard_view, name='dashboard'),

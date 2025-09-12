@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, UserProfile
+from .models import User, UserProfile, Coach
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -57,20 +57,33 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     """用户注册序列化器"""
-    password = serializers.CharField(write_only=True, min_length=6)
+    password = serializers.CharField(write_only=True, min_length=8, max_length=16)
     password_confirm = serializers.CharField(write_only=True)
+    achievements = serializers.CharField(required=False, allow_blank=True, write_only=True, help_text='教练员比赛成绩描述')
     
     class Meta:
         model = User
         fields = [
-            'username', 'password', 'password_confirm', 'email', 'real_name',
-            'phone', 'user_type', 'gender', 'birth_date', 'address',
-            'emergency_contact', 'emergency_phone'
+            'username', 'password', 'password_confirm', 'real_name',
+            'user_type', 'phone', 'email', 'gender', 'achievements'
         ]
+        extra_kwargs = {
+            'password': {'write_only': True, 'min_length': 8, 'max_length': 16},
+            'user_type': {'required': True},
+            'real_name': {'required': True},
+            'phone': {'required': True},
+        }
     
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("两次输入的密码不一致")
+        
+        # 教练员必须填写成就描述
+        if attrs.get('user_type') == 'coach':
+            achievements = attrs.get('achievements', '').strip()
+            if not achievements:
+                raise serializers.ValidationError("教练员必须填写比赛成绩描述")
+        
         return attrs
     
     def validate_username(self, value):
@@ -88,15 +101,53 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("该邮箱已被注册")
         return value
     
+    def validate_password(self, value):
+        import re
+        
+        # 检查密码长度
+        if len(value) < 8 or len(value) > 16:
+            raise serializers.ValidationError('密码长度必须为8-16位')
+        
+        # 检查是否包含字母
+        if not re.search(r'[a-zA-Z]', value):
+            raise serializers.ValidationError('密码必须包含字母')
+        
+        # 检查是否包含数字
+        if not re.search(r'\d', value):
+            raise serializers.ValidationError('密码必须包含数字')
+        
+        # 检查是否包含特殊字符
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>_~`\-+=\[\]\\;/]', value):
+            raise serializers.ValidationError('密码必须包含特殊字符')
+        
+        return value
+    
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
+        achievements = validated_data.pop('achievements', '')  # 移除achievements字段
+        
+        # 手动验证密码复杂度（确保验证生效）
+        self.validate_password(password)
+        
         user = User.objects.create_user(**validated_data)
         user.set_password(password)
         user.save()
         
         # 创建用户资料
         UserProfile.objects.create(user=user)
+        
+        # 如果是教练员，创建教练员记录
+        if user.user_type == 'coach':
+            from .models import Coach
+            Coach.objects.create(
+                user=user,
+                achievements=achievements,
+                status='pending'  # 默认待审核状态
+            )
+            # 教练员默认需要审核，设置为未激活会员
+            user.is_active_member = False
+            user.save()
         
         return user
 
@@ -126,6 +177,78 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('用户名和密码不能为空')
 
 
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    """用户资料更新序列化器"""
+    bio = serializers.CharField(required=False, allow_blank=True)
+    skills = serializers.CharField(required=False, allow_blank=True)
+    experience_years = serializers.IntegerField(required=False, min_value=0)
+    certification = serializers.CharField(required=False, allow_blank=True)
+    
+    class Meta:
+        model = User
+        fields = [
+            'real_name', 'email', 'gender', 'birth_date', 'address',
+            'emergency_contact', 'emergency_phone', 'bio', 'skills',
+            'experience_years', 'certification'
+        ]
+        extra_kwargs = {
+            'real_name': {'required': False},
+            'email': {'required': False},
+            'gender': {'required': False},
+            'birth_date': {'required': False},
+            'address': {'required': False},
+            'emergency_contact': {'required': False},
+            'emergency_phone': {'required': False},
+        }
+    
+    def validate_email(self, value):
+        """验证邮箱格式"""
+        if value:
+            import re
+            email_pattern = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+            if not re.match(email_pattern, value):
+                raise serializers.ValidationError('邮箱格式不正确')
+            
+            # 检查邮箱是否已被其他用户使用
+            user = self.context.get('request').user if self.context.get('request') else None
+            if user and User.objects.filter(email=value).exclude(id=user.id).exists():
+                raise serializers.ValidationError('该邮箱已被其他用户使用')
+        return value
+    
+    def validate_emergency_phone(self, value):
+        """验证紧急联系电话格式"""
+        if value:
+            import re
+            phone_pattern = r'^1[3-9]\d{9}$'
+            if not re.match(phone_pattern, value):
+                raise serializers.ValidationError('手机号格式不正确')
+        return value
+    
+    def update(self, instance, validated_data):
+        """更新用户资料"""
+        # 分离用户基本信息和扩展资料
+        profile_fields = ['bio', 'skills', 'experience_years', 'certification']
+        profile_data = {}
+        
+        for field in profile_fields:
+            if field in validated_data:
+                profile_data[field] = validated_data.pop(field)
+        
+        # 更新用户基本信息
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # 更新用户扩展资料
+        if profile_data:
+            profile, created = UserProfile.objects.get_or_create(user=instance)
+            for attr, value in profile_data.items():
+                setattr(profile, attr, value)
+            profile.save()
+        
+        return instance
+
+
 class PasswordChangeSerializer(serializers.Serializer):
     """密码修改序列化器"""
     old_password = serializers.CharField()
@@ -148,3 +271,50 @@ class PasswordChangeSerializer(serializers.Serializer):
         user.set_password(self.validated_data['new_password'])
         user.save()
         return user
+
+
+class CoachSerializer(serializers.ModelSerializer):
+    """教练员序列化器"""
+    user_info = UserSerializer(source='user', read_only=True)
+    coach_level_display = serializers.CharField(source='get_coach_level_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    approved_by_name = serializers.CharField(source='approved_by.real_name', read_only=True)
+    current_students_count = serializers.ReadOnlyField()
+    is_approved = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = Coach
+        fields = [
+            'id', 'user', 'user_info', 'coach_level', 'coach_level_display',
+            'hourly_rate', 'achievements', 'max_students', 'status', 'status_display',
+            'approved_by', 'approved_by_name', 'approved_at', 'current_students_count',
+            'is_approved', 'created_at', 'updated_at'
+        ]
+        read_only_fields = [
+            'id', 'user', 'hourly_rate', 'approved_by', 'approved_at',
+            'created_at', 'updated_at'
+        ]
+
+
+class CoachApprovalSerializer(serializers.ModelSerializer):
+    """教练员审核序列化器"""
+    
+    class Meta:
+        model = Coach
+        fields = ['coach_level', 'status']
+    
+    def validate_status(self, value):
+        if value not in ['approved', 'rejected']:
+            raise serializers.ValidationError('状态只能是已通过或已拒绝')
+        return value
+    
+    def update(self, instance, validated_data):
+        from django.utils import timezone
+        
+        # 设置审核人和审核时间
+        request = self.context.get('request')
+        if request and request.user:
+            instance.approved_by = request.user
+            instance.approved_at = timezone.now()
+        
+        return super().update(instance, validated_data)

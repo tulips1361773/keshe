@@ -111,6 +111,21 @@
             </el-select>
           </el-form-item>
 
+          <!-- 教练员专用字段 -->
+          <el-form-item 
+            v-if="registerForm.user_type === 'coach'"
+            prop="achievements"
+          >
+            <el-input
+              v-model="registerForm.achievements"
+              type="textarea"
+              :rows="3"
+              placeholder="请填写您的比赛成绩描述（教练员必填）"
+              size="large"
+              clearable
+            />
+          </el-form-item>
+
           <el-form-item prop="agreement">
             <el-checkbox v-model="registerForm.agreement">
               我已阅读并同意
@@ -213,6 +228,7 @@ export default {
       password: '',
       confirmPassword: '',
       user_type: 'student',
+      achievements: '',
       agreement: false
     })
 
@@ -271,14 +287,32 @@ export default {
       ],
       password: [
         { required: true, message: '请输入密码', trigger: 'blur' },
-        { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' },
-        { pattern: /^(?=.*[a-zA-Z])(?=.*\d)/, message: '密码必须包含字母和数字', trigger: 'blur' }
+        { min: 8, max: 16, message: '密码长度必须为8-16位', trigger: 'blur' },
+        { pattern: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>_~`\-+=\[\]\\;/]).*$/, message: '密码必须包含字母、数字和特殊字符', trigger: 'blur' }
       ],
       confirmPassword: [
         { validator: validateConfirmPassword, trigger: 'blur' }
       ],
       user_type: [
         { required: true, message: '请选择用户类型', trigger: 'change' }
+      ],
+      achievements: [
+        { 
+          validator: (rule, value, callback) => {
+            if (registerForm.user_type === 'coach') {
+              if (!value || value.trim() === '') {
+                callback(new Error('教练员必须填写比赛成绩描述'))
+              } else if (value.trim().length < 10) {
+                callback(new Error('成绩描述至少需要10个字符'))
+              } else {
+                callback()
+              }
+            } else {
+              callback()
+            }
+          }, 
+          trigger: 'blur' 
+        }
       ],
       agreement: [
         { validator: validateAgreement, trigger: 'change' }
@@ -299,7 +333,13 @@ export default {
           phone: registerForm.phone,
           email: registerForm.email || undefined,
           password: registerForm.password,
+          password_confirm: registerForm.confirmPassword,
           user_type: registerForm.user_type
+        }
+
+        // 如果是教练员，添加成绩描述
+        if (registerForm.user_type === 'coach') {
+          registerData.achievements = registerForm.achievements
         }
 
         const result = await userStore.register(registerData)
