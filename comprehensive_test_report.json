@@ -1,0 +1,79 @@
+{
+  "test_summary": {
+    "test_suite": "教练员查询与选择功能测试",
+    "start_time": "2025-09-12 21:55:18",
+    "end_time": "2025-09-12 21:55:30",
+    "duration": "0:00:11.408871",
+    "total_test_categories": 3,
+    "passed_categories": 2,
+    "failed_categories": 1,
+    "overall_success_rate": "66.7%"
+  },
+  "test_categories": {
+    "backend_api": {
+      "name": "后端API测试",
+      "status": "通过",
+      "description": "测试教练员列表、筛选、搜索和师生关系管理API",
+      "details": {
+        "success": true,
+        "output": "\n=== 设置测试数据 ===\n创建了 3 个测试教练员\n创建了测试学员: backend_test_student\n\n==================================================\n教练员查询与选择功能 - 后端API接口测试\n==================================================\n\n=== 测试教练员列表API ===\n测试运行异常: 'gbk' codec can't encode character '\\u274c' in position 0: illegal multibyte sequence\n",
+        "error": "Traceback (most recent call last):\n  File \"D:\\code\\django_learning\\keshe\\test_coach_selection_backend.py\", line 153, in test_coach_list_api\n    self.log_test_result(\n  File \"D:\\code\\django_learning\\keshe\\test_coach_selection_backend.py\", line 134, in log_test_result\n    print(f\"{status_icon} {test_name}: {message}\")\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 47, in write\n    self.__convertor.write(text)\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 177, in write\n    self.write_and_convert(text)\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 205, in write_and_convert\n    self.write_plain_text(text, cursor, len(text))\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 210, in write_plain_text\n    self.wrapped.write(text[start:end])\nUnicodeEncodeError: 'gbk' codec can't encode character '\\u2705' in position 0: illegal multibyte sequence\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"D:\\code\\django_learning\\keshe\\test_coach_selection_backend.py\", line 413, in main\n    tester.run_all_tests()\n  File \"D:\\code\\django_learning\\keshe\\test_coach_selection_backend.py\", line 364, in run_all_tests\n    self.test_coach_list_api()\n  File \"D:\\code\\django_learning\\keshe\\test_coach_selection_backend.py\", line 172, in test_coach_list_api\n    self.log_test_result(\n  File \"D:\\code\\django_learning\\keshe\\test_coach_selection_backend.py\", line 134, in log_test_result\n    print(f\"{status_icon} {test_name}: {message}\")\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 47, in write\n    self.__convertor.write(text)\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 177, in write\n    self.write_and_convert(text)\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 205, in write_and_convert\n    self.write_plain_text(text, cursor, len(text))\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 210, in write_plain_text\n    self.wrapped.write(text[start:end])\nUnicodeEncodeError: 'gbk' codec can't encode character '\\u274c' in position 0: illegal multibyte sequence\n",
+        "return_code": 0
+      }
+    },
+    "frontend": {
+      "name": "前端功能测试",
+      "status": "可用",
+      "description": "测试前端组件渲染、交互和API集成",
+      "details": {
+        "success": true,
+        "file_exists": true,
+        "file_path": "D:\\code\\django_learning\\keshe\\frontend\\test_coach_selection_frontend.html",
+        "note": "需要在浏览器中手动执行"
+      }
+    },
+    "e2e": {
+      "name": "端到端测试",
+      "status": "失败",
+      "description": "测试完整的用户操作流程",
+      "details": {
+        "success": false,
+        "output": "",
+        "error": "Traceback (most recent call last):\n  File \"D:\\code\\django_learning\\keshe\\test_coach_selection_e2e.py\", line 602, in <module>\n    main()\n  File \"D:\\code\\django_learning\\keshe\\test_coach_selection_e2e.py\", line 584, in main\n    print(\"\\U0001f3d3 开始教练员选择功能端到端测试...\")\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 47, in write\n    self.__convertor.write(text)\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 177, in write\n    self.write_and_convert(text)\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 205, in write_and_convert\n    self.write_plain_text(text, cursor, len(text))\n  File \"D:\\Anaconda\\envs\\django\\lib\\site-packages\\colorama\\ansitowin32.py\", line 210, in write_plain_text\n    self.wrapped.write(text[start:end])\nUnicodeEncodeError: 'gbk' codec can't encode character '\\U0001f3d3' in position 0: illegal multibyte sequence\n",
+        "return_code": 1
+      }
+    }
+  },
+  "test_environment": {
+    "python_version": "3.9.23 (main, Jun  5 2025, 13:25:08) [MSC v.1929 64 bit (AMD64)]",
+    "operating_system": "nt",
+    "working_directory": "D:\\code\\django_learning\\keshe",
+    "test_files": [
+      "test_coach_selection_backend.py",
+      "frontend/test_coach_selection_frontend.html",
+      "test_coach_selection_e2e.py"
+    ]
+  },
+  "recommendations": [
+    {
+      "category": "端到端测试",
+      "issue": "端到端测试失败",
+      "suggestion": "确保Chrome浏览器和ChromeDriver已安装，前后端服务器都在运行"
+    },
+    {
+      "category": "测试环境",
+      "issue": "测试环境准备",
+      "suggestion": "确保前端服务器运行在 http://localhost:5173，后端服务器运行在 http://localhost:8000"
+    },
+    {
+      "category": "数据准备",
+      "issue": "测试数据",
+      "suggestion": "确保数据库中有足够的教练员和学员测试数据"
+    },
+    {
+      "category": "权限设置",
+      "issue": "用户权限",
+      "suggestion": "确保测试用户具有正确的权限组设置（学员组）"
+    }
+  ]
+}

@@ -60,6 +60,11 @@
             <span>我的课程</span>
           </el-menu-item>
           
+          <el-menu-item v-if="userStore.user?.user_type === 'student'" index="coach-selection">
+            <el-icon><User /></el-icon>
+            <span>选择教练</span>
+          </el-menu-item>
+          
           <el-menu-item v-if="userStore.user?.user_type === 'coach'" index="teaching">
             <el-icon><Star /></el-icon>
             <span>教学管理</span>
@@ -218,6 +223,11 @@
           </div>
         </div>
 
+        <!-- 教练员选择页面 -->
+        <div v-else-if="activeMenu === 'coach-selection'" class="coach-selection-content">
+          <CoachSelection />
+        </div>
+
         <!-- 其他页面内容占位符 -->
         <div v-else class="page-content">
           <div class="page-placeholder">
@@ -239,6 +249,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import CoachSelection from '@/components/CoachSelection.vue'
 import {
   Basketball,
   User,
@@ -281,7 +292,8 @@ export default {
     Search,
     Service,
     Tools,
-    CreditCard
+    CreditCard,
+    CoachSelection
   },
   setup() {
     const router = useRouter()
@@ -336,6 +348,7 @@ export default {
     const getPageTitle = () => {
       const titleMap = {
         'courses': '我的课程',
+        'coach-selection': '选择教练',
         'teaching': '教学管理',
         'schedule': '课程表',
         'progress': '学习进度',

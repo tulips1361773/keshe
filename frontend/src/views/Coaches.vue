@@ -56,6 +56,36 @@
             </div>
             
             <div class="filter-group">
+              <label class="filter-label">性别：</label>
+              <el-radio-group v-model="filters.gender" @change="handleFilterChange">
+                <el-radio-button label="all">全部</el-radio-button>
+                <el-radio-button label="male">男</el-radio-button>
+                <el-radio-button label="female">女</el-radio-button>
+              </el-radio-group>
+            </div>
+            
+            <div class="filter-group">
+              <label class="filter-label">年龄：</label>
+              <el-input-number 
+                v-model="filters.ageMin" 
+                :min="18" 
+                :max="80" 
+                placeholder="最小年龄"
+                style="width: 100px"
+                @change="handleFilterChange"
+              />
+              <span style="margin: 0 8px;">-</span>
+              <el-input-number 
+                v-model="filters.ageMax" 
+                :min="18" 
+                :max="80" 
+                placeholder="最大年龄"
+                style="width: 100px"
+                @change="handleFilterChange"
+              />
+            </div>
+            
+            <div class="filter-group">
               <label class="filter-label">排序方式：</label>
               <el-select v-model="filters.sort" @change="handleFilterChange" style="width: 120px">
                 <el-option label="最新" value="newest" />
@@ -196,7 +226,10 @@ export default {
     const filters = reactive({
       level: 'all',
       status: 'all',
-      sort: 'newest'
+      sort: 'newest',
+      gender: 'all',
+      ageMin: null,
+      ageMax: null
     })
     
     const coaches = ref([])
@@ -211,7 +244,10 @@ export default {
           search: searchKeyword.value,
           level: filters.level,
           status: filters.status === 'all' ? '' : filters.status,
-          ordering: getOrderingParam(filters.sort)
+          ordering: getOrderingParam(filters.sort),
+          gender: filters.gender === 'all' ? '' : filters.gender,
+          age_min: filters.ageMin,
+          age_max: filters.ageMax
         }
         
         // 移除空参数

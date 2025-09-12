@@ -596,6 +596,9 @@ def coach_list(request):
         level_filter = request.GET.get('level')
         campus_id = request.GET.get('campus_id')
         search = request.GET.get('search', '')
+        gender_filter = request.GET.get('gender')
+        age_min = request.GET.get('age_min')
+        age_max = request.GET.get('age_max')
         ordering = request.GET.get('ordering', '-created_at')
         page = int(request.GET.get('page', 1))
         page_size = int(request.GET.get('page_size', 12))
@@ -623,6 +626,33 @@ def coach_list(request):
                 Q(user__phone__icontains=search) |
                 Q(achievements__icontains=search)
             )
+        
+        # 性别筛选
+        if gender_filter:
+            queryset = queryset.filter(user__gender=gender_filter)
+        
+        # 年龄筛选
+        if age_min or age_max:
+            from datetime import date, timedelta
+            today = date.today()
+            
+            if age_min:
+                try:
+                    age_min = int(age_min)
+                    # 计算最大出生日期（年龄最小对应的出生日期）
+                    max_birth_date = today - timedelta(days=age_min * 365)
+                    queryset = queryset.filter(user__birth_date__lte=max_birth_date)
+                except (ValueError, TypeError):
+                    pass
+            
+            if age_max:
+                try:
+                    age_max = int(age_max)
+                    # 计算最小出生日期（年龄最大对应的出生日期）
+                    min_birth_date = today - timedelta(days=(age_max + 1) * 365)
+                    queryset = queryset.filter(user__birth_date__gte=min_birth_date)
+                except (ValueError, TypeError):
+                    pass
         
         # 排序
         if ordering:

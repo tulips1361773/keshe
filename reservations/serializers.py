@@ -60,17 +60,57 @@ class CoachStudentRelationSerializer(serializers.ModelSerializer):
                 data['student'] = student
             except User.DoesNotExist:
                 raise serializers.ValidationError('指定的学员不存在')
+            
+            # 检查是否已存在师生关系
+            existing_relation = CoachStudentRelation.objects.filter(
+                coach=user,
+                student=student
+            ).first()
+            
+            if existing_relation:
+                if existing_relation.status == 'pending':
+                    raise serializers.ValidationError('您已经向该学员发送过申请，请等待处理')
+                elif existing_relation.status == 'approved':
+                    raise serializers.ValidationError('您与该学员已经建立了师生关系')
+                elif existing_relation.status == 'rejected':
+                    raise serializers.ValidationError('该学员已拒绝您的申请，暂时无法重新申请')
         
         elif user.user_type == 'student':
             if 'coach_id' not in data:
                 raise serializers.ValidationError('学员申请时必须指定教练')
             
-            # 验证教练存在且为教练类型
+            # 验证教练是否存在 - 支持Coach模型ID和User模型ID
+            coach = None
             try:
-                coach = User.objects.get(id=data['coach_id'], user_type='coach')
-                data['coach'] = coach
-            except User.DoesNotExist:
+                # 首先尝试通过Coach模型ID查找
+                from accounts.models import Coach
+                coach_profile = Coach.objects.select_related('user').get(id=data['coach_id'])
+                coach = coach_profile.user
+            except Coach.DoesNotExist:
+                try:
+                    # 如果Coach模型ID不存在，尝试User模型ID
+                    coach = User.objects.get(id=data['coach_id'], user_type='coach')
+                except User.DoesNotExist:
+                    raise serializers.ValidationError('指定的教练不存在')
+            
+            if not coach or coach.user_type != 'coach':
                 raise serializers.ValidationError('指定的教练不存在')
+            
+            data['coach'] = coach
+            
+            # 检查是否已存在师生关系
+            existing_relation = CoachStudentRelation.objects.filter(
+                coach=coach,
+                student=user
+            ).first()
+            
+            if existing_relation:
+                if existing_relation.status == 'pending':
+                    raise serializers.ValidationError('您已经向该教练发送过申请，请等待处理')
+                elif existing_relation.status == 'approved':
+                    raise serializers.ValidationError('您已经选择过这位教练了')
+                elif existing_relation.status == 'rejected':
+                    raise serializers.ValidationError('该教练已拒绝您的申请，暂时无法重新申请')
         
         else:
             raise serializers.ValidationError('只有教练和学员可以创建师生关系')
@@ -78,9 +118,21 @@ class CoachStudentRelationSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
+        request = self.context.get('request')
+        user = request.user if request else None
+        
+        # 根据用户类型设置关系
+        if user and user.user_type == 'coach':
+            validated_data['coach'] = user
+            # student已在validate中设置
+        elif user and user.user_type == 'student':
+            validated_data['student'] = user
+            # coach已在validate中设置
+        
         # 移除临时字段
         validated_data.pop('coach_id', None)
         validated_data.pop('student_id', None)
+        
         return super().create(validated_data)
 
 
