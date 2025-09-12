@@ -228,9 +228,17 @@ def user_profile(request):
 @permission_classes([IsAuthenticated])
 def update_profile(request):
     """更新用户资料API"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
         data = json.loads(request.body)
         user = request.user
+        
+        # 记录详细的请求信息
+        logger.info(f"个人资料更新请求 - 用户: {user.username}")
+        logger.info(f"请求数据: {json.dumps(data, ensure_ascii=False)}")
+        logger.info(f"当前用户信息 - 手机: {user.phone}, 邮箱: {user.email}, 姓名: {user.real_name}")
         
         # 使用序列化器进行验证和更新
         serializer = UserProfileUpdateSerializer(
@@ -244,6 +252,7 @@ def update_profile(request):
             updated_user = serializer.save()
             profile, created = UserProfile.objects.get_or_create(user=updated_user)
             
+            logger.info(f"资料更新成功 - 用户: {user.username}")
             return Response({
                 'success': True,
                 'message': '资料更新成功',
@@ -251,6 +260,10 @@ def update_profile(request):
                 'profile': UserProfileSerializer(profile).data
             })
         else:
+            # 记录验证错误详情
+            logger.warning(f"资料更新验证失败 - 用户: {user.username}")
+            logger.warning(f"验证错误: {json.dumps(serializer.errors, ensure_ascii=False)}")
+            
             # 提取第一个错误信息
             error_messages = []
             for field, errors in serializer.errors.items():
@@ -265,6 +278,8 @@ def update_profile(request):
             }, status=status.HTTP_400_BAD_REQUEST)
             
     except Exception as e:
+        logger.error(f"资料更新异常 - 用户: {request.user.username if request.user.is_authenticated else 'Anonymous'}")
+        logger.error(f"异常详情: {str(e)}")
         return Response({
             'success': False,
             'message': f'更新资料失败: {str(e)}'

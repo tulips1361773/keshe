@@ -209,13 +209,14 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'real_name', 'email', 'gender', 'birth_date', 'address',
+            'real_name', 'email', 'phone', 'gender', 'birth_date', 'address',
             'emergency_contact', 'emergency_phone', 'bio', 'skills',
             'experience_years', 'certification'
         ]
         extra_kwargs = {
             'real_name': {'required': False},
             'email': {'required': False},
+            'phone': {'required': False},
             'gender': {'required': False},
             'birth_date': {'required': False},
             'address': {'required': False},
@@ -235,6 +236,20 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             user = self.context.get('request').user if self.context.get('request') else None
             if user and User.objects.filter(email=value).exclude(id=user.id).exists():
                 raise serializers.ValidationError('该邮箱已被其他用户使用')
+        return value
+    
+    def validate_phone(self, value):
+        """验证手机号格式"""
+        if value:
+            import re
+            phone_pattern = r'^1[3-9]\d{9}$'
+            if not re.match(phone_pattern, value):
+                raise serializers.ValidationError('手机号格式不正确')
+            
+            # 检查手机号是否已被其他用户使用
+            user = self.context.get('request').user if self.context.get('request') else None
+            if user and User.objects.filter(phone=value).exclude(id=user.id).exists():
+                raise serializers.ValidationError('该手机号已被其他用户使用')
         return value
     
     def validate_emergency_phone(self, value):
