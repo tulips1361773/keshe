@@ -9,8 +9,21 @@
 </template>
 
 <script>
+import { useUserStore } from '@/stores/user'
+import { onMounted } from 'vue'
+
 export default {
-  name: 'App'
+  name: 'App',
+  setup() {
+    const userStore = useUserStore()
+    
+    onMounted(async () => {
+      // 初始化认证状态
+      await userStore.initializeAuth()
+    })
+    
+    return {}
+  }
 }
 </script>
 

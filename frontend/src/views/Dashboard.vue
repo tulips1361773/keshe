@@ -423,7 +423,7 @@ export default {
     // 加载统计数据
     const loadStats = async () => {
       try {
-        const response = await axios.get('/api/accounts/api/stats/')
+        const response = await axios.get('/accounts/api/stats/')
         if (response.data.success) {
           const data = response.data.data
           Object.assign(stats, {
