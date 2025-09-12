@@ -27,7 +27,7 @@
         <!-- 头像区域 -->
         <div class="avatar-section custom-card">
           <div class="avatar-content">
-            <el-avatar :size="120" :src="profileForm.avatar">
+            <el-avatar :size="120" :src="getAvatarUrl(profileForm.avatar)">
               <el-icon><User /></el-icon>
             </el-avatar>
             <div class="avatar-actions">
@@ -416,11 +416,22 @@ export default {
       return new Date(dateString).toLocaleDateString('zh-CN')
     }
 
+    const getAvatarUrl = (avatar) => {
+      if (!avatar) return ''
+      // 如果已经是完整URL，直接返回
+      if (avatar.startsWith('http')) return avatar
+      // 如果是相对路径，添加服务器地址
+      return `http://localhost:8000${avatar}`
+    }
+
     const loadProfile = async () => {
       try {
         const response = await axios.get('/accounts/api/profile/')
-        const user = response.data
-        if (user) {
+        const data = response.data
+        if (data && data.success) {
+          const user = data.user
+          const profile = data.profile
+          
           Object.assign(profileForm, {
             username: user.username || '',
             real_name: user.real_name || '',
@@ -430,12 +441,12 @@ export default {
             address: user.address || '',
             emergency_contact: user.emergency_contact || '',
             emergency_phone: user.emergency_phone || '',
-            skills: user.skills || '',
-            experience_years: user.experience_years || 0,
+            skills: profile.skills || '',
+            experience_years: profile.experience_years || 0,
             user_type: user.user_type || 'student',
             is_active: user.is_active !== false,
-            date_joined: user.date_joined || '',
-            bio: user.bio || '',
+            date_joined: user.registration_date || '',
+            bio: profile.bio || '',
             avatar: user.avatar || ''
           })
         }
@@ -609,6 +620,7 @@ export default {
       showChangePassword,
       getUserTypeText,
       formatDate,
+      getAvatarUrl,
       handleSave,
       handleAvatarUpload,
       handleChangePassword,

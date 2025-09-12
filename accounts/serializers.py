@@ -5,6 +5,7 @@ from .models import User, UserProfile, Coach
 class UserSerializer(serializers.ModelSerializer):
     """用户序列化器"""
     password = serializers.CharField(write_only=True)
+    avatar = serializers.SerializerMethodField()
     
     class Meta:
         model = User
@@ -19,6 +20,16 @@ class UserSerializer(serializers.ModelSerializer):
             'last_login': {'read_only': True},
             'registration_date': {'read_only': True},
         }
+    
+    def get_avatar(self, obj):
+        """获取头像URL"""
+        if obj.avatar:
+            # 如果头像字段有值，返回完整的URL
+            if obj.avatar.name.startswith('http'):
+                return obj.avatar.name
+            else:
+                return f"/media/{obj.avatar.name}"
+        return None
     
     def create(self, validated_data):
         password = validated_data.pop('password')

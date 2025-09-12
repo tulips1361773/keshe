@@ -130,9 +130,12 @@ def upload_avatar(request):
                 destination.write(chunk)
         
         # 更新用户头像字段
-        avatar_url = f"/media/avatars/{new_filename}"
-        request.user.avatar = avatar_url
+        avatar_relative_path = f"avatars/{new_filename}"
+        request.user.avatar = avatar_relative_path
         request.user.save()
+        
+        # 返回完整的URL路径
+        avatar_url = f"/media/{avatar_relative_path}"
         
         return Response({
             'success': True,
