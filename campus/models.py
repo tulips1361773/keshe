@@ -5,6 +5,11 @@ from accounts.models import User
 
 class Campus(models.Model):
     """校区模型"""
+    CAMPUS_TYPE_CHOICES = [
+        ('center', '中心校区'),
+        ('branch', '分校区'),
+    ]
+    
     name = models.CharField(
         max_length=100,
         unique=True,
@@ -15,8 +20,19 @@ class Campus(models.Model):
         unique=True,
         verbose_name='校区编码'
     )
+    campus_type = models.CharField(
+        max_length=10,
+        choices=CAMPUS_TYPE_CHOICES,
+        default='branch',
+        verbose_name='校区类型'
+    )
     address = models.TextField(
         verbose_name='校区地址'
+    )
+    contact_person = models.CharField(
+        max_length=50,
+        default='待填写',
+        verbose_name='联系人'
     )
     phone = models.CharField(
         max_length=20,
@@ -32,9 +48,18 @@ class Campus(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        limit_choices_to={'user_type': 'campus_admin'},
+        limit_choices_to={'user_type__in': ['campus_admin', 'super_admin']},
         related_name='managed_campus',
         verbose_name='校区管理员'
+    )
+    parent_campus = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={'campus_type': 'center'},
+        related_name='branch_campuses',
+        verbose_name='上级校区'
     )
     description = models.TextField(
         blank=True,
@@ -75,17 +100,44 @@ class Campus(models.Model):
         ordering = ['name']
     
     def __str__(self):
-        return self.name
-    
+        return f"{self.name}({self.get_campus_type_display()})"
+
     @property
     def current_students_count(self):
         """当前学员数量"""
         return self.students.filter(is_active=True).count()
-    
+
     @property
     def current_coaches_count(self):
         """当前教练数量"""
         return self.coaches.filter(is_active=True).count()
+    
+    @property
+    def is_center_campus(self):
+        """是否为中心校区"""
+        return self.campus_type == 'center'
+    
+    @property
+    def branch_campuses_count(self):
+        """分校区数量（仅对中心校区有效）"""
+        if self.is_center_campus:
+            return self.branch_campuses.filter(is_active=True).count()
+        return 0
+    
+    def can_manage_by_user(self, user):
+        """检查用户是否可以管理此校区"""
+        if user.user_type == 'super_admin':
+            return True
+        if user.user_type == 'campus_admin' and self.manager == user:
+            return True
+        return False
+    
+    def get_all_managed_campuses(self):
+        """获取用户可管理的所有校区（包括分校区）"""
+        campuses = [self]
+        if self.is_center_campus:
+            campuses.extend(list(self.branch_campuses.filter(is_active=True)))
+        return campuses
 
 
 class CampusArea(models.Model):

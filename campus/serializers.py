@@ -8,13 +8,19 @@ class CampusSerializer(serializers.ModelSerializer):
     manager_name = serializers.CharField(source='manager.real_name', read_only=True)
     current_students_count = serializers.ReadOnlyField()
     current_coaches_count = serializers.ReadOnlyField()
+    campus_type_display = serializers.CharField(source='get_campus_type_display', read_only=True)
+    parent_campus_name = serializers.CharField(source='parent_campus.name', read_only=True)
+    is_center_campus = serializers.ReadOnlyField()
+    branch_campuses_count = serializers.ReadOnlyField()
     
     class Meta:
         model = Campus
         fields = [
-            'id', 'name', 'code', 'address', 'phone', 'email',
-            'manager', 'manager_name', 'description', 'facilities',
-            'operating_hours', 'capacity', 'is_active',
+            'id', 'name', 'code', 'campus_type', 'campus_type_display',
+            'address', 'contact_person', 'phone', 'email',
+            'manager', 'manager_name', 'parent_campus', 'parent_campus_name',
+            'description', 'facilities', 'operating_hours', 'capacity',
+            'is_active', 'is_center_campus', 'branch_campuses_count',
             'current_students_count', 'current_coaches_count',
             'created_at', 'updated_at'
         ]
@@ -43,6 +49,25 @@ class CampusSerializer(serializers.ModelSerializer):
             if Campus.objects.filter(name=value).exists():
                 raise serializers.ValidationError("校区名称已存在")
         return value
+    
+    def validate(self, data):
+        """验证校区数据"""
+        campus_type = data.get('campus_type')
+        parent_campus = data.get('parent_campus')
+        
+        # 分校区必须有上级校区
+        if campus_type == 'branch' and not parent_campus:
+            raise serializers.ValidationError("分校区必须指定上级校区")
+        
+        # 中心校区不能有上级校区
+        if campus_type == 'center' and parent_campus:
+            raise serializers.ValidationError("中心校区不能指定上级校区")
+        
+        # 上级校区必须是中心校区
+        if parent_campus and parent_campus.campus_type != 'center':
+            raise serializers.ValidationError("上级校区必须是中心校区")
+        
+        return data
 
 
 class CampusAreaSerializer(serializers.ModelSerializer):

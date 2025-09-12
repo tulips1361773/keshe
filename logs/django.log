@@ -1191,3 +1191,106 @@ django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. Y
 [2025-09-11 17:34:14] INFO django.server: "GET /api/reservations/tables/available/?start_time=2025-09-13+05%3A03%3A00&end_time=2025-09-14+02%3A33%3A11&campus_id=2 HTTP/1.1" 200 309
 [2025-09-11 17:34:16] INFO django.server: "GET /api/reservations/tables/available/?start_time=2025-09-13+05%3A03%3A00&end_time=2025-09-14+00%3A33%3A11&campus_id=2 HTTP/1.1" 200 309
 [2025-09-11 17:34:17] INFO django.server: "GET /api/reservations/tables/available/?start_time=2025-09-13+05%3A03%3A00&end_time=2025-09-14+00%3A33%3A11&campus_id=2 HTTP/1.1" 200 309
+[2025-09-11 17:36:46] INFO django.server: "GET /accounts/api/profile/ HTTP/1.1" 200 937
+[2025-09-11 17:36:46] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-11 17:36:46] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-11 17:36:46] INFO django.server: "GET /api/accounts/api/stats/ HTTP/1.1" 200 103
+[2025-09-11 17:37:14] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+[2025-09-11 17:37:14] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 17:37:40] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+[2025-09-11 17:37:40] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 17:40:41] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\models.py changed, reloading.
+[2025-09-11 17:40:42] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 17:41:06] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\models.py changed, reloading.
+[2025-09-11 17:41:07] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 17:41:28] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\serializers.py changed, reloading.
+[2025-09-11 17:41:28] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 17:41:41] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\serializers.py changed, reloading.
+[2025-09-11 17:41:41] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 18:12:33] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\models.py changed, reloading.
+[2025-09-11 18:12:34] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 18:13:50] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\views.py changed, reloading.
+[2025-09-11 18:13:51] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 18:14:07] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\views.py changed, reloading.
+[2025-09-11 18:14:07] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 18:14:33] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\views.py changed, reloading.
+[2025-09-11 18:14:33] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 18:14:53] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\views.py changed, reloading.
+[2025-09-11 18:14:53] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 18:15:39] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\views.py changed, reloading.
+[2025-09-11 18:15:40] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 18:15:51] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\views.py changed, reloading.
+[2025-09-11 18:15:51] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 18:16:09] INFO django.utils.autoreload: D:\code\django_learning\keshe\campus\views.py changed, reloading.
+[2025-09-11 18:16:10] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-11 18:35:29] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 18:35:29] INFO django.server: "GET /accounts/api/csrf-token/ HTTP/1.1" 200 80
+[2025-09-11 18:35:29] INFO django.server: "GET /api/courses/evaluations/?page=1&page_size=10&course=&coach=&rating= HTTP/1.1" 200 121
+[2025-09-11 18:35:29] INFO django.server: "GET /api/reservations/coaches/ HTTP/1.1" 200 300
+[2025-09-11 18:35:29] INFO django.server: "GET /api/courses/list/ HTTP/1.1" 200 1986
+[2025-09-11 18:35:29] INFO django.server: "GET /api/courses/list/ HTTP/1.1" 200 1986
+[2025-09-11 18:35:29] INFO django.server: "GET /api/courses/list/ HTTP/1.1" 200 1986
+[2025-09-12 09:56:40] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 09:58:51] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-12 09:59:06] INFO django.server: "GET /?ide_webview_request_time=1757642346388 HTTP/1.1" 302 0
+[2025-09-12 09:59:06] INFO django.server: "GET /admin/ HTTP/1.1" 200 8952
+[2025-09-12 09:59:06] INFO django.server: "GET /static/admin/css/base.css HTTP/1.1" 304 0
+[2025-09-12 09:59:06] INFO django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+[2025-09-12 09:59:06] INFO django.server: "GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+[2025-09-12 09:59:06] INFO django.server: "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+[2025-09-12 09:59:06] INFO django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+[2025-09-12 09:59:06] INFO django.server: "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+[2025-09-12 09:59:06] INFO django.server: "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+[2025-09-12 09:59:06] INFO django.server: "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+[2025-09-12 09:59:06] INFO django.server: "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+[2025-09-12 09:59:06] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 3582
+[2025-09-12 09:59:13] INFO django.server: "GET /admin/campus/campusarea/add/ HTTP/1.1" 200 16854
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/css/forms.css HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/core.js HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/actions.js HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/css/widgets.css HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/collapse.js HTTP/1.1" 200 1803
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/js/change_form.js HTTP/1.1" 304 0
+[2025-09-12 09:59:13] INFO django.server: "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+[2025-09-12 09:59:13] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 3582
+[2025-09-12 09:59:18] INFO django.server: "GET /admin/campus/campus/add/ HTTP/1.1" 200 25635
+[2025-09-12 09:59:18] INFO django.server: "GET /static/admin/js/inlines.js HTTP/1.1" 304 0
+[2025-09-12 09:59:18] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 09:59:18] INFO django.server: "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+[2025-09-12 09:59:18] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 3582
+[2025-09-12 09:59:20] INFO django.server: "GET /admin/campus/campusstudent/add/ HTTP/1.1" 200 16025
+[2025-09-12 09:59:20] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 09:59:20] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 3582
+[2025-09-12 09:59:23] INFO django.server: "GET /admin/campus/campuscoach/add/ HTTP/1.1" 200 17758
+[2025-09-12 09:59:23] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 09:59:24] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 3582
+[2025-09-12 09:59:46] INFO django.server: "GET /admin/accounts/user/add/?_to_field=id&_popup=1 HTTP/1.1" 200 15856
+[2025-09-12 09:59:46] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 09:59:46] INFO django.server: "GET /static/admin/img/inline-delete.svg HTTP/1.1" 304 0
+[2025-09-12 10:01:47] INFO django.server: "GET /admin/campus/campuscoach/add/ HTTP/1.1" 200 17758
+[2025-09-12 10:01:47] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 10:01:47] INFO django.server: "GET /admin/campus/campuscoach/add/ HTTP/1.1" 200 17758
+[2025-09-12 10:01:47] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-12 10:01:47] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 3582
+[2025-09-12 10:01:57] INFO django.server: "GET /admin/ HTTP/1.1" 200 8952
+[2025-09-12 10:01:57] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 3582
+[2025-09-12 10:06:44] WARNING django.server: "POST /api/accounts/register/ HTTP/1.1" 404 5621
+[2025-09-12 10:07:10] WARNING django.server: "POST /api/accounts/api/register/ HTTP/1.1" 400 87
+[2025-09-12 10:07:31] WARNING django.server: "POST /api/accounts/api/register/ HTTP/1.1" 400 48
+[2025-09-12 10:07:43] WARNING django.server: "POST /api/accounts/api/register/ HTTP/1.1" 400 51
+[2025-09-12 10:07:54] INFO django.server: "POST /api/accounts/api/login/ HTTP/1.1" 200 465
+[2025-09-12 10:08:03] WARNING django.server: "GET /api/campus/api/campuses/ HTTP/1.1" 404 6369
+[2025-09-12 10:08:15] WARNING django.server: "GET /api/campus/api/list/ HTTP/1.1" 403 43
+[2025-09-12 10:08:25] INFO django.server: "POST /api/accounts/api/login/ HTTP/1.1" 200 465
+[2025-09-12 10:08:49] INFO django.server: "GET /api/campus/api/list/ HTTP/1.1" 200 1934
+[2025-09-12 10:09:06] INFO django.server: "GET /api/courses/list/ HTTP/1.1" 200 1986
+[2025-09-12 10:09:26] INFO django.server: "GET /api/reservations/tables/ HTTP/1.1" 200 359
+[2025-09-12 10:09:57] INFO django.server: "GET /api/payments/api/account/ HTTP/1.1" 200 237

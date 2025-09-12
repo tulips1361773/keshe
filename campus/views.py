@@ -13,6 +13,21 @@ from accounts.models import User
 import json
 
 
+def check_campus_permission(user, campus=None, action='view'):
+    """检查用户对校区的操作权限"""
+    if user.user_type == 'super_admin':
+        return True
+    
+    if user.user_type == 'campus_admin':
+        if action in ['create', 'delete']:
+            # 校区管理员不能创建或删除校区
+            return False
+        if campus and campus.can_manage_by_user(user):
+            return True
+    
+    return False
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def campus_list(request):
@@ -21,19 +36,35 @@ def campus_list(request):
         # 获取查询参数
         search = request.GET.get('search', '')
         is_active = request.GET.get('is_active')
+        campus_type = request.GET.get('campus_type')
         
         # 构建查询条件
         queryset = Campus.objects.all()
+        
+        # 权限过滤
+        if request.user.user_type == 'campus_admin':
+            # 校区管理员只能看到自己管理的校区及其分校区
+            managed_campuses = request.user.managed_campus.all()
+            campus_ids = []
+            for campus in managed_campuses:
+                campus_ids.append(campus.id)
+                if campus.is_center_campus:
+                    campus_ids.extend([c.id for c in campus.branch_campuses.filter(is_active=True)])
+            queryset = queryset.filter(id__in=campus_ids)
         
         if search:
             queryset = queryset.filter(
                 Q(name__icontains=search) |
                 Q(code__icontains=search) |
-                Q(address__icontains=search)
+                Q(address__icontains=search) |
+                Q(contact_person__icontains=search)
             )
         
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active.lower() == 'true')
+            
+        if campus_type:
+            queryset = queryset.filter(campus_type=campus_type)
         
         # 序列化数据
         serializer = CampusSerializer(queryset, many=True)
@@ -41,7 +72,11 @@ def campus_list(request):
         return Response({
             'success': True,
             'data': serializer.data,
-            'count': queryset.count()
+            'count': queryset.count(),
+            'user_permissions': {
+                'can_create': check_campus_permission(request.user, action='create'),
+                'is_super_admin': request.user.user_type == 'super_admin'
+            }
         })
     except Exception as e:
         return Response({
@@ -59,8 +94,7 @@ def campus_area_update(request, campus_id, area_id):
         area = get_object_or_404(CampusArea, id=area_id, campus=campus)
         
         # 检查权限：超级管理员或校区管理员可以更新分区
-        if not (request.user.is_super_admin or request.user.is_superuser or 
-                campus.manager == request.user):
+        if not check_campus_permission(request.user, campus, 'edit'):
             return Response({
                 'success': False,
                 'message': '没有权限更新此分区'
@@ -107,12 +141,11 @@ def campus_area_delete(request, campus_id, area_id):
         campus = get_object_or_404(Campus, id=campus_id)
         area = get_object_or_404(CampusArea, id=area_id, campus=campus)
         
-        # 检查权限：超级管理员或校区管理员可以删除分区
-        if not (request.user.is_super_admin or request.user.is_superuser or 
-                campus.manager == request.user):
+        # 检查权限：超级管理员或校区管理员可以创建分区
+        if not check_campus_permission(request.user, campus, 'edit'):
             return Response({
                 'success': False,
-                'message': '没有权限删除此分区'
+                'message': '没有权限在此校区创建分区'
             }, status=status.HTTP_403_FORBIDDEN)
         
         # 检查分区是否有关联的预约或其他数据
@@ -148,7 +181,7 @@ def campus_create(request):
     """创建校区API"""
     try:
         # 检查权限：只有超级管理员可以创建校区
-        if not request.user.is_super_admin and not request.user.is_superuser:
+        if not check_campus_permission(request.user, action='create'):
             return Response({
                 'success': False,
                 'message': '只有超级管理员可以创建校区'
@@ -183,11 +216,23 @@ def campus_detail(request, campus_id):
     """校区详情API"""
     try:
         campus = get_object_or_404(Campus, id=campus_id)
+        
+        # 检查权限
+        if not check_campus_permission(request.user, campus, 'view'):
+            return Response({
+                'success': False,
+                'message': '没有权限查看此校区'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
         serializer = CampusSerializer(campus)
         
         return Response({
             'success': True,
-            'data': serializer.data
+            'data': serializer.data,
+            'user_permissions': {
+                'can_edit': check_campus_permission(request.user, campus, 'edit'),
+                'can_delete': check_campus_permission(request.user, campus, 'delete')
+            }
         })
     except Campus.DoesNotExist:
         return Response({
@@ -209,8 +254,7 @@ def campus_update(request, campus_id):
         campus = get_object_or_404(Campus, id=campus_id)
         
         # 检查权限：超级管理员或校区管理员可以更新
-        if not (request.user.is_super_admin or request.user.is_superuser or 
-                campus.manager == request.user):
+        if not check_campus_permission(request.user, campus, 'edit'):
             return Response({
                 'success': False,
                 'message': '没有权限更新此校区'
@@ -252,7 +296,7 @@ def campus_delete(request, campus_id):
         campus = get_object_or_404(Campus, id=campus_id)
         
         # 检查权限：只有超级管理员可以删除校区
-        if not request.user.is_super_admin and not request.user.is_superuser:
+        if not check_campus_permission(request.user, campus, 'delete'):
             return Response({
                 'success': False,
                 'message': '只有超级管理员可以删除校区'
@@ -316,12 +360,11 @@ def campus_area_create(request, campus_id):
     try:
         campus = get_object_or_404(Campus, id=campus_id)
         
-        # 检查权限：超级管理员或校区管理员可以创建分区
-        if not (request.user.is_super_admin or request.user.is_superuser or 
-                campus.manager == request.user):
+        # 检查权限：超级管理员或校区管理员可以删除分区
+        if not check_campus_permission(request.user, campus, 'edit'):
             return Response({
                 'success': False,
-                'message': '没有权限在此校区创建分区'
+                'message': '没有权限删除此分区'
             }, status=status.HTTP_403_FORBIDDEN)
         
         data = json.loads(request.body) if request.body else request.data
