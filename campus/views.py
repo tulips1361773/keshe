@@ -397,6 +397,96 @@ def campus_area_create(request, campus_id):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def campus_assign_manager(request, campus_id):
+    """为校区指定管理员API"""
+    try:
+        campus = get_object_or_404(Campus, id=campus_id)
+        
+        # 检查权限：只有超级管理员可以指定校区管理员
+        if request.user.user_type != 'super_admin':
+            return Response({
+                'success': False,
+                'message': '只有超级管理员可以指定校区管理员'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        data = json.loads(request.body) if request.body else request.data
+        manager_id = data.get('manager_id')
+        
+        if not manager_id:
+            return Response({
+                'success': False,
+                'message': '管理员ID不能为空'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 获取管理员用户
+        try:
+            manager = User.objects.get(id=manager_id, user_type='campus_admin')
+        except User.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': '管理员不存在或用户类型不正确'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # 更新校区管理员
+        old_manager = campus.manager
+        campus.manager = manager
+        campus.save()
+        
+        return Response({
+            'success': True,
+            'message': f'校区 "{campus.name}" 的管理员已更新为 "{manager.real_name}"',
+            'data': {
+                'campus_id': campus.id,
+                'campus_name': campus.name,
+                'old_manager': old_manager.real_name if old_manager else None,
+                'new_manager': manager.real_name,
+                'manager_id': manager.id
+            }
+        })
+    except Campus.DoesNotExist:
+        return Response({
+            'success': False,
+            'message': '校区不存在'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'指定管理员失败: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def available_managers(request):
+    """获取可用的校区管理员列表API"""
+    try:
+        # 检查权限：只有超级管理员可以查看
+        if request.user.user_type != 'super_admin':
+            return Response({
+                'success': False,
+                'message': '只有超级管理员可以查看管理员列表'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # 获取所有校区管理员
+        managers = User.objects.filter(
+            user_type='campus_admin',
+            is_active=True
+        ).values('id', 'username', 'real_name', 'phone', 'email')
+        
+        return Response({
+            'success': True,
+            'data': list(managers),
+            'count': managers.count()
+        })
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'获取管理员列表失败: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def campus_students(request, campus_id):

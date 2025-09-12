@@ -10,6 +10,8 @@ urlpatterns = [
     path('api/<int:campus_id>/', views.campus_detail, name='api_campus_detail'),
     path('api/<int:campus_id>/update/', views.campus_update, name='api_campus_update'),
     path('api/<int:campus_id>/delete/', views.campus_delete, name='api_campus_delete'),
+    path('api/<int:campus_id>/assign-manager/', views.campus_assign_manager, name='api_campus_assign_manager'),
+    path('api/available-managers/', views.available_managers, name='api_available_managers'),
     
     # 校区分区API
     path('api/<int:campus_id>/areas/', views.campus_areas, name='api_campus_areas'),
