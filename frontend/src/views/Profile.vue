@@ -332,7 +332,7 @@ export default {
 
     const loadProfile = async () => {
       try {
-        const response = await axios.get('/api/profile/')
+        const response = await axios.get('/accounts/api/profile/')
         const user = response.data
         if (user) {
           Object.assign(profileForm, {
@@ -369,7 +369,7 @@ export default {
           bio: profileForm.bio
         }
 
-        await axios.put('/api/profile/', updateData)
+        await axios.put('/accounts/api/profile/update/', updateData)
         
         ElMessage.success('个人资料保存成功')
         // 重新加载资料以获取最新数据
@@ -400,7 +400,7 @@ export default {
           new_password: passwordForm.newPassword
         }
         
-        await axios.post('/api/change-password/', passwordData)
+        await axios.post('/accounts/api/change-password/', passwordData)
         
         ElMessage.success('密码修改成功')
         handleClosePasswordDialog()

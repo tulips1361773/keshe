@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "payments",
     "reservations",
     "notifications",
+    "competitions",
 ]
 
 MIDDLEWARE = [

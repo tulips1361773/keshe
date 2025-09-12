@@ -90,6 +90,11 @@
             <span>课程评价</span>
           </el-menu-item>
           
+          <el-menu-item index="competitions">
+            <el-icon><Trophy /></el-icon>
+            <span>比赛管理</span>
+          </el-menu-item>
+          
           <el-menu-item index="notifications">
             <el-icon><ChatDotRound /></el-icon>
             <span>消息通知</span>
@@ -381,6 +386,8 @@ export default {
         router.push('/payments')
       } else if (index === 'evaluations') {
         router.push('/evaluations')
+      } else if (index === 'competitions') {
+        router.push('/competitions')
       } else if (index === 'notifications') {
         router.push('/notifications')
       }

@@ -29,3 +29,17 @@ Traceback (most recent call last):
   File "D:\Anaconda\envs\django\lib\site-packages\django\template\loader.py", line 19, in get_template
     raise TemplateDoesNotExist(template_name, chain=chain)
 django.template.exceptions.TemplateDoesNotExist: payments/index.html
+ERROR 2025-09-12 15:09:39,200 log 23440 19188 Internal Server Error: /api/competitions/
+ERROR 2025-09-12 15:10:49,545 log 19032 9896 Internal Server Error: /api/competitions/
+ERROR 2025-09-12 15:10:49,558 log 19032 9896 Internal Server Error: /api/competitions/3/
+ERROR 2025-09-12 15:10:49,561 log 19032 9896 Internal Server Error: /api/competitions/3/
+ERROR 2025-09-12 15:12:53,660 log 25012 19928 Internal Server Error: /api/competitions/7/register/
+ERROR 2025-09-12 15:13:29,481 log 12772 10444 Internal Server Error: /api/competitions/9/register/
+ERROR 2025-09-12 15:14:20,868 log 25348 21920 Internal Server Error: /api/competitions/11/register/
+ERROR 2025-09-12 15:15:01,365 log 23016 21516 Internal Server Error: /api/competitions/15/registrations/
+ERROR 2025-09-12 15:15:23,901 log 15484 23872 Internal Server Error: /api/competitions/17/registrations/
+ERROR 2025-09-12 15:16:49,729 log 23940 21388 Internal Server Error: /api/competitions/19/matches/
+ERROR 2025-09-12 15:17:01,771 log 23940 24720 Internal Server Error: /api/competitions/19/matches/
+ERROR 2025-09-12 15:17:11,061 log 23940 24720 Internal Server Error: /api/competitions/18/matches/
+ERROR 2025-09-12 15:21:46,241 log 19352 21476 Internal Server Error: /api/competitions/19/matches/
+ERROR 2025-09-12 15:24:28,802 log 11016 18772 Internal Server Error: /api/competitions/19/matches/

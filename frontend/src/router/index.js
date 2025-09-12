@@ -13,6 +13,8 @@ import Reservations from '@/views/Reservations.vue'
 import Payments from '@/views/Payments.vue'
 import Evaluations from '@/views/Evaluations.vue'
 import Notifications from '@/views/Notifications.vue'
+import Competitions from '@/views/Competitions.vue'
+import CompetitionDetail from '@/views/CompetitionDetail.vue'
 
 const routes = [
   {
@@ -110,6 +112,24 @@ const routes = [
     component: Notifications,
     meta: {
       title: '消息通知 - 乒乓球培训管理系统',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/competitions',
+    name: 'Competitions',
+    component: Competitions,
+    meta: {
+      title: '比赛管理 - 乒乓球培训管理系统',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/competitions/:id',
+    name: 'CompetitionDetail',
+    component: CompetitionDetail,
+    meta: {
+      title: '比赛详情 - 乒乓球培训管理系统',
       requiresAuth: true
     }
   },
