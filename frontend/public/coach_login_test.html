@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教练登录通知测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .notification-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .notification-item.unread {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .notification-meta {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🎾 教练登录通知测试</h2>
+        <p>测试教练登录后是否能看到学员申请通知</p>
+        
+        <div class="form-group">
+            <label for="username">用户名:</label>
+            <input type="text" id="username" value="test_coach_simple" placeholder="输入教练用户名">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">密码:</label>
+            <input type="password" id="password" value="testpass123" placeholder="输入密码">
+        </div>
+        
+        <button onclick="login()">登录</button>
+        <button onclick="checkNotifications()" id="checkBtn" disabled>检查通知</button>
+        <button onclick="refreshData()" id="refreshBtn" disabled>刷新数据</button>
+        
+        <div id="loginResult"></div>
+    </div>
+    
+    <div class="container" id="notificationContainer" style="display: none;">
+        <h3>📬 通知信息</h3>
+        
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCount">0</div>
+                <div class="stat-label">总通知</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="unreadCount">0</div>
+                <div class="stat-label">未读通知</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="systemCount">0</div>
+                <div class="stat-label">系统通知</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="bookingCount">0</div>
+                <div class="stat-label">预约通知</div>
+            </div>
+        </div>
+        
+        <div id="notificationsList"></div>
+        
+        <div id="apiDetails"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        let authToken = null;
+        
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+        
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showResult('loginResult', '请输入用户名和密码', 'error');
+                return;
+            }
+            
+            showResult('loginResult', '正在登录...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/accounts/api/login/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    showResult('loginResult', 
+                        `✅ 登录成功!\n` +
+                        `用户: ${data.user.real_name} (${data.user.username})\n` +
+                        `类型: ${data.user.user_type}\n` +
+                        `Token: ${authToken}`, 
+                        'success'
+                    );
+                    
+                    // 启用按钮
+                    document.getElementById('checkBtn').disabled = false;
+                    document.getElementById('refreshBtn').disabled = false;
+                    
+                    // 显示通知容器
+                    document.getElementById('notificationContainer').style.display = 'block';
+                    
+                    // 自动检查通知
+                    setTimeout(checkNotifications, 1000);
+                    
+                } else {
+                    showResult('loginResult', `❌ 登录失败: ${data.message || '未知错误'}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult('loginResult', `❌ 登录错误: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkNotifications() {
+            if (!authToken) {
+                showResult('loginResult', '❌ 请先登录', 'error');
+                return;
+            }
+            
+            try {
+                // 并行获取通知列表和统计数据
+                const [notificationsRes, statsRes, unreadRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/notifications/list/?page=1&page_size=20`, {
+                        headers: { 'Authorization': `Token ${authToken}` }
+                    }),
+                    fetch(`${API_BASE}/api/notifications/stats/`, {
+                        headers: { 'Authorization': `Token ${authToken}` }
+                    }),
+                    fetch(`${API_BASE}/api/notifications/unread-count/`, {
+                        headers: { 'Authorization': `Token ${authToken}` }
+                    })
+                ]);
+                
+                const notifications = await notificationsRes.json();
+                const stats = await statsRes.json();
+                const unreadCount = await unreadRes.json();
+                
+                // 更新统计数据
+                document.getElementById('totalCount').textContent = stats.total || 0;
+                document.getElementById('unreadCount').textContent = stats.unread || 0;
+                document.getElementById('systemCount').textContent = stats.system || 0;
+                document.getElementById('bookingCount').textContent = stats.booking || 0;
+                
+                // 显示通知列表
+                displayNotifications(notifications.results || []);
+                
+                // 显示API详情
+                showApiDetails({
+                    notifications_status: notificationsRes.status,
+                    stats_status: statsRes.status,
+                    unread_status: unreadRes.status,
+                    notifications_data: notifications,
+                    stats_data: stats,
+                    unread_data: unreadCount
+                });
+                
+            } catch (error) {
+                showResult('apiDetails', `❌ 检查通知失败: ${error.message}`, 'error');
+            }
+        }
+        
+        function displayNotifications(notifications) {
+            const container = document.getElementById('notificationsList');
+            
+            if (!notifications || notifications.length === 0) {
+                container.innerHTML = '<div class="result info">📭 暂无通知</div>';
+                return;
+            }
+            
+            let html = `<h4>📬 通知列表 (共 ${notifications.length} 条)</h4>`;
+            
+            notifications.forEach((notification, index) => {
+                const isUnread = !notification.is_read;
+                const createdAt = new Date(notification.created_at).toLocaleString('zh-CN');
+                
+                html += `
+                    <div class="notification-item ${isUnread ? 'unread' : ''}">
+                        <div class="notification-title">
+                            ${isUnread ? '🔔' : '📧'} ${notification.title}
+                        </div>
+                        <div class="notification-meta">
+                            类型: ${getTypeText(notification.message_type)} | 
+                            时间: ${createdAt} | 
+                            状态: ${isUnread ? '未读' : '已读'}
+                        </div>
+                        <div class="notification-message">
+                            ${notification.message}
+                        </div>
+                        ${notification.data ? `<div style="font-size: 11px; color: #888; margin-top: 5px; background: #f8f9fa; padding: 5px; border-radius: 3px;">数据: ${JSON.stringify(notification.data)}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function getTypeText(type) {
+            const typeMap = {
+                'system': '系统通知',
+                'booking': '预约通知',
+                'payment': '支付通知',
+                'course': '课程通知',
+                'evaluation': '评价通知'
+            };
+            return typeMap[type] || type;
+        }
+        
+        function showApiDetails(data) {
+            const container = document.getElementById('apiDetails');
+            
+            const html = `
+                <h4>🔍 API 响应详情</h4>
+                <div class="result info">
+                    API状态检查:
+                    - 通知列表: ${data.notifications_status === 200 ? '✅' : '❌'} (${data.notifications_status})
+                    - 统计数据: ${data.stats_status === 200 ? '✅' : '❌'} (${data.stats_status})
+                    - 未读数量: ${data.unread_status === 200 ? '✅' : '❌'} (${data.unread_status})
+                    
+                    数据摘要:
+                    - 通知总数: ${data.notifications_data.count || 0}
+                    - 当前页通知: ${(data.notifications_data.results || []).length}
+                    - 统计总数: ${data.stats_data.total || 0}
+                    - 统计未读: ${data.stats_data.unread || 0}
+                    - API未读数: ${data.unread_data.count || 0}
+                    
+                    最后更新: ${new Date().toLocaleString('zh-CN')}
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        async function refreshData() {
+            await checkNotifications();
+        }
+        
+        // 页面加载时的提示
+        window.onload = function() {
+            showResult('loginResult', '请输入教练账号信息进行登录测试', 'info');
+        };
+    </script>
+</body>
+</html>

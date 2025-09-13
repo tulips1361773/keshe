@@ -113,12 +113,20 @@
         <!-- 概览页面 -->
         <div v-if="activeMenu === 'overview'" class="overview-content">
           <div class="welcome-section">
-            <h2 class="welcome-title">
-              欢迎回来，{{ userStore.user?.real_name || userStore.user?.username }}！
-            </h2>
-            <p class="welcome-subtitle">
-              {{ getWelcomeMessage() }}
-            </p>
+            <div class="welcome-header">
+              <div>
+                <h2 class="welcome-title">
+                  欢迎回来，{{ userStore.user?.real_name || userStore.user?.username }}！
+                </h2>
+                <p class="welcome-subtitle">
+                  {{ getWelcomeMessage() }}
+                </p>
+              </div>
+              <el-button @click="refreshNotifications" :loading="loading" type="primary" plain>
+                <el-icon><Refresh /></el-icon>
+                刷新
+              </el-button>
+            </div>
           </div>
 
           <!-- 统计卡片 -->
@@ -245,7 +253,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -268,7 +276,8 @@ import {
   Search,
   Service,
   Tools,
-  CreditCard
+  CreditCard,
+  Refresh
 } from '@element-plus/icons-vue'
 import axios from '@/utils/axios'
 
@@ -293,6 +302,7 @@ export default {
     Service,
     Tools,
     CreditCard,
+    Refresh,
     CoachSelection
   },
   setup() {
@@ -312,6 +322,7 @@ export default {
     // 最近活动数据
     const recentActivities = ref([])
     const loading = ref(false)
+    const refreshInterval = ref(null)
 
     // 计算属性
     const getUserTypeText = (userType) => {
@@ -537,6 +548,33 @@ export default {
       }
     }
 
+    // 刷新通知和统计数据
+    const refreshNotifications = async () => {
+      try {
+        await Promise.all([
+          loadStats(),
+          loadRecentActivities(),
+          loadUnreadMessages()
+        ])
+      } catch (error) {
+        console.error('刷新通知失败:', error)
+      }
+    }
+
+    // 启动定时刷新
+    const startAutoRefresh = () => {
+      // 每30秒刷新一次通知
+      refreshInterval.value = setInterval(refreshNotifications, 30000)
+    }
+
+    // 停止定时刷新
+    const stopAutoRefresh = () => {
+      if (refreshInterval.value) {
+        clearInterval(refreshInterval.value)
+        refreshInterval.value = null
+      }
+    }
+
     // 初始化
     onMounted(async () => {
       if (!userStore.isAuthenticated) {
@@ -553,11 +591,18 @@ export default {
           loadRecentActivities(),
           loadUnreadMessages()
         ])
+        // 启动定时刷新
+        startAutoRefresh()
       } catch (error) {
         console.error('初始化数据加载失败:', error)
       } finally {
         loading.value = false
       }
+    })
+
+    // 清理定时器
+    onUnmounted(() => {
+      stopAutoRefresh()
     })
 
     return {
@@ -576,7 +621,8 @@ export default {
       formatTime,
       loadStats,
       loadRecentActivities,
-      loadUnreadMessages
+      loadUnreadMessages,
+      refreshNotifications
     }
   }
 }
@@ -726,6 +772,13 @@ export default {
 
 .welcome-section {
   margin-bottom: 32px;
+}
+
+.welcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
 }
 
 .welcome-title {

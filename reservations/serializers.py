@@ -133,7 +133,40 @@ class CoachStudentRelationSerializer(serializers.ModelSerializer):
         validated_data.pop('coach_id', None)
         validated_data.pop('student_id', None)
         
-        return super().create(validated_data)
+        # 创建师生关系
+        relation = super().create(validated_data)
+        
+        # 创建通知
+        from notifications.models import Notification
+        
+        if user and user.user_type == 'student':
+            # 学员申请教练时，通知教练
+            Notification.create_system_notification(
+                recipient=relation.coach,
+                title="新的学员申请",
+                message=f"学员 {user.real_name or user.username} 申请选择您为教练",
+                data={
+                    'relation_id': relation.id,
+                    'type': 'relation_request',
+                    'student_name': user.real_name or user.username,
+                    'student_id': user.id
+                }
+            )
+        elif user and user.user_type == 'coach':
+            # 教练申请学员时，通知学员
+            Notification.create_system_notification(
+                recipient=relation.student,
+                title="教练申请",
+                message=f"教练 {user.real_name or user.username} 申请指导您",
+                data={
+                    'relation_id': relation.id,
+                    'type': 'coach_request',
+                    'coach_name': user.real_name or user.username,
+                    'coach_id': user.id
+                }
+            )
+        
+        return relation
 
 
 class TableSerializer(serializers.ModelSerializer):

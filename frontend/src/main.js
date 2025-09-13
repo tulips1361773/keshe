@@ -5,6 +5,7 @@ import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
+import { useUserStore } from './stores/user'
 import './style.css'
 
 const app = createApp(App)
@@ -18,5 +19,9 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
+
+// 初始化用户认证状态
+const userStore = useUserStore()
+userStore.initializeAuth()
 
 app.mount('#app')

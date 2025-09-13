@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教练通知测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .notification-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        .notification-item.unread {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        .notification-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .notification-meta {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .notification-message {
+            color: #555;
+        }
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏓 教练通知测试工具</h1>
+            <p>测试教练是否能正确接收到学员申请通知</p>
+        </div>
+
+        <!-- 登录区域 -->
+        <div class="form-group">
+            <label for="token">Token (教练登录后获取):</label>
+            <input type="text" id="token" placeholder="请输入教练的Token">
+            <button onclick="saveToken()">保存Token</button>
+            <button onclick="clearToken()">清除Token</button>
+        </div>
+
+        <!-- 自动刷新控制 -->
+        <div class="auto-refresh">
+            <label>
+                <input type="checkbox" id="autoRefresh" onchange="toggleAutoRefresh()">
+                自动刷新通知 (每5秒)
+            </label>
+            <span id="refreshStatus">已停止</span>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="form-group">
+            <button onclick="testNotifications()">📧 获取通知列表</button>
+            <button onclick="testStats()">📊 获取通知统计</button>
+            <button onclick="testUnreadCount()">🔔 获取未读数量</button>
+            <button onclick="clearResults()">🗑️ 清空结果</button>
+        </div>
+    </div>
+
+    <!-- 通知显示区域 -->
+    <div class="container">
+        <h3>📋 通知列表</h3>
+        <div id="notificationsList"></div>
+    </div>
+
+    <!-- 统计信息 -->
+    <div class="container">
+        <h3>📈 统计信息</h3>
+        <div id="statsInfo"></div>
+    </div>
+
+    <!-- API响应结果 -->
+    <div class="container">
+        <h3>🔍 API响应详情</h3>
+        <div id="apiResult" class="result">等待API调用...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        let refreshInterval = null;
+
+        // 页面加载时恢复Token
+        window.onload = function() {
+            const savedToken = localStorage.getItem('coach_token');
+            if (savedToken) {
+                document.getElementById('token').value = savedToken;
+            }
+        };
+
+        function saveToken() {
+            const token = document.getElementById('token').value.trim();
+            if (token) {
+                localStorage.setItem('coach_token', token);
+                showResult('apiResult', '✅ Token已保存', 'success');
+            } else {
+                showResult('apiResult', '❌ 请输入有效的Token', 'error');
+            }
+        }
+
+        function clearToken() {
+            localStorage.removeItem('coach_token');
+            document.getElementById('token').value = '';
+            showResult('apiResult', '🗑️ Token已清除', 'info');
+        }
+
+        function toggleAutoRefresh() {
+            const checkbox = document.getElementById('autoRefresh');
+            const status = document.getElementById('refreshStatus');
+            
+            if (checkbox.checked) {
+                refreshInterval = setInterval(() => {
+                    testNotifications(false);
+                    testStats(false);
+                }, 5000);
+                status.textContent = '运行中...';
+                status.style.color = '#28a745';
+            } else {
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                    refreshInterval = null;
+                }
+                status.textContent = '已停止';
+                status.style.color = '#6c757d';
+            }
+        }
+
+        function getToken() {
+            return document.getElementById('token').value.trim() || localStorage.getItem('coach_token');
+        }
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+
+        function clearResults() {
+            document.getElementById('apiResult').textContent = '等待API调用...';
+            document.getElementById('notificationsList').innerHTML = '';
+            document.getElementById('statsInfo').innerHTML = '';
+        }
+
+        async function testNotifications(showDetails = true) {
+            const token = getToken();
+            if (!token) {
+                showResult('apiResult', '❌ 请先设置Token', 'error');
+                return;
+            }
+
+            if (showDetails) {
+                showResult('apiResult', '正在获取通知列表...', 'info');
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/notifications/list/?page=1&page_size=20`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (showDetails) {
+                    showResult('apiResult', 
+                        `通知列表API响应:\n` +
+                        `状态码: ${response.status}\n` +
+                        `响应: ${JSON.stringify(data, null, 2)}`, 
+                        response.ok ? 'success' : 'error'
+                    );
+                }
+
+                // 显示通知列表
+                displayNotifications(data.results || []);
+                
+            } catch (error) {
+                if (showDetails) {
+                    showResult('apiResult', `通知API错误: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testStats(showDetails = true) {
+            const token = getToken();
+            if (!token) {
+                if (showDetails) {
+                    showResult('apiResult', '❌ 请先设置Token', 'error');
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/notifications/stats/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (showDetails) {
+                    showResult('apiResult', 
+                        `统计API响应:\n` +
+                        `状态码: ${response.status}\n` +
+                        `响应: ${JSON.stringify(data, null, 2)}`, 
+                        response.ok ? 'success' : 'error'
+                    );
+                }
+
+                // 显示统计信息
+                displayStats(data);
+                
+            } catch (error) {
+                if (showDetails) {
+                    showResult('apiResult', `统计API错误: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testUnreadCount() {
+            const token = getToken();
+            if (!token) {
+                showResult('apiResult', '❌ 请先设置Token', 'error');
+                return;
+            }
+
+            showResult('apiResult', '正在获取未读数量...', 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/notifications/unread-count/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                showResult('apiResult', 
+                    `未读数量API响应:\n` +
+                    `状态码: ${response.status}\n` +
+                    `响应: ${JSON.stringify(data, null, 2)}`, 
+                    response.ok ? 'success' : 'error'
+                );
+                
+            } catch (error) {
+                showResult('apiResult', `未读数量API错误: ${error.message}`, 'error');
+            }
+        }
+
+        function displayNotifications(notifications) {
+            const container = document.getElementById('notificationsList');
+            
+            if (!notifications || notifications.length === 0) {
+                container.innerHTML = '<div class="info">📭 暂无通知</div>';
+                return;
+            }
+
+            let html = `<div class="info">📬 共 ${notifications.length} 条通知</div>`;
+            
+            notifications.forEach((notification, index) => {
+                const isUnread = !notification.is_read;
+                const createdAt = new Date(notification.created_at).toLocaleString('zh-CN');
+                
+                html += `
+                    <div class="notification-item ${isUnread ? 'unread' : ''}">
+                        <div class="notification-title">
+                            ${isUnread ? '🔔' : '📧'} ${notification.title}
+                        </div>
+                        <div class="notification-meta">
+                            类型: ${getTypeText(notification.message_type)} | 
+                            时间: ${createdAt} | 
+                            状态: ${isUnread ? '未读' : '已读'}
+                        </div>
+                        <div class="notification-message">
+                            ${notification.message}
+                        </div>
+                        ${notification.data ? `<div style="font-size: 12px; color: #888; margin-top: 5px;">数据: ${JSON.stringify(notification.data)}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function displayStats(stats) {
+            const container = document.getElementById('statsInfo');
+            
+            if (!stats) {
+                container.innerHTML = '<div class="error">❌ 无统计数据</div>';
+                return;
+            }
+
+            const html = `
+                <div class="info">
+                    📊 通知统计信息<br>
+                    总通知数: ${stats.total || 0}<br>
+                    未读通知: ${stats.unread || 0}<br>
+                    系统通知: ${stats.system || 0}<br>
+                    预约通知: ${stats.booking || 0}
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function getTypeText(type) {
+            const types = {
+                'system': '系统消息',
+                'booking': '预约通知',
+                'course': '课程通知',
+                'payment': '支付通知',
+                'evaluation': '评价提醒'
+            };
+            return types[type] || type;
+        }
+    </script>
+</body>
+</html>

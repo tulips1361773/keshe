@@ -269,8 +269,11 @@ const loadNotifications = async () => {
     }
     
     const response = await axios.get('/api/notifications/list/', { params })
-    notifications.value = response.data.results || []
-    total.value = response.data.count || 0
+    
+    // 处理后端返回的数据结构
+    const data = response.data
+    notifications.value = data.results || []
+    total.value = data.count || 0
   } catch (error) {
     console.error('加载消息列表错误:', error)
     ElMessage.error('加载消息列表失败')
@@ -282,10 +285,13 @@ const loadNotifications = async () => {
 const loadStats = async () => {
   try {
     const response = await axios.get('/api/notifications/stats/')
-    totalCount.value = response.data.total || 0
-    unreadCount.value = response.data.unread || 0
-    systemCount.value = response.data.system || 0
-    bookingCount.value = response.data.booking || 0
+    
+    // 处理后端返回的数据结构
+    const data = response.data
+    totalCount.value = data.total || 0
+    unreadCount.value = data.unread || 0
+    systemCount.value = data.system || 0
+    bookingCount.value = data.booking || 0
   } catch (error) {
     console.error('加载统计数据错误:', error)
   }

@@ -392,6 +392,7 @@ export default {
       } catch (error) {
         if (error !== 'cancel') {
           console.error('选择教练失败:', error)
+          console.log('错误详情:', error.response?.data)
           
           // 处理不同类型的错误
           let errorMessage = '选择教练失败，请稍后重试'
@@ -399,6 +400,8 @@ export default {
           if (error.response) {
             const status = error.response.status
             const data = error.response.data
+            
+            console.log(`HTTP状态码: ${status}, 响应数据:`, data)
             
             if (status === 400) {
               if (data.non_field_errors && data.non_field_errors.length > 0) {
@@ -424,8 +427,11 @@ export default {
             } else if (status === 403) {
               errorMessage = '您没有权限执行此操作'
             }
+          } else if (error.message) {
+            errorMessage = error.message
           }
           
+          console.log('最终错误消息:', errorMessage)
           ElMessage.error(errorMessage)
         }
       } finally {

@@ -325,4 +325,4 @@ class BookingCancellation(models.Model):
         db_table = 'reservations_booking_cancellation'
     
     def __str__(self):
-        return f"{self.booking} - 取消申请"
+        return f"预约{self.booking.id} - 取消申请"
