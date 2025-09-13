@@ -495,9 +495,10 @@ const loadBookings = async () => {
       end_date: endDate.toISOString().split('T')[0]
     })
     
-    const response = await fetch(`/api/reservations/bookings/?${params}`, {
+    const response = await fetch(`http://127.0.0.1:8000/api/reservations/bookings/?${params}`, {
       headers: {
-        'Authorization': `Token ${userStore.token}`
+        'Authorization': `Token ${userStore.token}`,
+        'Content-Type': 'application/json'
       }
     })
     

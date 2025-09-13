@@ -490,3 +490,16 @@
 [2025-09-13 21:52:45] WARNING keshe.middleware: API Response: {'url': '/api/notifications/unread-count/', 'method': 'GET', 'status_code': 403, 'duration_ms': 0.0, 'user': 'Anonymous'}
 [2025-09-13 21:53:14] WARNING keshe.middleware: API Response: {'url': '/api/accounts/stats/', 'method': 'GET', 'status_code': 403, 'duration_ms': 0.0, 'user': 'Anonymous'}
 [2025-09-13 21:53:20] WARNING keshe.middleware: API Response: {'url': '/api/accounts/stats/', 'method': 'GET', 'status_code': 403, 'duration_ms': 0.99, 'user': 'Anonymous'}
+[2025-09-13 22:06:20] WARNING keshe.middleware: API Response: {'url': '/api/accounts/login/', 'method': 'POST', 'status_code': 401, 'duration_ms': 389.9, 'user': 'Anonymous'}
+[2025-09-13 22:06:20] WARNING keshe.middleware: API Response: {'url': '/api/reservations/bookings/my_schedule/?date_from=2025-09-13&date_to=2025-09-20', 'method': 'GET', 'status_code': 403, 'duration_ms': 0.0, 'user': 'Anonymous'}
+[2025-09-13 22:18:17] WARNING keshe.middleware: API Response: {'url': '/api/reservations/bookings/?date_from=2025-09-13&date_to=2025-09-20', 'method': 'GET', 'status_code': 403, 'duration_ms': 1.0, 'user': 'Anonymous'}
+[2025-09-13 22:18:32] WARNING keshe.middleware: API Response: {'url': '/api/accounts/login/', 'method': 'POST', 'status_code': 401, 'duration_ms': 388.53, 'user': 'Anonymous'}
+[2025-09-13 22:18:32] WARNING keshe.middleware: API Response: {'url': '/api/reservations/bookings/?date_from=2025-09-13&date_to=2025-09-20', 'method': 'GET', 'status_code': 403, 'duration_ms': 0.51, 'user': 'Anonymous'}
+[2025-09-13 22:23:32] WARNING keshe.middleware: API Response: {'url': '/api/accounts/stats/', 'method': 'GET', 'status_code': 403, 'duration_ms': 0.98, 'user': 'Anonymous'}
+[2025-09-13 22:24:25] WARNING keshe.middleware: API Response: {'url': '/api/accounts/login/', 'method': 'POST', 'status_code': 401, 'duration_ms': 388.16, 'user': 'Anonymous'}
+[2025-09-13 22:24:25] WARNING keshe.middleware: API Response: {'url': '/api/reservations/bookings/?date_from=2025-09-13&date_to=2025-09-20', 'method': 'GET', 'status_code': 403, 'duration_ms': 1.0, 'user': 'Anonymous'}
+[2025-09-13 22:25:26] WARNING keshe.middleware: API Response: {'url': '/api/accounts/login/', 'method': 'POST', 'status_code': 401, 'duration_ms': 385.8, 'user': 'Anonymous'}
+[2025-09-13 22:28:16] WARNING keshe.middleware: API Response: {'url': '/api/accounts/login/', 'method': 'POST', 'status_code': 401, 'duration_ms': 395.99, 'user': 'Anonymous'}
+[2025-09-13 22:28:57] WARNING keshe.middleware: API Response: {'url': '/api/reservations/bookings/', 'method': 'GET', 'status_code': 403, 'duration_ms': 2.99, 'user': 'Anonymous'}
+[2025-09-13 22:33:07] WARNING keshe.middleware: API Response: {'url': '/api/reservations/bookings/?coach=1&start_date=2024-12-20&end_date=2024-12-27', 'method': 'GET', 'status_code': 403, 'duration_ms': 2.76, 'user': 'Anonymous'}
+[2025-09-13 22:34:26] WARNING keshe.middleware: API Response: {'url': '/api/reservations/bookings/?start_date=2024-12-20&end_date=2024-12-27', 'method': 'GET', 'status_code': 403, 'duration_ms': 2.99, 'user': 'Anonymous'}

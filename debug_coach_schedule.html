@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课表调试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn.success {
+            background: #28a745;
+        }
+        .btn.danger {
+            background: #dc3545;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <h1>课表调试页面</h1>
+    
+    <div class="container">
+        <h2>1. Token状态检查</h2>
+        <button class="btn" onclick="checkToken()">检查Token</button>
+        <button class="btn success" onclick="setToken()">设置Token</button>
+        <button class="btn danger" onclick="clearToken()">清除Token</button>
+        <div id="tokenResult" class="result"></div>
+    </div>
+    
+    <div class="container">
+        <h2>2. API连接测试</h2>
+        <button class="btn" onclick="testAPI()">测试API连接</button>
+        <button class="btn" onclick="testBookingsAPI()">测试预约API</button>
+        <div id="apiResult" class="result"></div>
+    </div>
+    
+    <div class="container">
+        <h2>3. 前端页面检查</h2>
+        <button class="btn" onclick="checkFrontendStatus()">检查前端状态</button>
+        <button class="btn" onclick="openCoachSchedule()">打开课表页面</button>
+        <div id="frontendResult" class="result"></div>
+    </div>
+    
+    <div class="container">
+        <h2>4. 数据格式验证</h2>
+        <button class="btn" onclick="validateDataFormat()">验证数据格式</button>
+        <div id="dataResult" class="result"></div>
+    </div>
+
+    <script>
+        const WANG_COACH_TOKEN = 'd19bc017c7975acbfcafcd5413825ec51b5da242';
+        const API_BASE = 'http://127.0.0.1:8000';
+        const FRONTEND_BASE = 'http://localhost:3002';
+        
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const statusClass = type === 'success' ? 'success' : type === 'error' ? 'error' : 'warning';
+            element.innerHTML = `<div class="status ${statusClass}">[${timestamp}] ${message}</div>` + element.innerHTML;
+        }
+        
+        function checkToken() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (token) {
+                showResult('tokenResult', `Token存在: ${token}`, 'success');
+                if (user) {
+                    const userObj = JSON.parse(user);
+                    showResult('tokenResult', `用户信息: ${JSON.stringify(userObj, null, 2)}`, 'success');
+                } else {
+                    showResult('tokenResult', '用户信息不存在', 'warning');
+                }
+            } else {
+                showResult('tokenResult', 'Token不存在', 'error');
+            }
+        }
+        
+        function setToken() {
+            localStorage.setItem('token', WANG_COACH_TOKEN);
+            const userInfo = {
+                id: 224,
+                username: '王教练',
+                real_name: '王教练',
+                user_type: 'coach',
+                email: 'wangcoach@example.com'
+            };
+            localStorage.setItem('user', JSON.stringify(userInfo));
+            showResult('tokenResult', 'Token和用户信息设置成功', 'success');
+        }
+        
+        function clearToken() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            showResult('tokenResult', 'Token和用户信息已清除', 'warning');
+        }
+        
+        async function testAPI() {
+            const token = localStorage.getItem('token') || WANG_COACH_TOKEN;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/accounts/profile/`, {
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('apiResult', `API连接成功: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult('apiResult', `API连接失败: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                showResult('apiResult', `API连接错误: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testBookingsAPI() {
+            const token = localStorage.getItem('token') || WANG_COACH_TOKEN;
+            const today = new Date();
+            const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+            
+            const startDate = today.toISOString().split('T')[0];
+            const endDate = nextWeek.toISOString().split('T')[0];
+            
+            try {
+                const url = `${API_BASE}/api/reservations/bookings/?start_date=${startDate}&end_date=${endDate}`;
+                showResult('apiResult', `请求URL: ${url}`, 'info');
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('apiResult', `预约API成功: 返回${Array.isArray(data) ? data.length : (data.results ? data.results.length : 0)}条记录`, 'success');
+                    showResult('apiResult', `数据内容: ${JSON.stringify(data, null, 2)}`, 'info');
+                } else {
+                    const errorText = await response.text();
+                    showResult('apiResult', `预约API失败: ${response.status} ${response.statusText}\n${errorText}`, 'error');
+                }
+            } catch (error) {
+                showResult('apiResult', `预约API错误: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkFrontendStatus() {
+            fetch(`${FRONTEND_BASE}/`)
+                .then(response => {
+                    if (response.ok) {
+                        showResult('frontendResult', `前端服务器运行正常: ${response.status}`, 'success');
+                    } else {
+                        showResult('frontendResult', `前端服务器响应异常: ${response.status}`, 'warning');
+                    }
+                })
+                .catch(error => {
+                    showResult('frontendResult', `前端服务器连接失败: ${error.message}`, 'error');
+                });
+        }
+        
+        function openCoachSchedule() {
+            window.open(`${FRONTEND_BASE}/coach-schedule`, '_blank');
+            showResult('frontendResult', '已打开课表页面', 'info');
+        }
+        
+        async function validateDataFormat() {
+            const token = localStorage.getItem('token') || WANG_COACH_TOKEN;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/reservations/bookings/?start_date=2024-12-20&end_date=2024-12-27`, {
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const bookings = Array.isArray(data) ? data : (data.results || []);
+                    
+                    if (bookings.length > 0) {
+                        const firstBooking = bookings[0];
+                        showResult('dataResult', `数据格式验证:\n- 总记录数: ${bookings.length}\n- 第一条记录结构: ${JSON.stringify(firstBooking, null, 2)}`, 'success');
+                        
+                        // 检查必要字段
+                        const requiredFields = ['id', 'start_time', 'end_time', 'status', 'relation', 'table'];
+                        const missingFields = requiredFields.filter(field => !(field in firstBooking));
+                        
+                        if (missingFields.length === 0) {
+                            showResult('dataResult', '所有必要字段都存在', 'success');
+                        } else {
+                            showResult('dataResult', `缺少字段: ${missingFields.join(', ')}`, 'warning');
+                        }
+                    } else {
+                        showResult('dataResult', '没有预约数据', 'warning');
+                    }
+                } else {
+                    showResult('dataResult', `数据验证失败: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showResult('dataResult', `数据验证错误: ${error.message}`, 'error');
+            }
+        }
+        
+        // 页面加载时自动检查
+        window.onload = function() {
+            checkToken();
+            checkFrontendStatus();
+        };
+    </script>
+</body>
+</html>
