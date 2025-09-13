@@ -241,6 +241,11 @@
           <CoachSelection />
         </div>
 
+        <!-- 学员课表页面 -->
+        <div v-else-if="activeMenu === 'schedule'" class="schedule-content">
+          <StudentSchedule />
+        </div>
+
         <!-- 其他页面内容占位符 -->
         <div v-else class="page-content">
           <div class="page-placeholder">
@@ -263,6 +268,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import CoachSelection from '@/components/CoachSelection.vue'
+import StudentSchedule from '@/components/StudentSchedule.vue'
 import {
   Basketball,
   User,
@@ -308,7 +314,8 @@ export default {
     Tools,
     CreditCard,
     Refresh,
-    CoachSelection
+    CoachSelection,
+    StudentSchedule
   },
   setup() {
     const router = useRouter()
@@ -476,7 +483,14 @@ export default {
           throw new Error(response.data.message || '获取统计数据失败')
         }
       } catch (error) {
+        if (error.response?.status === 401) {
+          ElMessage.error('登录已过期，请重新登录')
+          await userStore.logout()
+          router.push('/login')
+          return
+        }
         console.error('加载统计数据失败:', error)
+        ElMessage.warning('加载统计数据失败，显示默认数据')
         // 使用默认数据
         Object.assign(stats, {
           totalCourses: 5,
@@ -504,7 +518,14 @@ export default {
           throw new Error('无法获取活动数据')
         }
       } catch (error) {
+        if (error.response?.status === 401) {
+          ElMessage.error('登录已过期，请重新登录')
+          await userStore.logout()
+          router.push('/login')
+          return
+        }
         console.error('加载最近活动失败:', error)
+        ElMessage.warning('加载最近活动失败，显示默认数据')
         // 使用默认数据
         recentActivities.value = [
           {
@@ -550,7 +571,14 @@ export default {
         const response = await axios.get('/api/notifications/unread-count/')
         unreadMessages.value = response.data.count || 0
       } catch (error) {
+        if (error.response?.status === 401) {
+          ElMessage.error('登录已过期，请重新登录')
+          await userStore.logout()
+          router.push('/login')
+          return
+        }
         console.error('加载未读消息数量失败:', error)
+        ElMessage.warning('加载未读消息数量失败')
         unreadMessages.value = 0
       }
     }

@@ -91,3 +91,4 @@ ERROR 2025-09-12 18:15:14,556 log 7844 24144 Internal Server Error: /accounts/ap
 ERROR 2025-09-12 18:15:38,661 log 3172 8028 Internal Server Error: /accounts/api/register/
 ERROR 2025-09-12 18:15:40,738 log 3172 17180 Internal Server Error: /accounts/api/register/
 ERROR 2025-09-12 22:28:55,279 log 21516 16400 Internal Server Error: /api/reservations/relations/18/approve/
+ERROR 2025-09-13 21:46:24,171 log 18948 4540 Internal Server Error: /api/reservations/bookings/my_schedule/

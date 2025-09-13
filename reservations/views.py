@@ -429,6 +429,53 @@ class BookingViewSet(viewsets.ModelViewSet):
         booking.save()
         
         return Response({'message': '预约已完成'})
+    
+    @action(detail=False, methods=['get'])
+    def my_schedule(self, request):
+        """获取我的课表"""
+        user = request.user
+        
+        # 获取日期范围参数
+        date_from = request.query_params.get('date_from')
+        date_to = request.query_params.get('date_to')
+        
+        # 如果没有指定日期范围，默认获取本周的课表
+        if not date_from or not date_to:
+            from datetime import datetime, timedelta
+            today = datetime.now().date()
+            # 获取本周一
+            monday = today - timedelta(days=today.weekday())
+            # 获取本周日
+            sunday = monday + timedelta(days=6)
+            date_from = monday.isoformat()
+            date_to = sunday.isoformat()
+        
+        try:
+            from datetime import datetime as dt
+            start_date = dt.strptime(date_from, '%Y-%m-%d')
+            end_date = dt.strptime(date_to, '%Y-%m-%d')
+            # 设置结束日期为当天的23:59:59
+            end_date = end_date.replace(hour=23, minute=59, second=59)
+        except ValueError:
+            return Response(
+                {'error': '日期格式不正确，请使用YYYY-MM-DD格式'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # 获取用户的预约记录
+        queryset = self.get_queryset().filter(
+            start_time__gte=start_date,
+            start_time__lte=end_date
+        ).order_by('start_time')
+        
+        serializer = self.get_serializer(queryset, many=True)
+        
+        return Response({
+            'date_from': date_from,
+            'date_to': date_to,
+            'bookings': serializer.data,
+            'total_count': queryset.count()
+        })
 
 
 class BookingCancellationViewSet(viewsets.ModelViewSet):

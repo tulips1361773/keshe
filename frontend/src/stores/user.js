@@ -167,6 +167,10 @@ export const useUserStore = defineStore('user', {
         this.setUser(response.data.user)
         return { success: true, data: response.data }
       } catch (error) {
+        // 如果token无效，清除认证状态
+        if (error.response?.status === 401) {
+          this.logout()
+        }
         const message = error.response?.data?.message || '获取用户信息失败'
         return { success: false, message }
       }
@@ -194,7 +198,11 @@ export const useUserStore = defineStore('user', {
       if (storedToken) {
         this.token = storedToken
         axios.defaults.headers.common['Authorization'] = `Token ${storedToken}`
-        await this.fetchProfile()
+        const result = await this.fetchProfile()
+        // 如果获取用户信息失败，说明token无效
+        if (!result || !result.success) {
+          this.logout()
+        }
       }
     }
   }
