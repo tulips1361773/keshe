@@ -70,6 +70,11 @@
             <span>教学管理</span>
           </el-menu-item>
           
+          <el-menu-item v-if="userStore.user?.user_type === 'coach'" index="coach-schedule">
+            <el-icon><Clock /></el-icon>
+            <span>我的课表</span>
+          </el-menu-item>
+          
           <el-menu-item index="reservations">
             <el-icon><Calendar /></el-icon>
             <span>预约管理</span>
@@ -406,6 +411,8 @@ export default {
       // 处理需要跳转到其他页面的菜单项
       if (index === 'teaching') {
         router.push('/teaching-management')
+      } else if (index === 'coach-schedule') {
+        router.push('/coach-schedule')
       } else if (index === 'reservations') {
         router.push('/reservations')
       } else if (index === 'payments') {
