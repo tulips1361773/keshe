@@ -106,7 +106,7 @@
             @click="viewCoach(coach.id)"
           >
             <div class="coach-avatar">
-              <img :src="coach.avatar || '/default-avatar.png'" :alt="coach.real_name" />
+              <img :src="coach.avatar || '/default-avatar.svg'" :alt="coach.real_name" />
               <div class="coach-status">
                 <el-tag :type="getStatusTagType(coach.status)" size="small">
                   {{ getStatusText(coach.status) }}

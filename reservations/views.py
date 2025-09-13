@@ -89,12 +89,11 @@ class CoachStudentRelationViewSet(viewsets.ModelViewSet):
             recipient = relation.coach
             message = f"学员 {user.username} 已同意您的师生关系申请"
         
-        Notification.objects.create(
+        Notification.create_system_notification(
             recipient=recipient,
-            sender=user,
+            title="师生关系审核结果",
             message=message,
-            notification_type='relation_approved',
-            related_object_id=relation.id
+            data={'relation_id': relation.id, 'type': 'relation_approved'}
         )
         
         return Response({'message': '申请已同意'})
@@ -132,12 +131,11 @@ class CoachStudentRelationViewSet(viewsets.ModelViewSet):
             recipient = relation.coach
             message = f"学员 {user.username} 已拒绝您的师生关系申请"
         
-        Notification.objects.create(
+        Notification.create_system_notification(
             recipient=recipient,
-            sender=user,
+            title="师生关系审核结果",
             message=message,
-            notification_type='relation_rejected',
-            related_object_id=relation.id
+            data={'relation_id': relation.id, 'type': 'relation_rejected'}
         )
         
         return Response({'message': '申请已拒绝'})

@@ -231,7 +231,7 @@ export default {
     // 加载统计数据
     const loadStats = async () => {
       try {
-        const response = await axios.get('/accounts/api/stats/')
+        const response = await axios.get('/api/accounts/stats/')
         if (response.data) {
           stats.value = [
             { id: 1, number: response.data.students || '1000+', label: '注册学员' },
@@ -300,7 +300,10 @@ export default {
       }
     }
     
-    onMounted(() => {
+    onMounted(async () => {
+      // 初始化认证状态
+      await userStore.initializeAuth()
+      // 加载统计数据
       loadStats()
     })
     

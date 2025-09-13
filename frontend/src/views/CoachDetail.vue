@@ -28,7 +28,7 @@
         <div class="coach-info-card custom-card">
           <div class="coach-avatar-section">
             <div class="avatar-container">
-              <img :src="coach.avatar || '/default-avatar.png'" :alt="coach.real_name" class="coach-avatar" />
+              <img :src="coach.avatar || '/default-avatar.svg'" :alt="coach.real_name" class="coach-avatar" />
               <div class="status-badge">
                 <el-tag :type="getStatusTagType(coach.status)" size="large">
                   {{ getStatusText(coach.status) }}
@@ -163,7 +163,7 @@
             >
               <div class="review-header">
                 <div class="reviewer-info">
-                  <img :src="review.student_avatar || '/default-avatar.png'" :alt="review.student_name" class="reviewer-avatar" />
+                  <img :src="review.student_avatar || '/default-avatar.svg'" :alt="review.student_name" class="reviewer-avatar" />
                   <div class="reviewer-details">
                     <span class="reviewer-name">{{ review.student_name }}</span>
                     <el-rate v-model="review.rating" disabled size="small" />
@@ -238,7 +238,7 @@ export default {
           coach.value = {
             id: data.id,
             real_name: data.user?.real_name || data.user?.username || '未知教练',
-            avatar: data.user?.avatar || '/default-avatar.png',
+            avatar: data.user?.avatar || '/default-avatar.svg',
             coach_level: data.coach_level || 'junior',
             status: data.status || 'pending',
             phone: data.user?.phone || '未提供',
@@ -277,7 +277,7 @@ export default {
       coach.value = {
         id: coachId,
         real_name: '张教练',
-        avatar: '/default-avatar.png',
+        avatar: '/default-avatar.svg',
         coach_level: 'senior',
         status: 'approved',
         phone: '138****8888',
@@ -312,7 +312,7 @@ export default {
           {
             id: 1,
             student_name: '张同学',
-            student_avatar: '/default-avatar.png',
+            student_avatar: '/default-avatar.svg',
             rating: 5,
             content: '教练非常专业，教学方法很好，进步很快！',
             created_at: '2024-01-15T00:00:00Z'
@@ -320,7 +320,7 @@ export default {
           {
             id: 2,
             student_name: '李同学',
-            student_avatar: '/default-avatar.png',
+            student_avatar: '/default-avatar.svg',
             rating: 4,
             content: '教练很耐心，技术指导很到位。',
             created_at: '2024-01-10T00:00:00Z'

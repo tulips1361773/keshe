@@ -426,7 +426,7 @@ export default {
 
     const loadProfile = async () => {
       try {
-        const response = await axios.get('/accounts/api/profile/')
+        const response = await axios.get('/api/accounts/profile/')
         const data = response.data
         if (data && data.success) {
           const user = data.user
@@ -478,7 +478,7 @@ export default {
           bio: profileForm.bio
         }
 
-        await axios.put('/accounts/api/profile/update/', updateData)
+        await axios.put('/api/accounts/profile/update/', updateData)
         
         ElMessage.success('个人资料保存成功')
         // 重新加载资料以获取最新数据
@@ -527,7 +527,7 @@ export default {
           formData.append('avatar', file)
           
           // 上传头像
-          const response = await axios.post('/accounts/api/upload-avatar/', formData, {
+          const response = await axios.post('/api/accounts/upload-avatar/', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }
@@ -575,7 +575,7 @@ export default {
           confirm_password: passwordForm.confirmPassword
         }
         
-        await axios.post('/accounts/api/change-password/', passwordData)
+        await axios.post('/api/accounts/change-password/', passwordData)
         
         ElMessage.success('密码修改成功')
         handleClosePasswordDialog()

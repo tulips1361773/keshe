@@ -291,7 +291,7 @@ export default {
           }
         })
         
-        const response = await axios.get('/accounts/api/coaches/', { params })
+        const response = await axios.get('/api/accounts/coaches/', { params })
         
         if (response.data.success) {
           coaches.value = response.data.results || []
@@ -319,7 +319,7 @@ export default {
             id: relation.coach_id,
             real_name: relation.coach?.real_name || '未知教练',
             level: relation.coach?.coach_level || 'junior',
-            avatar: relation.coach?.avatar || '/default-avatar.png'
+            avatar: relation.coach?.avatar || '/default-avatar.svg'
           }))
         } else {
           selectedCoaches.value = []

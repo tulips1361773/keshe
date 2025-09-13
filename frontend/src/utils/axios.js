@@ -32,7 +32,7 @@ let csrfTokenPromise = null
 // 获取CSRF token的异步函数（使用原生 fetch，避免进入 axios 拦截器的递归）
 async function fetchCSRFToken() {
   try {
-    const response = await fetch('http://127.0.0.1:8000/accounts/api/csrf-token/', {
+    const response = await fetch('http://127.0.0.1:8000/api/accounts/csrf-token/', {
       credentials: 'include',
       headers: { 'Accept': 'application/json' }
     })

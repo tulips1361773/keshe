@@ -17,6 +17,7 @@ import Competitions from '@/views/Competitions.vue'
 import CompetitionDetail from '@/views/CompetitionDetail.vue'
 import Coaches from '@/views/Coaches.vue'
 import CoachDetail from '@/views/CoachDetail.vue'
+import TeachingManagement from '@/components/TeachingManagement.vue'
 
 const routes = [
   {
@@ -151,6 +152,16 @@ const routes = [
     meta: {
       title: '教练员详情 - 乒乓球培训管理系统',
       requiresAuth: true
+    }
+  },
+  {
+    path: '/teaching-management',
+    name: 'TeachingManagement',
+    component: TeachingManagement,
+    meta: {
+      title: '教学管理 - 乒乓球培训管理系统',
+      requiresAuth: true,
+      requiresCoach: true
     }
   },
   {

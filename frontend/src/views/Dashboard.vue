@@ -393,7 +393,9 @@ export default {
       activeMenu.value = index
       
       // 处理需要跳转到其他页面的菜单项
-      if (index === 'reservations') {
+      if (index === 'teaching') {
+        router.push('/teaching-management')
+      } else if (index === 'reservations') {
         router.push('/reservations')
       } else if (index === 'payments') {
         router.push('/payments')
@@ -443,7 +445,7 @@ export default {
     // 加载统计数据
     const loadStats = async () => {
       try {
-        const response = await axios.get('/accounts/api/stats/')
+        const response = await axios.get('/api/accounts/stats/')
         if (response.data.success) {
           const data = response.data.data
           Object.assign(stats, {

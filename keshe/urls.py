@@ -25,7 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     
     # API路由
-    path('accounts/', include('accounts.urls')),
+    path('api/accounts/', include('accounts.urls')),
     path('api/campus/', include('campus.urls')),
     path('api/courses/', include('courses.urls')),
     path('api/payments/', include('payments.urls')),

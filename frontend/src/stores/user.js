@@ -38,7 +38,7 @@ export const useUserStore = defineStore('user', {
     async login(credentials) {
       this.isLoading = true
       try {
-        const response = await axios.post('/accounts/api/login/', credentials)
+        const response = await axios.post('/api/accounts/login/', credentials)
         const { token, user } = response.data
         
         this.setToken(token)
@@ -93,7 +93,7 @@ export const useUserStore = defineStore('user', {
           }
         }
         
-        const response = await axios.post('/accounts/api/register/', requestData, config)
+        const response = await axios.post('/api/accounts/register/', requestData, config)
         return { success: true, data: response.data }
       } catch (error) {
         console.log('注册API错误:', error)
@@ -148,7 +148,7 @@ export const useUserStore = defineStore('user', {
     async logout() {
       try {
         if (this.token) {
-          await axios.post('/accounts/api/logout/')
+          await axios.post('/api/accounts/logout/')
         }
       } catch (error) {
         console.error('登出请求失败:', error)
@@ -163,7 +163,7 @@ export const useUserStore = defineStore('user', {
       if (!this.token) return
       
       try {
-        const response = await axios.get('/accounts/api/profile/')
+        const response = await axios.get('/api/accounts/profile/')
         this.setUser(response.data.user)
         return { success: true, data: response.data }
       } catch (error) {
@@ -176,7 +176,7 @@ export const useUserStore = defineStore('user', {
     async updateProfile(profileData) {
       this.isLoading = true
       try {
-        const response = await axios.put('/accounts/api/profile/update/', profileData)
+        const response = await axios.put('/api/accounts/profile/update/', profileData)
         this.setUser(response.data.user)
         return { success: true, data: response.data }
       } catch (error) {
