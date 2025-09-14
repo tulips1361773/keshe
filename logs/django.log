@@ -10817,3 +10817,197 @@ django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. Y
 [2025-09-14 17:00:55] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 31614
 [2025-09-14 17:00:55] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
 [2025-09-14 17:00:55] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:02:08] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\urls.py changed, reloading.
+[2025-09-14 17:02:08] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 17:02:09] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:02:09] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:04:18] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 17:04:18] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 17:04:19] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:04:19] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:04:32] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 17:04:32] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 17:04:33] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:04:33] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:08:12] INFO django.server: "GET /admin/?ide_webview_request_time=1757840892656 HTTP/1.1" 200 17483
+[2025-09-14 17:08:12] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:08:33] INFO django.server: "GET /admin/ HTTP/1.1" 200 17483
+[2025-09-14 17:08:33] INFO django.server: "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+[2025-09-14 17:08:38] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 34928
+[2025-09-14 17:08:38] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 17:08:38] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:08:44] INFO django.server: "GET /admin/payments/payment/pending-review/ HTTP/1.1" 302 0
+[2025-09-14 17:08:44] INFO django.server: "GET /payments/pending/ HTTP/1.1" 200 20518
+[2025-09-14 17:08:45] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:08:49] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 34928
+[2025-09-14 17:08:50] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:09:25] INFO django.server: "GET /admin/ HTTP/1.1" 200 17483
+[2025-09-14 17:12:13] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-14 17:12:14] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:12:14] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-14 17:12:14] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:12:31] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-14 17:12:32] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-14 17:12:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:12:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:12:44] WARNING django.server: "GET /admin/payments/payment/pending-review/ HTTP/1.1" 404 4032
+[2025-09-14 17:12:44] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:12:46] WARNING django.server: "GET /admin/payments/payment/ HTTP/1.1" 404 3987
+[2025-09-14 17:12:46] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:12:58] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\admin.py changed, reloading.
+[2025-09-14 17:12:58] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\admin.py changed, reloading.
+[2025-09-14 17:12:58] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:12:58] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:13:34] INFO django.utils.autoreload: D:\code\django_learning\keshe\notifications\admin.py changed, reloading.
+[2025-09-14 17:13:34] INFO django.utils.autoreload: D:\code\django_learning\keshe\notifications\admin.py changed, reloading.
+[2025-09-14 17:13:35] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:13:35] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:15:31] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\admin.py changed, reloading.
+[2025-09-14 17:15:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:15:32] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\admin.py changed, reloading.
+[2025-09-14 17:15:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:15:57] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\admin_views.py changed, reloading.
+[2025-09-14 17:15:57] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\admin_views.py changed, reloading.
+[2025-09-14 17:15:57] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:15:58] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:16:43] ERROR django.server: "GET /admin/?ide_webview_request_time=1757841403413 HTTP/1.1" 500 84926
+[2025-09-14 17:16:43] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:16:46] ERROR django.server: "GET /admin/?ide_webview_request_time=1757841406507 HTTP/1.1" 500 84926
+[2025-09-14 17:16:46] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:17:12] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\admin_views.py changed, reloading.
+[2025-09-14 17:17:12] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\admin_views.py changed, reloading.
+[2025-09-14 17:17:13] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:17:13] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:17:30] INFO django.server: "GET /admin/?ide_webview_request_time=1757841450639 HTTP/1.1" 200 3311
+[2025-09-14 17:17:30] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:17:36] INFO django.server: "GET /admin/ HTTP/1.1" 200 3311
+[2025-09-14 17:17:36] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:22:45] INFO django.server: "GET /admin/ HTTP/1.1" 302 0
+[2025-09-14 17:22:45] INFO django.server: "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4207
+[2025-09-14 17:22:45] INFO django.server: "GET /static/admin/css/login.css HTTP/1.1" 200 958
+[2025-09-14 17:22:45] INFO django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 18559
+[2025-09-14 17:22:45] INFO django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 21310
+[2025-09-14 17:22:45] INFO django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929
+[2025-09-14 17:22:45] INFO django.server: "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+[2025-09-14 17:22:45] INFO django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+[2025-09-14 17:22:45] INFO django.server: "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2694
+[2025-09-14 17:22:45] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:22:47] INFO django.server: "GET /admin/?ide_webview_request_time=1757841767027 HTTP/1.1" 302 0
+[2025-09-14 17:22:47] INFO django.server: "GET /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757841767027 HTTP/1.1" 200 4289
+[2025-09-14 17:22:47] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:22:54] INFO django.server: "POST /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757841767027 HTTP/1.1" 302 0
+[2025-09-14 17:22:54] INFO django.server: "GET /admin/?ide_webview_request_time=1757841767027 HTTP/1.1" 200 3311
+[2025-09-14 17:22:54] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:23:17] INFO django.server: "GET /admin/?ide_webview_request_time=1757841767027 HTTP/1.1" 200 3311
+[2025-09-14 17:23:17] INFO django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929
+[2025-09-14 17:23:17] INFO django.server: "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+[2025-09-14 17:23:17] INFO django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 18559
+[2025-09-14 17:23:17] INFO django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 21310
+[2025-09-14 17:23:17] INFO django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+[2025-09-14 17:23:17] INFO django.server: "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+[2025-09-14 17:23:17] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:26:18] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\admin.py changed, reloading.
+[2025-09-14 17:26:18] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:26:18] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\admin.py changed, reloading.
+[2025-09-14 17:26:19] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:26:44] INFO django.server: "GET /admin/?ide_webview_request_time=1757842004469 HTTP/1.1" 200 3311
+[2025-09-14 17:26:44] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:27:07] INFO django.server: "GET /admin/?ide_webview_request_time=1757842004469 HTTP/1.1" 200 3311
+[2025-09-14 17:27:07] INFO django.server: "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+[2025-09-14 17:27:07] INFO django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 21207
+[2025-09-14 17:27:07] INFO django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 18533
+[2025-09-14 17:27:07] INFO django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929
+[2025-09-14 17:27:07] INFO django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+[2025-09-14 17:27:07] INFO django.server: "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+[2025-09-14 17:27:07] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:27:14] WARNING django.server: "GET /?ide_webview_request_time=1757842033850 HTTP/1.1" 404 5296
+[2025-09-14 17:27:14] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:27:17] INFO django.server: "GET /admin?ide_webview_request_time=1757842037731 HTTP/1.1" 301 0
+[2025-09-14 17:27:17] INFO django.server: "GET /admin/?ide_webview_request_time=1757842037731 HTTP/1.1" 302 0
+[2025-09-14 17:27:17] INFO django.server: "GET /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757842037731 HTTP/1.1" 200 4289
+[2025-09-14 17:27:17] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:27:24] INFO django.server: "POST /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757842037731 HTTP/1.1" 302 0
+[2025-09-14 17:27:24] INFO django.server: "GET /admin/?ide_webview_request_time=1757842037731 HTTP/1.1" 200 3311
+[2025-09-14 17:27:24] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:27:36] INFO django.server: "GET /admin/ HTTP/1.1" 302 0
+[2025-09-14 17:27:36] INFO django.server: "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4207
+[2025-09-14 17:27:45] INFO django.server: "POST /admin/login/?next=/admin/ HTTP/1.1" 200 4339
+[2025-09-14 17:27:49] INFO django.server: "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+[2025-09-14 17:27:49] INFO django.server: "GET /admin/ HTTP/1.1" 200 3311
+[2025-09-14 17:27:53] WARNING django.server: "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5419
+[2025-09-14 17:27:55] INFO django.server: "GET /admin/ HTTP/1.1" 200 3311
+[2025-09-14 17:27:55] WARNING django.server: "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5419
+[2025-09-14 17:29:15] WARNING django.server: "GET /api/accounts/profile/ HTTP/1.1" 403 43
+[2025-09-14 17:29:44] INFO django.server: "GET /api/accounts/csrf-token/ HTTP/1.1" 200 80
+[2025-09-14 17:30:28] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+[2025-09-14 17:30:28] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+[2025-09-14 17:30:29] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:30:29] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:32:51] WARNING django.server: "GET /accounts/csrf-token/ HTTP/1.1" 404 5335
+[2025-09-14 17:33:48] INFO django.server: "GET /api/accounts/csrf-token/ HTTP/1.1" 200 80
+[2025-09-14 17:34:15] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+[2025-09-14 17:34:15] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+[2025-09-14 17:34:16] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:34:16] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:34:59] INFO django.server: "OPTIONS /api/accounts/csrf-token/ HTTP/1.1" 200 0
+[2025-09-14 17:35:11] INFO django.server: "GET /api/accounts/csrf-token/ HTTP/1.1" 200 80
+[2025-09-14 17:35:22] INFO django.server: "GET /admin/?ide_webview_request_time=1757839980210 HTTP/1.1" 200 3311
+[2025-09-14 17:35:22] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:35:24] INFO django.server: "GET /admin/?ide_webview_request_time=1757839980210 HTTP/1.1" 200 3311
+[2025-09-14 17:35:24] INFO django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929
+[2025-09-14 17:35:24] INFO django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 21310
+[2025-09-14 17:35:24] INFO django.server: "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+[2025-09-14 17:35:24] INFO django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 18559
+[2025-09-14 17:35:24] INFO django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+[2025-09-14 17:35:24] INFO django.server: "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+[2025-09-14 17:35:24] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:35:25] INFO django.server: "GET /admin/ HTTP/1.1" 200 3311
+[2025-09-14 17:35:25] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:35:28] INFO django.server: "GET /admin/?ide_webview_request_time=1757842528193 HTTP/1.1" 200 3311
+[2025-09-14 17:35:28] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:35:28] INFO django.server: "GET /admin/ HTTP/1.1" 200 3311
+[2025-09-14 17:35:28] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:35:31] INFO django.server: "GET /admin/ HTTP/1.1" 200 3311
+[2025-09-14 17:35:31] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:35:31] INFO django.server: "GET /admin/ HTTP/1.1" 200 3311
+[2025-09-14 17:35:31] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:35:32] INFO django.server: "GET /admin/ HTTP/1.1" 200 3311
+[2025-09-14 17:35:32] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:35:57] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:36:54] WARNING django.server: "GET /api/accounts/stats/ HTTP/1.1" 403 43
+[2025-09-14 17:37:47] WARNING django.server: "GET /api/accounts/stats/ HTTP/1.1" 403 43
+[2025-09-14 17:37:58] WARNING django.server: "GET /api/accounts/login/ HTTP/1.1" 405 45
+[2025-09-14 17:38:31] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\urls.py changed, reloading.
+[2025-09-14 17:38:31] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\urls.py changed, reloading.
+[2025-09-14 17:38:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:38:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:38:39] INFO django.server: "OPTIONS /api/accounts/login/ HTTP/1.1" 200 0
+[2025-09-14 17:38:51] WARNING django.server: "POST /api/accounts/login/ HTTP/1.1" 401 54
+[2025-09-14 17:39:11] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\settings.py changed, reloading.
+[2025-09-14 17:39:11] INFO django.utils.autoreload: D:\code\django_learning\keshe\accounts\urls.py changed, reloading.
+[2025-09-14 17:39:12] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:39:12] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:39:21] INFO django.server: "GET /api/accounts/csrf-token/ HTTP/1.1" 200 80
+[2025-09-14 17:39:25] INFO django.server: "GET /api/accounts/csrf-token/ HTTP/1.1" 200 80
+[2025-09-14 17:39:33] INFO django.server: "POST /api/accounts/login/ HTTP/1.1" 200 453
+[2025-09-14 17:39:33] INFO django.server: "POST /api/accounts/login/ HTTP/1.1" 200 453
+[2025-09-14 17:39:33] INFO django.server: "GET /api/accounts/profile/ HTTP/1.1" 200 928
+[2025-09-14 17:39:33] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-14 17:39:33] INFO django.server: "GET /api/accounts/stats/ HTTP/1.1" 200 103
+[2025-09-14 17:39:33] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 1075
+[2025-09-14 17:39:37] INFO django.server: "GET /admin/?ide_webview_request_time=1757842037731 HTTP/1.1" 200 17483
+[2025-09-14 17:39:37] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:39:39] INFO django.server: "GET /admin/ HTTP/1.1" 200 17483
+[2025-09-14 17:39:39] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:39:51] INFO django.server: "GET /admin/?ide_webview_request_time=1757842037731 HTTP/1.1" 200 17483
+[2025-09-14 17:39:51] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:40:10] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 31198
+[2025-09-14 17:40:10] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 17:40:10] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:40:13] INFO django.server: "GET /admin/payments/payment/pending-review/ HTTP/1.1" 302 0
+[2025-09-14 17:40:13] INFO django.server: "GET /payments/pending/ HTTP/1.1" 200 13348
+[2025-09-14 17:40:13] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:40:16] INFO django.server: "POST /payments/approve/PAY20250914BA5E99FA/ HTTP/1.1" 200 62
+[2025-09-14 17:40:19] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 31370
+[2025-09-14 17:40:19] INFO django.server: "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+[2025-09-14 17:40:19] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311

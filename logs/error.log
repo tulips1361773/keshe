@@ -230,3 +230,29 @@ Traceback (most recent call last):
   File "D:\Anaconda\envs\django_keshe\lib\site-packages\django\urls\resolvers.py", line 828, in _reverse_with_prefix
     raise NoReverseMatch(msg)
 django.urls.exceptions.NoReverseMatch: Reverse for 'payment_detail' not found. 'payment_detail' is not a valid view function or pattern name.
+ERROR 2025-09-14 17:16:43,448 log 4912 12324 Internal Server Error: /admin/
+Traceback (most recent call last):
+  File "D:\Anaconda\envs\django_keshe\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\envs\django_keshe\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Anaconda\envs\django_keshe\lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "D:\code\django_learning\keshe\keshe\admin_views.py", line 55, in admin_dashboard
+    context['total_users'] = User.objects.count()
+  File "D:\Anaconda\envs\django_keshe\lib\site-packages\django\db\models\manager.py", line 196, in __get__
+    raise AttributeError(
+AttributeError: Manager isn't available; 'auth.User' has been swapped for 'accounts.User'
+ERROR 2025-09-14 17:16:46,528 log 4912 12324 Internal Server Error: /admin/
+Traceback (most recent call last):
+  File "D:\Anaconda\envs\django_keshe\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Anaconda\envs\django_keshe\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Anaconda\envs\django_keshe\lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "D:\code\django_learning\keshe\keshe\admin_views.py", line 55, in admin_dashboard
+    context['total_users'] = User.objects.count()
+  File "D:\Anaconda\envs\django_keshe\lib\site-packages\django\db\models\manager.py", line 196, in __get__
+    raise AttributeError(
+AttributeError: Manager isn't available; 'auth.User' has been swapped for 'accounts.User'
