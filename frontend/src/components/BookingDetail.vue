@@ -99,6 +99,24 @@
           </el-button>
         </template>
         
+        <!-- 月取消次数限制提示 -->
+        <template v-else-if="booking.status === 'confirmed' && new Date(booking.start_time) > new Date() && cancelStats && !cancelStats.can_cancel_more">
+          <el-tooltip 
+            content="本月取消次数已达上限(3次)，无法再次取消预约"
+            placement="top"
+          >
+            <el-button 
+              type="danger" 
+              disabled
+            >
+              取消预约
+            </el-button>
+          </el-tooltip>
+          <div style="margin-top: 8px; font-size: 12px; color: #f56c6c;">
+            本月已取消 {{ cancelStats.monthly_cancel_count }}/{{ cancelStats.max_monthly_cancels }} 次
+          </div>
+        </template>
+        
         <template v-if="canPay">
           <el-button 
             type="success" 
@@ -143,7 +161,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 
@@ -176,6 +194,7 @@ const cancelling = ref(false)
 const paying = ref(false)
 const cancelDialogVisible = ref(false)
 const cancelFormRef = ref()
+const cancelStats = ref(null)
 
 const cancelForm = reactive({
   reason: ''
@@ -187,8 +206,15 @@ const cancelRules = {
 
 // 计算属性
 const canCancel = computed(() => {
-  return props.booking.status === 'confirmed' && 
-         new Date(props.booking.start_time) > new Date()
+  if (props.booking.status !== 'confirmed') return false
+  if (new Date(props.booking.start_time) <= new Date()) return false
+  
+  // 检查月取消次数限制
+  if (cancelStats.value && !cancelStats.value.can_cancel_more) {
+    return false
+  }
+  
+  return true
 })
 
 const canPay = computed(() => {
@@ -322,6 +348,27 @@ const confirmCancel = async () => {
   }
 }
 
+const fetchCancelStats = async () => {
+  try {
+    const response = await fetch('/api/reservations/bookings/cancel_stats/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Token ${userStore.token}`,
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    })
+    
+    if (response.ok) {
+      cancelStats.value = await response.json()
+    } else {
+      console.error('获取取消统计失败')
+    }
+  } catch (error) {
+    console.error('获取取消统计错误:', error)
+  }
+}
+
 const handlePay = async () => {
   try {
     await ElMessageBox.confirm(
@@ -349,6 +396,11 @@ const handlePay = async () => {
     // 用户取消支付
   }
 }
+
+// 组件挂载时获取取消统计
+onMounted(() => {
+  fetchCancelStats()
+})
 </script>
 
 <style scoped>

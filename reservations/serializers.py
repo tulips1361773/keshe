@@ -190,18 +190,56 @@ class BookingSerializer(serializers.ModelSerializer):
     student = UserSimpleSerializer(read_only=True)
     cancelled_by = UserSimpleSerializer(read_only=True)
     
+    # 取消申请相关字段
+    has_pending_cancellation = serializers.SerializerMethodField()
+    cancellation_status = serializers.SerializerMethodField()
+    cancellation_info = serializers.SerializerMethodField()
+    
     class Meta:
         model = Booking
         fields = [
             'id', 'relation', 'table', 'coach', 'student',
             'start_time', 'end_time', 'duration_hours', 'total_fee',
             'status', 'confirmed_at', 'cancelled_at', 'cancel_reason',
-            'cancelled_by', 'notes', 'created_at', 'updated_at'
+            'cancelled_by', 'notes', 'created_at', 'updated_at',
+            'has_pending_cancellation', 'cancellation_status', 'cancellation_info'
         ]
         read_only_fields = [
             'id', 'coach', 'student', 'confirmed_at', 'cancelled_at',
             'cancelled_by', 'created_at', 'updated_at'
         ]
+    
+    def get_has_pending_cancellation(self, obj):
+        """获取是否有待处理的取消申请"""
+        return obj.has_pending_cancellation()
+    
+    def get_cancellation_status(self, obj):
+        """获取取消申请状态"""
+        return obj.get_cancellation_status()
+    
+    def get_cancellation_info(self, obj):
+        """获取取消申请详细信息"""
+        if hasattr(obj, 'cancellation'):
+            cancellation = obj.cancellation
+            return {
+                'id': cancellation.id,
+                'requested_by': {
+                    'id': cancellation.requested_by.id,
+                    'username': cancellation.requested_by.username,
+                    'real_name': cancellation.requested_by.real_name
+                },
+                'reason': cancellation.reason,
+                'status': cancellation.status,
+                'created_at': cancellation.created_at,
+                'processed_by': {
+                    'id': cancellation.processed_by.id,
+                    'username': cancellation.processed_by.username,
+                    'real_name': cancellation.processed_by.real_name
+                } if cancellation.processed_by else None,
+                'processed_at': cancellation.processed_at,
+                'response_message': cancellation.response_message
+            }
+        return None
 
 
 class BookingCreateSerializer(serializers.ModelSerializer):

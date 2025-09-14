@@ -72,12 +72,17 @@
             ¥{{ row.total_fee }}
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="100">
+        <el-table-column label="状态" width="120">
           <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
+            <div>
+              <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
+              <div v-if="row.has_pending_cancellation" style="margin-top: 4px;">
+                <el-tag type="warning" size="small">待确认取消</el-tag>
+              </div>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200">
+        <el-table-column label="操作" width="280">
           <template #default="{ row }">
             <el-button size="small" @click="viewBooking(row)">详情</el-button>
             <el-button 
@@ -89,13 +94,32 @@
               确认
             </el-button>
             <el-button 
-              v-if="['pending', 'confirmed'].includes(row.status)"
+              v-if="['pending', 'confirmed'].includes(row.status) && !row.has_pending_cancellation"
               size="small" 
               type="danger" 
               @click="cancelBooking(row)"
             >
-              取消
+              申请取消
             </el-button>
+            <!-- 处理取消申请按钮 -->
+            <template v-if="row.has_pending_cancellation && row.cancellation_info">
+              <el-button 
+                v-if="userStore.user.id !== row.cancellation_info.requested_by_id"
+                size="small" 
+                type="success" 
+                @click="approveCancellation(row)"
+              >
+                同意取消
+              </el-button>
+              <el-button 
+                v-if="userStore.user.id !== row.cancellation_info.requested_by_id"
+                size="small" 
+                type="warning" 
+                @click="rejectCancellation(row)"
+              >
+                拒绝取消
+              </el-button>
+            </template>
             <el-button 
               v-if="row.status === 'confirmed' && new Date() > new Date(row.end_time)"
               size="small" 
@@ -154,7 +178,14 @@
     </el-dialog>
 
     <!-- 取消预约对话框 -->
-    <el-dialog v-model="showCancelDialog" title="取消预约" width="400px">
+    <el-dialog v-model="showCancelDialog" title="申请取消预约" width="400px">
+      <el-alert
+        title="提示"
+        description="提交取消申请后，需要对方确认才能生效"
+        type="info"
+        :closable="false"
+        style="margin-bottom: 20px;"
+      />
       <el-form :model="cancelForm" label-width="80px">
         <el-form-item label="取消原因" required>
           <el-input 
@@ -167,8 +198,8 @@
       </el-form>
       <template #footer>
         <el-button @click="showCancelDialog = false">取消</el-button>
-        <el-button type="danger" @click="submitCancel" :loading="cancelLoading">
-          确认取消
+        <el-button type="primary" @click="submitCancel" :loading="cancelLoading">
+          提交申请
         </el-button>
       </template>
     </el-dialog>
@@ -302,12 +333,12 @@ const submitCancel = async () => {
       reason: cancelForm.reason
     })
     
-    ElMessage.success('预约已取消')
+    ElMessage.success('取消申请已提交，等待对方确认')
     showCancelDialog.value = false
     loadBookings()
   } catch (error) {
-    console.error('取消预约错误:', error)
-    const message = error.response?.data?.error || '取消预约失败'
+    console.error('提交取消申请错误:', error)
+    const message = error.response?.data?.error || '提交取消申请失败'
     ElMessage.error(message)
   } finally {
     cancelLoading.value = false
@@ -329,6 +360,62 @@ const completeBooking = async (booking) => {
     if (error !== 'cancel') {
       console.error('完成预约错误:', error)
       const message = error.response?.data?.error || '完成预约失败'
+      ElMessage.error(message)
+    }
+  }
+}
+
+const approveCancellation = async (booking) => {
+  try {
+    await ElMessageBox.confirm(
+      `确认同意取消申请吗？\n申请人：${booking.cancellation_info.requested_by_name}\n取消原因：${booking.cancellation_info.reason}`,
+      '确认同意取消',
+      {
+        confirmButtonText: '同意',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    await axios.post(`/api/reservations/cancellations/${booking.cancellation_info.id}/approve/`)
+    ElMessage.success('已同意取消申请，预约已取消')
+    loadBookings()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('处理取消申请错误:', error)
+      const message = error.response?.data?.error || '处理取消申请失败'
+      ElMessage.error(message)
+    }
+  }
+}
+
+const rejectCancellation = async (booking) => {
+  try {
+    const { value: reason } = await ElMessageBox.prompt(
+      `申请人：${booking.cancellation_info.requested_by_name}\n取消原因：${booking.cancellation_info.reason}\n\n请输入拒绝原因：`,
+      '拒绝取消申请',
+      {
+        confirmButtonText: '拒绝',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请输入拒绝原因',
+        inputValidator: (value) => {
+          if (!value || !value.trim()) {
+            return '请输入拒绝原因'
+          }
+          return true
+        }
+      }
+    )
+    
+    await axios.post(`/api/reservations/cancellations/${booking.cancellation_info.id}/reject/`, {
+      response_message: reason
+    })
+    ElMessage.success('已拒绝取消申请')
+    loadBookings()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('处理取消申请错误:', error)
+      const message = error.response?.data?.error || '处理取消申请失败'
       ElMessage.error(message)
     }
   }

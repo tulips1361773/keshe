@@ -205,7 +205,16 @@ class BookingViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        queryset = Booking.objects.all()
+        queryset = Booking.objects.select_related(
+            'relation__coach',
+            'relation__student',
+            'table__campus',
+            'cancelled_by',
+            'cancellation__requested_by',
+            'cancellation__processed_by'
+        ).prefetch_related(
+            'relation'
+        )
         
         if user.user_type == 'coach':
             queryset = queryset.filter(relation__coach=user)
@@ -360,10 +369,16 @@ class BookingViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):
-        """取消预约"""
+        """申请取消预约（需要对方确认）"""
         booking = self.get_object()
         user = request.user
         reason = request.data.get('reason', '')
+        
+        if not reason.strip():
+            return Response(
+                {'error': '请输入取消原因'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         # 检查是否可以取消
         can_cancel, message = booking.can_cancel(user)
@@ -373,31 +388,53 @@ class BookingViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        booking.status = 'cancelled'
-        booking.cancelled_at = timezone.now()
-        booking.cancelled_by = user
-        booking.cancel_reason = reason
-        booking.save()
+        # 检查是否已有待处理的取消申请
+        existing_cancellation = BookingCancellation.objects.filter(
+            booking=booking,
+            status='pending'
+        ).first()
         
-        # 创建通知
-        if user == booking.relation.coach:
-            # 教练取消，通知学员
-            recipient = booking.relation.student
-            message = f"教练 {user.username} 取消了您的预约"
-        else:
-            # 学员取消，通知教练
-            recipient = booking.relation.coach
-            message = f"学员 {user.username} 取消了预约"
+        if existing_cancellation:
+            return Response(
+                {'error': '该预约已有待处理的取消申请'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
-        Notification.objects.create(
-            recipient=recipient,
-            sender=user,
-            message=message,
-            notification_type='booking_cancelled',
-            related_object_id=booking.id
+        # 创建取消申请
+        cancellation = BookingCancellation.objects.create(
+            booking=booking,
+            requested_by=user,
+            reason=reason
         )
         
-        return Response({'message': '预约已取消'})
+        # 确定需要确认的对方
+        if user == booking.relation.coach:
+            # 教练申请取消，需要学员确认
+            recipient = booking.relation.student
+            message = f"教练 {user.username} 申请取消预约，请您确认"
+        else:
+            # 学员申请取消，需要教练确认
+            recipient = booking.relation.coach
+            message = f"学员 {user.username} 申请取消预约，请您确认"
+        
+        # 创建通知
+        Notification.create_booking_notification(
+            recipient=recipient,
+            title="预约取消申请",
+            message=message,
+            sender=user,
+            data={
+                'cancellation_id': cancellation.id,
+                'booking_id': booking.id,
+                'type': 'cancellation_request',
+                'reason': reason
+            }
+        )
+        
+        return Response({
+            'message': '取消申请已提交，等待对方确认',
+            'cancellation_id': cancellation.id
+        })
     
     @action(detail=True, methods=['post'])
     def complete(self, request, pk=None):
@@ -476,6 +513,32 @@ class BookingViewSet(viewsets.ModelViewSet):
             'bookings': serializer.data,
             'total_count': queryset.count()
         })
+    
+    @action(detail=False, methods=['get'])
+    def cancel_stats(self, request):
+        """获取用户的取消统计信息"""
+        user = request.user
+        
+        # 计算本月开始时间
+        current_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        
+        # 统计本月取消次数
+        cancel_count = Booking.objects.filter(
+            Q(relation__coach=user) | Q(relation__student=user),
+            cancelled_at__gte=current_month,
+            cancelled_by=user
+        ).count()
+        
+        # 检查是否达到限制
+        max_cancels = 3
+        can_cancel_more = cancel_count < max_cancels
+        
+        return Response({
+            'monthly_cancel_count': cancel_count,
+            'max_monthly_cancels': max_cancels,
+            'can_cancel_more': can_cancel_more,
+            'remaining_cancels': max(0, max_cancels - cancel_count)
+        })
 
 
 class BookingCancellationViewSet(viewsets.ModelViewSet):
@@ -543,11 +606,18 @@ class BookingCancellationViewSet(viewsets.ModelViewSet):
         user = request.user
         response_message = request.data.get('response_message', '')
         
-        # 检查权限（通常是教练处理学员的申请，或管理员处理）
+        # 检查权限：只有对方（非申请人）才能确认取消申请
         booking = cancellation.booking
-        if user != booking.coach and not user.is_staff:
+        if user == cancellation.requested_by:
             return Response(
-                {'error': '只有教练或管理员可以处理取消申请'},
+                {'error': '不能确认自己的取消申请'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # 确保当前用户是预约的相关方（教练或学员）
+        if user not in [booking.relation.coach, booking.relation.student] and not user.is_staff:
+            return Response(
+                {'error': '只有预约相关方或管理员可以处理取消申请'},
                 status=status.HTTP_403_FORBIDDEN
             )
         
@@ -572,12 +642,18 @@ class BookingCancellationViewSet(viewsets.ModelViewSet):
         booking.save()
         
         # 创建通知
-        Notification.objects.create(
+        from notifications.models import Notification
+        Notification.create_booking_notification(
             recipient=cancellation.requested_by,
+            title="取消申请已同意",
+            message=f"您的预约取消申请已被 {user.real_name or user.username} 同意",
             sender=user,
-            message=f"您的预约取消申请已被 {user.username} 同意",
-            notification_type='cancellation_approved',
-            related_object_id=cancellation.id
+            data={
+                'cancellation_id': cancellation.id,
+                'booking_id': booking.id,
+                'type': 'cancellation_approved',
+                'response_message': response_message
+            }
         )
         
         return Response({'message': '取消申请已同意，预约已取消'})
@@ -589,11 +665,18 @@ class BookingCancellationViewSet(viewsets.ModelViewSet):
         user = request.user
         response_message = request.data.get('response_message', '')
         
-        # 检查权限
+        # 检查权限：只有对方（非申请人）才能确认取消申请
         booking = cancellation.booking
-        if user != booking.coach and not user.is_staff:
+        if user == cancellation.requested_by:
             return Response(
-                {'error': '只有教练或管理员可以处理取消申请'},
+                {'error': '不能处理自己的取消申请'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # 确保当前用户是预约的相关方（教练或学员）
+        if user not in [booking.relation.coach, booking.relation.student] and not user.is_staff:
+            return Response(
+                {'error': '只有预约相关方或管理员可以处理取消申请'},
                 status=status.HTTP_403_FORBIDDEN
             )
         
@@ -611,12 +694,18 @@ class BookingCancellationViewSet(viewsets.ModelViewSet):
         cancellation.save()
         
         # 创建通知
-        Notification.objects.create(
+        from notifications.models import Notification
+        Notification.create_booking_notification(
             recipient=cancellation.requested_by,
+            title="取消申请已拒绝",
+            message=f"您的预约取消申请已被 {user.real_name or user.username} 拒绝",
             sender=user,
-            message=f"您的预约取消申请已被 {user.username} 拒绝",
-            notification_type='cancellation_rejected',
-            related_object_id=cancellation.id
+            data={
+                'cancellation_id': cancellation.id,
+                'booking_id': booking.id,
+                'type': 'cancellation_rejected',
+                'response_message': response_message
+            }
         )
         
         return Response({'message': '取消申请已拒绝'})

@@ -265,6 +265,29 @@ class Booking(models.Model):
             return False, '本月取消次数已达上限(3次)'
         
         return True, '可以取消'
+    
+    def has_pending_cancellation(self):
+        """检查是否有待处理的取消申请"""
+        return hasattr(self, 'cancellation') and self.cancellation.status == 'pending'
+    
+    def get_cancellation_status(self):
+        """获取取消申请状态"""
+        if hasattr(self, 'cancellation'):
+            return self.cancellation.status
+        return None
+    
+    def can_be_cancelled_by(self, user):
+        """检查指定用户是否可以取消此预约（考虑取消申请流程）"""
+        # 基本的取消检查
+        can_cancel, message = self.can_cancel(user)
+        if not can_cancel:
+            return False, message
+        
+        # 检查是否已有待处理的取消申请
+        if self.has_pending_cancellation():
+            return False, '该预约已有待处理的取消申请'
+        
+        return True, '可以申请取消'
 
 
 class BookingCancellation(models.Model):
