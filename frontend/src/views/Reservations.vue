@@ -102,9 +102,8 @@
               申请取消
             </el-button>
             <!-- 处理取消申请按钮 -->
-            <template v-if="row.has_pending_cancellation && row.cancellation_info">
+            <template v-if="row.has_pending_cancellation && row.cancellation_info && canProcessCancellation(row)">
               <el-button 
-                v-if="userStore.user.id !== row.cancellation_info.requested_by_id"
                 size="small" 
                 type="success" 
                 @click="approveCancellation(row)"
@@ -112,7 +111,6 @@
                 同意取消
               </el-button>
               <el-button 
-                v-if="userStore.user.id !== row.cancellation_info.requested_by_id"
                 size="small" 
                 type="warning" 
                 @click="rejectCancellation(row)"
@@ -456,6 +454,31 @@ const getStatusText = (status) => {
     cancelled: '已取消'
   }
   return texts[status] || status
+}
+
+// 判断是否可以处理取消申请
+const canProcessCancellation = (booking) => {
+  // 只有对方才能处理取消申请
+  // 如果当前用户是教练，只能处理学员发起的取消申请
+  // 如果当前用户是学员，只能处理教练发起的取消申请
+  if (!booking.cancellation_info) return false
+  
+  const currentUser = userStore.user
+  const requestedBy = booking.cancellation_info.requested_by_id
+  
+  // 如果是自己申请的取消，不能处理
+  if (currentUser.id === requestedBy) return false
+  
+  // 检查预约关系：教练只能处理学员的申请，学员只能处理教练的申请
+  if (currentUser.user_type === 'coach') {
+    // 教练只能处理学员发起的取消申请
+    return booking.relation?.student?.id === requestedBy
+  } else if (currentUser.user_type === 'student') {
+    // 学员只能处理教练发起的取消申请
+    return booking.relation?.coach?.id === requestedBy
+  }
+  
+  return false
 }
 
 // 生命周期
