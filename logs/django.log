@@ -10475,3 +10475,345 @@ django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. Y
 [2025-09-14 16:34:25] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
 [2025-09-14 16:34:25] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
 [2025-09-14 16:34:25] INFO django.server: "GET /api/accounts/stats/ HTTP/1.1" 200 141
+[2025-09-14 16:34:56] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-14 16:34:56] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-14 16:34:56] INFO django.server: "GET /api/accounts/stats/ HTTP/1.1" 200 141
+[2025-09-14 16:35:25] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-14 16:35:25] INFO django.server: "GET /api/accounts/stats/ HTTP/1.1" 200 141
+[2025-09-14 16:35:25] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-14 16:35:55] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 111
+[2025-09-14 16:35:55] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-14 16:35:55] INFO django.server: "GET /api/accounts/stats/ HTTP/1.1" 200 141
+[2025-09-14 16:36:14] INFO django.server: "GET /admin/?ide_webview_request_time=1757838974664 HTTP/1.1" 302 0
+[2025-09-14 16:36:14] INFO django.server: "GET /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757838974664 HTTP/1.1" 200 4277
+[2025-09-14 16:36:14] INFO django.server: "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2694
+[2025-09-14 16:36:14] INFO django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929
+[2025-09-14 16:36:14] INFO django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 21310
+[2025-09-14 16:36:14] INFO django.server: "GET /static/admin/css/login.css HTTP/1.1" 200 958
+[2025-09-14 16:36:14] INFO django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 18559
+[2025-09-14 16:36:14] INFO django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+[2025-09-14 16:36:14] INFO django.server: "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+[2025-09-14 16:36:14] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:38:34] INFO django.server: "POST /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757838974664 HTTP/1.1" 200 4409
+[2025-09-14 16:38:34] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:38:37] INFO django.server: "POST /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757838974664 HTTP/1.1" 302 0
+[2025-09-14 16:38:37] INFO django.server: "GET /admin/?ide_webview_request_time=1757838974664 HTTP/1.1" 200 17170
+[2025-09-14 16:38:37] INFO django.server: "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+[2025-09-14 16:38:37] INFO django.server: "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+[2025-09-14 16:38:37] INFO django.server: "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+[2025-09-14 16:38:37] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:38:43] INFO django.server: "GET /admin/payments/paymentmethod/ HTTP/1.1" 200 20195
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/css/changelists.css HTTP/1.1" 200 6566
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/js/core.js HTTP/1.1" 200 5682
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+[2025-09-14 16:38:43] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/js/actions.js HTTP/1.1" 200 7872
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 8943
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 232381
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 292458
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+[2025-09-14 16:38:43] INFO django.server: "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+[2025-09-14 16:38:43] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:38:46] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 30675
+[2025-09-14 16:38:46] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:38:46] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:38:48] INFO django.server: "GET /admin/payments/useraccount/ HTTP/1.1" 200 23414
+[2025-09-14 16:38:48] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:38:48] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:38:53] ERROR django.server: "GET /admin/payments/accounttransaction/ HTTP/1.1" 500 455434
+[2025-09-14 16:38:53] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:38:55] INFO django.server: "GET /admin/payments/useraccount/ HTTP/1.1" 200 23414
+[2025-09-14 16:38:55] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:38:57] INFO django.server: "GET /admin/payments/refund/ HTTP/1.1" 200 17918
+[2025-09-14 16:38:57] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:38:57] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:38:59] INFO django.server: "GET /admin/payments/useraccount/ HTTP/1.1" 200 23414
+[2025-09-14 16:38:59] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:39:06] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 30675
+[2025-09-14 16:39:07] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:39:12] INFO django.server: "GET /admin/ HTTP/1.1" 200 17170
+[2025-09-14 16:39:12] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:41:13] INFO django.server: "GET /admin/payments/ HTTP/1.1" 200 7385
+[2025-09-14 16:41:13] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:41:17] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 30675
+[2025-09-14 16:41:17] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:41:17] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:41:19] INFO django.server: "GET /admin/accounts/user/251/change/ HTTP/1.1" 200 52589
+[2025-09-14 16:41:19] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:41:19] INFO django.server: "GET /static/admin/css/forms.css HTTP/1.1" 200 9090
+[2025-09-14 16:41:19] INFO django.server: "GET /static/admin/js/SelectFilter2.js HTTP/1.1" 200 15292
+[2025-09-14 16:41:19] INFO django.server: "GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+[2025-09-14 16:41:19] INFO django.server: "GET /static/admin/js/SelectBox.js HTTP/1.1" 200 4530
+[2025-09-14 16:41:19] INFO django.server: "GET /static/admin/js/calendar.js HTTP/1.1" 200 8466
+[2025-09-14 16:41:19] INFO django.server: "GET /static/admin/js/inlines.js HTTP/1.1" 200 15526
+[2025-09-14 16:41:19] INFO django.server: "GET /static/admin/css/widgets.css HTTP/1.1" 200 11921
+[2025-09-14 16:41:20] INFO django.server: "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+[2025-09-14 16:41:20] INFO django.server: "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+[2025-09-14 16:41:20] INFO django.server: "GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+[2025-09-14 16:41:20] INFO django.server: "GET /static/admin/img/icon-clock.svg HTTP/1.1" 200 677
+[2025-09-14 16:41:20] INFO django.server: "GET /static/admin/img/selector-icons.svg HTTP/1.1" 200 3291
+[2025-09-14 16:41:20] INFO django.server: "GET /static/admin/img/inline-delete.svg HTTP/1.1" 200 560
+[2025-09-14 16:41:20] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:41:39] INFO django.server: "GET /admin/accounts/user/ HTTP/1.1" 200 42492
+[2025-09-14 16:41:39] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:41:39] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:41:44] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 30675
+[2025-09-14 16:41:44] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:41:44] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:41:51] INFO django.server: "GET /admin/payments/payment/20/change/ HTTP/1.1" 200 29928
+[2025-09-14 16:41:51] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:41:51] INFO django.server: "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+[2025-09-14 16:41:51] INFO django.server: "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+[2025-09-14 16:41:51] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:42:14] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757839334243 HTTP/1.1" 302 0
+[2025-09-14 16:42:14] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 31117
+[2025-09-14 16:42:14] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:42:14] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:43:54] INFO django.server: "GET /admin/payments/payment/?payment_type__exact=recharge&status__exact=pending&ide_webview_request_time=1757839434778 HTTP/1.1" 302 0
+[2025-09-14 16:43:54] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 31117
+[2025-09-14 16:43:54] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:43:54] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:43:59] INFO django.server: "GET /admin/payments/payment/20/change/?_changelist_filters=e%3D1 HTTP/1.1" 200 30016
+[2025-09-14 16:43:59] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:43:59] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:44:12] ERROR django.server: "GET /admin/payments/accounttransaction/ HTTP/1.1" 500 455466
+[2025-09-14 16:44:12] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:44:14] INFO django.server: "GET /admin/payments/payment/20/change/?_changelist_filters=e%3D1 HTTP/1.1" 200 30016
+[2025-09-14 16:44:14] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:44:35] INFO django.server: "GET /admin/payments/ HTTP/1.1" 200 7385
+[2025-09-14 16:44:35] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:44:47] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 30675
+[2025-09-14 16:44:47] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:44:47] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:44:56] INFO django.server: "GET /admin/payments/payment/20/change/ HTTP/1.1" 200 29928
+[2025-09-14 16:44:57] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:44:57] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:44:59] INFO django.server: "POST /admin/payments/payment/20/change/ HTTP/1.1" 302 0
+[2025-09-14 16:44:59] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 30932
+[2025-09-14 16:44:59] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:44:59] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:45:04] INFO django.server: "GET /admin/payments/payment/19/change/ HTTP/1.1" 200 29928
+[2025-09-14 16:45:04] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:45:04] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:45:26] ERROR django.server: "GET /admin/payments/accounttransaction/ HTTP/1.1" 500 455440
+[2025-09-14 16:45:26] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:45:28] INFO django.server: "GET /admin/payments/payment/19/change/ HTTP/1.1" 200 29928
+[2025-09-14 16:45:28] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:46:31] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 16:46:32] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 16:46:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:46:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:47:14] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\views.py changed, reloading.
+[2025-09-14 16:47:14] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\views.py changed, reloading.
+[2025-09-14 16:47:15] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:47:15] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:47:15] INFO django.server: "GET /admin/payments/payment/19/change/ HTTP/1.1" 200 22701
+[2025-09-14 16:47:15] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2694
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 21310
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/css/forms.css HTTP/1.1" 200 9090
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/core.js HTTP/1.1" 200 5682
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 8943
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 18559
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/actions.js HTTP/1.1" 200 7872
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/css/widgets.css HTTP/1.1" 200 11921
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 232381
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 292458
+[2025-09-14 16:47:16] INFO django.server: "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+[2025-09-14 16:47:16] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:49:15] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\urls.py changed, reloading.
+[2025-09-14 16:49:15] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:49:15] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\urls.py changed, reloading.
+[2025-09-14 16:49:16] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:49:29] WARNING django.server: "GET /payments/pending/?ide_webview_request_time=1757839769092 HTTP/1.1" 404 5256
+[2025-09-14 16:49:29] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5202
+[2025-09-14 16:49:51] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-14 16:49:52] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:49:52] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-14 16:49:52] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:49:59] ERROR django.server: "GET /payments/pending/?ide_webview_request_time=1757839799701 HTTP/1.1" 500 168967
+[2025-09-14 16:49:59] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:50:38] ERROR django.server: "GET /payments/pending/?ide_webview_request_time=1757839799701 HTTP/1.1" 500 169232
+[2025-09-14 16:50:38] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:50:42] INFO django.server: "GET /payments?ide_webview_request_time=1757839841833 HTTP/1.1" 301 0
+[2025-09-14 16:50:42] INFO django.server: "GET /payments/?ide_webview_request_time=1757839841833 HTTP/1.1" 200 2573
+[2025-09-14 16:50:42] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:50:48] INFO django.server: "GET /admin?ide_webview_request_time=1757839848968 HTTP/1.1" 301 0
+[2025-09-14 16:50:49] INFO django.server: "GET /admin/?ide_webview_request_time=1757839848968 HTTP/1.1" 302 0
+[2025-09-14 16:50:49] INFO django.server: "GET /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757839848968 HTTP/1.1" 200 4277
+[2025-09-14 16:50:49] INFO django.server: "GET /static/admin/css/base.css HTTP/1.1" 200 21207
+[2025-09-14 16:50:49] INFO django.server: "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929
+[2025-09-14 16:50:49] INFO django.server: "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2694
+[2025-09-14 16:50:49] INFO django.server: "GET /static/admin/css/login.css HTTP/1.1" 200 958
+[2025-09-14 16:50:49] INFO django.server: "GET /static/admin/css/responsive.css HTTP/1.1" 200 18533
+[2025-09-14 16:50:49] INFO django.server: "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+[2025-09-14 16:50:49] INFO django.server: "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+[2025-09-14 16:50:49] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:50:55] INFO django.server: "POST /admin/login/?next=/admin/%3Fide_webview_request_time%3D1757839848968 HTTP/1.1" 302 0
+[2025-09-14 16:50:55] INFO django.server: "GET /admin/?ide_webview_request_time=1757839848968 HTTP/1.1" 200 17483
+[2025-09-14 16:50:55] INFO django.server: "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+[2025-09-14 16:50:55] INFO django.server: "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+[2025-09-14 16:50:55] INFO django.server: "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+[2025-09-14 16:50:55] INFO django.server: "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+[2025-09-14 16:50:55] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:51:03] INFO django.server: "GET /admin/payments/ HTTP/1.1" 200 7318
+[2025-09-14 16:51:03] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:51:09] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 30420
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/js/actions.js HTTP/1.1" 200 7872
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/css/changelists.css HTTP/1.1" 200 6566
+[2025-09-14 16:51:09] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/js/core.js HTTP/1.1" 200 5682
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 8943
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 292458
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 232381
+[2025-09-14 16:51:09] INFO django.server: "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+[2025-09-14 16:51:09] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:51:13] INFO django.server: "GET /admin/payments/payment/20/change/ HTTP/1.1" 200 22712
+[2025-09-14 16:51:13] INFO django.server: "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+[2025-09-14 16:51:13] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:51:13] INFO django.server: "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+[2025-09-14 16:51:13] INFO django.server: "GET /static/admin/css/forms.css HTTP/1.1" 200 9047
+[2025-09-14 16:51:13] INFO django.server: "GET /static/admin/css/widgets.css HTTP/1.1" 200 11900
+[2025-09-14 16:51:13] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:51:15] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 30420
+[2025-09-14 16:51:15] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:51:15] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:51:17] INFO django.server: "GET /admin/payments/ HTTP/1.1" 200 7318
+[2025-09-14 16:51:17] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:51:31] ERROR django.server: "GET /payments/pending/?ide_webview_request_time=1757839891002 HTTP/1.1" 500 168967
+[2025-09-14 16:51:31] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:52:08] INFO django.server: "GET /payments/pending/?ide_webview_request_time=1757839928253 HTTP/1.1" 200 13356
+[2025-09-14 16:52:23] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:52:49] INFO django.server: "GET /payments/?ide_webview_request_time=1757839969203 HTTP/1.1" 200 2573
+[2025-09-14 16:52:49] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:52:54] INFO django.server: "GET /api/payments/api/methods/ HTTP/1.1" 200 11831
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/css/default.css HTTP/1.1" 200 1152
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/css/prettify.css HTTP/1.1" 200 817
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/js/ajax-form.js HTTP/1.1" 200 3597
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/css/bootstrap-tweaks.css HTTP/1.1" 200 3385
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/js/csrf.js HTTP/1.1" 200 1719
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/css/bootstrap.min.css HTTP/1.1" 200 121457
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/js/default.js HTTP/1.1" 200 1268
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/js/bootstrap.min.js HTTP/1.1" 200 39680
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/img/grid.png HTTP/1.1" 200 1458
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/js/prettify-min.js HTTP/1.1" 200 13632
+[2025-09-14 16:52:54] INFO django.server: "GET /static/rest_framework/js/jquery-3.5.1.min.js HTTP/1.1" 200 89476
+[2025-09-14 16:52:54] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:52:55] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:53:00] INFO django.server: "GET /admin?ide_webview_request_time=1757839980210 HTTP/1.1" 301 0
+[2025-09-14 16:53:00] INFO django.server: "GET /admin/?ide_webview_request_time=1757839980210 HTTP/1.1" 200 17483
+[2025-09-14 16:53:00] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:53:55] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 16:53:55] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:53:55] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 16:53:56] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:54:19] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757840059830 HTTP/1.1" 302 0
+[2025-09-14 16:54:19] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 18948
+[2025-09-14 16:54:19] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:54:20] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:54:39] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-14 16:54:39] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-14 16:54:39] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:54:39] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:55:03] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-14 16:55:03] INFO django.utils.autoreload: D:\code\django_learning\keshe\keshe\urls.py changed, reloading.
+[2025-09-14 16:55:03] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:55:03] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:55:09] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757840109382 HTTP/1.1" 302 0
+[2025-09-14 16:55:09] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 18944
+[2025-09-14 16:55:09] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:55:09] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:55:21] INFO django.server: "GET /payments/pending/?ide_webview_request_time=1757840121739 HTTP/1.1" 200 13348
+[2025-09-14 16:55:21] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:55:43] INFO django.server: "GET /admin?ide_webview_request_time=1757840142958 HTTP/1.1" 301 0
+[2025-09-14 16:55:43] INFO django.server: "GET /admin/?ide_webview_request_time=1757840142958 HTTP/1.1" 200 17483
+[2025-09-14 16:55:43] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:55:54] INFO django.server: "GET /admin/payments/ HTTP/1.1" 200 7318
+[2025-09-14 16:55:54] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:57:47] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757840267109 HTTP/1.1" 302 0
+[2025-09-14 16:57:47] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 18944
+[2025-09-14 16:57:47] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:57:47] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:00] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 16:58:00] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 16:58:01] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:58:01] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:58:09] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757840289906 HTTP/1.1" 302 0
+[2025-09-14 16:58:10] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 18944
+[2025-09-14 16:58:10] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:58:10] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:21] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757840301373 HTTP/1.1" 302 0
+[2025-09-14 16:58:21] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 18944
+[2025-09-14 16:58:21] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:58:21] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:26] INFO django.server: "GET /admin/payments/ HTTP/1.1" 200 7318
+[2025-09-14 16:58:26] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:29] INFO django.server: "GET /admin/ HTTP/1.1" 200 17483
+[2025-09-14 16:58:29] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:32] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 18944
+[2025-09-14 16:58:32] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:58:33] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:37] INFO django.server: "GET /payments/pending/ HTTP/1.1" 200 13348
+[2025-09-14 16:58:37] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:39] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 16:58:39] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:58:40] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 16:58:40] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:58:42] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 18944
+[2025-09-14 16:58:42] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:48] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757840328410 HTTP/1.1" 302 0
+[2025-09-14 16:58:48] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 18944
+[2025-09-14 16:58:48] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:58:48] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:53] INFO django.server: "GET /admin/payments/payment/ HTTP/1.1" 200 18944
+[2025-09-14 16:58:53] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:58:53] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:56] INFO django.server: "GET /admin/payments/payment/? HTTP/1.1" 200 18944
+[2025-09-14 16:58:56] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:58:56] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:58:57] INFO django.server: "GET /admin/payments/payment/? HTTP/1.1" 200 18944
+[2025-09-14 16:58:57] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:58:57] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:59:01] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757840341456 HTTP/1.1" 302 0
+[2025-09-14 16:59:01] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 18944
+[2025-09-14 16:59:01] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:59:01] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:59:31] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757840371919 HTTP/1.1" 302 0
+[2025-09-14 16:59:31] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 19150
+[2025-09-14 16:59:31] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 16:59:32] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 16:59:48] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 16:59:48] INFO django.utils.autoreload: D:\code\django_learning\keshe\payments\admin.py changed, reloading.
+[2025-09-14 16:59:48] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 16:59:48] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-09-14 17:00:10] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757840410609 HTTP/1.1" 302 0
+[2025-09-14 17:00:10] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 19355
+[2025-09-14 17:00:10] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 17:00:10] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:00:23] INFO django.server: "GET /admin/payments/payment/pending-review/?ide_webview_request_time=1757840423544 HTTP/1.1" 302 0
+[2025-09-14 17:00:23] INFO django.server: "GET /payments/pending/ HTTP/1.1" 200 13348
+[2025-09-14 17:00:23] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:00:25] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 19355
+[2025-09-14 17:00:25] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311
+[2025-09-14 17:00:55] INFO django.server: "GET /admin/payments/payment/?ide_webview_request_time=1757840455452 HTTP/1.1" 302 0
+[2025-09-14 17:00:55] INFO django.server: "GET /admin/payments/payment/?e=1 HTTP/1.1" 200 31614
+[2025-09-14 17:00:55] INFO django.server: "GET /admin/jsi18n/ HTTP/1.1" 200 8560
+[2025-09-14 17:00:55] WARNING django.server: "GET /@vite/client HTTP/1.1" 404 5311

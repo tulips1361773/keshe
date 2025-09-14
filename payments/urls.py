@@ -36,6 +36,11 @@ urlpatterns = [
     path('api/admin/pending-recharges/', views.admin_pending_recharges, name='api_admin_pending_recharges'),
     path('api/admin/recharge/<str:payment_id>/approve/', views.admin_recharge_approve, name='api_admin_recharge_approve'),
     
+    # 管理员审核页面
+    path('pending/', views.pending_payments_list, name='pending_payments'),
+    path('approve/<str:payment_id>/', views.approve_payment, name='approve_payment'),
+    path('detail/<str:payment_id>/', views.payment_detail_view, name='payment_detail'),
+    
     # 支付详情API (通用模式，必须放在最后)
     path('api/<str:payment_id>/', views.payment_detail, name='api_payment_detail'),
     path('api/<str:payment_id>/confirm/', views.payment_confirm, name='api_payment_confirm'),

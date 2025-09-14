@@ -1,4 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -807,3 +812,114 @@ def payments_index(request):
         'title': '支付管理系统',
         'description': '欢迎使用支付管理系统'
     })
+
+
+@staff_member_required
+def pending_payments_list(request):
+    """待审核支付列表页面"""
+    # 获取待审核的充值订单
+    payments = Payment.objects.filter(
+        payment_type='recharge',
+        status='pending'
+    ).select_related('user', 'payment_method').order_by('-created_at')
+    
+    # 搜索功能
+    search = request.GET.get('search', '').strip()
+    if search:
+        from django.db.models import Q
+        payments = payments.filter(
+            Q(user__username__icontains=search) |
+            Q(user__real_name__icontains=search) |
+            Q(user__phone__icontains=search) |
+            Q(payment_id__icontains=search)
+        )
+    
+    # 分页
+    page = request.GET.get('page', 1)
+    paginator = Paginator(payments, 20)
+    payments_page = paginator.get_page(page)
+    
+    context = {
+        'title': '待审核支付',
+        'payments': payments_page,
+        'search': search,
+        'total_count': paginator.count
+    }
+    
+    return render(request, 'payments/pending_payments.html', context)
+
+
+@staff_member_required
+@csrf_exempt
+def approve_payment(request, payment_id):
+    """审核支付订单"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': '请求方法错误'})
+    
+    try:
+        payment = get_object_or_404(Payment, payment_id=payment_id, payment_type='recharge')
+        
+        if payment.status != 'pending':
+            return JsonResponse({'success': False, 'message': '支付订单状态不允许审核'})
+        
+        action = request.POST.get('action')
+        
+        with transaction.atomic():
+            if action == 'approve':
+                # 审核通过
+                payment.status = 'completed'
+                payment.paid_at = timezone.now()
+                payment.save()
+                
+                # 更新用户账户余额
+                account, created = UserAccount.objects.get_or_create(
+                    user=payment.user,
+                    defaults={'balance': Decimal('0.00')}
+                )
+                
+                # 记录账户交易
+                AccountTransaction.objects.create(
+                    account=account,
+                    transaction_type='recharge',
+                    amount=payment.amount,
+                    balance_before=account.balance,
+                    balance_after=account.balance + payment.amount,
+                    payment=payment,
+                    description=f'管理员审核通过充值: {payment.description}'
+                )
+                
+                # 更新账户余额
+                account.balance += payment.amount
+                account.total_paid += payment.amount
+                account.save()
+                
+                messages.success(request, f'充值订单 {payment.payment_id} 审核通过，用户余额已更新')
+                return JsonResponse({'success': True, 'message': '审核通过，用户余额已更新'})
+                
+            elif action == 'reject':
+                # 审核拒绝
+                payment.status = 'failed'
+                payment.paid_at = timezone.now()
+                payment.save()
+                
+                messages.success(request, f'充值订单 {payment.payment_id} 已拒绝')
+                return JsonResponse({'success': True, 'message': '订单已拒绝'})
+            
+            else:
+                return JsonResponse({'success': False, 'message': '无效的操作'})
+                
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'操作失败: {str(e)}'})
+
+
+@staff_member_required
+def payment_detail_view(request, payment_id):
+    """支付订单详情页面"""
+    payment = get_object_or_404(Payment, payment_id=payment_id)
+    
+    context = {
+        'title': '支付订单详情',
+        'payment': payment
+    }
+    
+    return render(request, 'payments/payment_detail.html', context)

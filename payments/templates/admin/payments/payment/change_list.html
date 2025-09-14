@@ -1,0 +1,15 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block content_title %}
+    {{ block.super }}
+    <div style="margin: 20px 0; padding: 15px; background: #e8f4f8; border: 2px solid #417690; border-radius: 8px;">
+        <h3 style="margin: 0 0 15px 0; color: #2c5aa0; font-size: 18px;">🔧 管理员专用工具</h3>
+        <div style="margin-bottom: 10px;">
+            <a href="{% url 'admin:payments_payment_pending_review' %}" class="button" style="background: #417690; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                📋 进入待审核支付页面
+            </a>
+        </div>
+        <p style="margin: 0; color: #5a6c7d; font-size: 14px; font-style: italic;">💡 点击上方按钮快速跳转到支付审核管理界面</p>
+    </div>
+{% endblock %}

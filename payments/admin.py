@@ -15,14 +15,44 @@ class PaymentMethodAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
+    change_list_template = 'admin/payments/payment/change_list.html'
     list_display = [
         'payment_id', 'user_link', 'payment_type', 'amount', 
         'payment_method', 'status', 'created_at', 'paid_at'
     ]
     list_filter = ['payment_type', 'status', 'payment_method', 'created_at']
     search_fields = ['payment_id', 'user__username', 'user__real_name', 'description']
-    readonly_fields = ['payment_id', 'created_at', 'updated_at']
+    readonly_fields = ['payment_id', 'user', 'enrollment', 'payment_type', 'amount', 
+                      'payment_method', 'status', 'transaction_id', 'description',
+                      'paid_at', 'created_at', 'updated_at']
     ordering = ['-created_at']
+    
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['pending_payments_url'] = reverse('payments:pending_payments')
+        return super().changelist_view(request, extra_context=extra_context)
+    
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path('pending-review/', self.admin_site.admin_view(self.pending_review_redirect), name='payments_payment_pending_review'),
+        ]
+        return custom_urls + urls
+    
+    def pending_review_redirect(self, request):
+        from django.shortcuts import redirect
+        return redirect('payments:pending_payments')
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        # 只允许查看，不允许修改
+        return False
     
     fieldsets = (
         ('基本信息', {

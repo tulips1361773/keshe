@@ -28,9 +28,13 @@ urlpatterns = [
     path('api/accounts/', include('accounts.urls')),
     path('api/campus/', include('campus.urls')),
     path('api/courses/', include('courses.urls')),
-    path('api/payments/', include('payments.urls')),
+    path('api/payments/', include(('payments.urls', 'payments_api'), namespace='payments_api')),
     path('api/reservations/', include('reservations.urls')),
     path('api/notifications/', include('notifications.urls')),
+    
+    # 管理员页面路由
+    path('payments/', include('payments.urls')),
+    
     path('', include('competitions.urls'))
     
     # 根路径重定向到管理后台
