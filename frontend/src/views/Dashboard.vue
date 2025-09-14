@@ -187,7 +187,9 @@
             <div class="activity-list custom-card">
               <div v-for="activity in recentActivities" :key="activity.id" class="activity-item">
                 <div class="activity-icon">
-                  <el-icon :class="activity.iconClass">{{ activity.icon }}</el-icon>
+                  <el-icon :class="activity.iconClass">
+                    <component :is="activity.icon" />
+                  </el-icon>
                 </div>
                 <div class="activity-content">
                   <p class="activity-title">{{ activity.title }}</p>
