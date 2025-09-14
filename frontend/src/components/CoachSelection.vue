@@ -242,6 +242,7 @@
 
 <script>
 import { ref, reactive, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { User, Search, View, Check } from '@element-plus/icons-vue'
 import axios from '@/utils/axios'
@@ -255,6 +256,8 @@ export default {
     Check
   },
   setup() {
+    const router = useRouter()
+    
     // 响应式数据
     const loading = ref(false)
     const selectingCoach = ref(null)
@@ -477,8 +480,8 @@ export default {
     }
     
     const viewCoachDetail = (coach) => {
-      // 可以跳转到教练详情页面或打开详情对话框
-      ElMessage.info('教练详情功能开发中...')
+      // 跳转到教练详情页面
+      router.push({ name: 'CoachDetail', params: { id: coach.id } })
     }
     
     const isCoachSelected = (coachId) => {

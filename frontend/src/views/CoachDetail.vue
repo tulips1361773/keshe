@@ -230,7 +230,7 @@ export default {
       try {
         loading.value = true
         const coachId = route.params.id
-        const response = await api.get(`/accounts/coaches/${coachId}/`)
+        const response = await api.get(`/api/accounts/coaches/${coachId}/`)
         
         if (response.data) {
           // 处理API返回的数据
