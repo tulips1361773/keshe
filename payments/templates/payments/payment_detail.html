@@ -4,56 +4,261 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} - 支付管理系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 10px 25px rgba(0,0,0,0.1);
+            --border-radius: 15px;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin: 2rem;
+            padding: 2rem;
+            min-height: calc(100vh - 4rem);
+        }
+        
+        .navbar {
+            background: var(--primary-gradient) !important;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
         .info-card {
-            border-left: 4px solid #0d6efd;
+            position: relative;
         }
-        .status-pending {
-            color: #ffc107;
+        
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-gradient);
         }
-        .status-completed {
-            color: #198754;
+        
+        .card-header {
+            background: var(--primary-gradient) !important;
+            border: none;
+            padding: 1.25rem;
         }
-        .status-failed {
-            color: #dc3545;
+        
+        .card-header.bg-success {
+            background: var(--success-gradient) !important;
+        }
+        
+        .card-header.bg-warning {
+            background: var(--warning-gradient) !important;
+            color: #333 !important;
+        }
+        
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        
+        .badge.bg-info {
+            background: var(--success-gradient) !important;
+        }
+        
+        .badge.bg-warning {
+            background: var(--warning-gradient) !important;
+            color: #333 !important;
+        }
+        
+        .badge.bg-danger {
+            background: var(--danger-gradient) !important;
+        }
+        
+        .badge.bg-success {
+            background: var(--success-gradient) !important;
+        }
+        
+        .btn {
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: var(--transition);
+            border: none;
+        }
+        
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--success-gradient);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+        
+        .btn-danger {
+            background: var(--danger-gradient);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 154, 158, 0.3);
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table td {
+            padding: 0.75rem 0;
+            border: none;
+            vertical-align: middle;
+        }
+        
+        .text-success {
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        code {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .main-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .card {
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .navbar {
+                margin-bottom: 1rem;
+            }
+            
+            .btn {
+                padding: 0.6rem 1.25rem;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="/admin/">
-                <i class="bi bi-credit-card-2-front"></i>
-                支付管理系统
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{% url 'payments:pending_payments' %}">返回待审核列表</a>
-                <a class="nav-link" href="/admin/">管理后台</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>
-                        <i class="bi bi-receipt"></i>
-                        {{ title }}
-                    </h2>
-                    <a href="{% url 'payments:pending_payments' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-arrow-left"></i> 返回列表
-                    </a>
+<body>
+    <div class="main-container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="/admin/">
+                    <i class="fas fa-credit-card"></i>
+                    支付管理系统
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="{% url 'payments:pending_payments' %}">返回待审核列表</a>
+                    <a class="nav-link" href="/admin/">管理后台</a>
                 </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">
+                            <i class="fas fa-receipt"></i>
+                            {{ title }}
+                        </h2>
+                        <a href="{% url 'payments:pending_payments' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left"></i> 返回列表
+                        </a>
+                    </div>
 
                 <div class="row">
                     <div class="col-lg-8">
                         <div class="card info-card">
                             <div class="card-header bg-primary text-white">
                                 <h5 class="mb-0">
-                                    <i class="bi bi-info-circle"></i>
+                                    <i class="fas fa-info-circle"></i>
                                     订单信息
                                 </h5>
                             </div>
@@ -89,20 +294,20 @@
                                                 <td class="fw-bold">订单状态：</td>
                                                 <td>
                                                     {% if payment.status == 'pending' %}
-                                                        <span class="badge bg-warning status-pending">
-                                                            <i class="bi bi-clock"></i> 待审核
-                                                        </span>
-                                                    {% elif payment.status == 'completed' %}
-                                                        <span class="badge bg-success status-completed">
-                                                            <i class="bi bi-check-circle"></i> 已完成
-                                                        </span>
-                                                    {% elif payment.status == 'failed' %}
-                                                        <span class="badge bg-danger status-failed">
-                                                            <i class="bi bi-x-circle"></i> 已拒绝
-                                                        </span>
-                                                    {% else %}
-                                                        <span class="badge bg-secondary">{{ payment.get_status_display }}</span>
-                                                    {% endif %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock"></i> 待审核
+                                        </span>
+                                    {% elif payment.status == 'completed' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle"></i> 已完成
+                                        </span>
+                                    {% elif payment.status == 'failed' %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle"></i> 已拒绝
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ payment.get_status_display }}</span>
+                                    {% endif %}
                                                 </td>
                                             </tr>
                                         </table>
@@ -146,7 +351,7 @@
                         <div class="card">
                             <div class="card-header bg-success text-white">
                                 <h5 class="mb-0">
-                                    <i class="bi bi-person"></i>
+                                    <i class="fas fa-user"></i>
                                     用户信息
                                 </h5>
                             </div>
@@ -186,22 +391,23 @@
                         <div class="card mt-3">
                             <div class="card-header bg-warning text-dark">
                                 <h5 class="mb-0">
-                                    <i class="bi bi-gear"></i>
+                                    <i class="fas fa-cog"></i>
                                     审核操作
                                 </h5>
                             </div>
                             <div class="card-body">
                                 <div class="d-grid gap-2">
                                     <button class="btn btn-success" onclick="approvePayment('{{ payment.payment_id }}', 'approve')">
-                                        <i class="bi bi-check-circle"></i> 审核通过
+                                        <i class="fas fa-check-circle"></i> 审核通过
                                     </button>
                                     <button class="btn btn-danger" onclick="approvePayment('{{ payment.payment_id }}', 'reject')">
-                                        <i class="bi bi-x-circle"></i> 审核拒绝
+                                        <i class="fas fa-times-circle"></i> 审核拒绝
                                     </button>
                                 </div>
                             </div>
                         </div>
                         {% endif %}
+                    </div>
                     </div>
                 </div>
             </div>
@@ -221,7 +427,7 @@
             const button = event.target.closest('button');
             const originalText = button.innerHTML;
             button.disabled = true;
-            button.innerHTML = '<i class="bi bi-hourglass-split"></i> 处理中...';
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 处理中...';
             
             fetch(`/payments/approve/${paymentId}/`, {
                 method: 'POST',
