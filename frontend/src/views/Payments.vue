@@ -2,10 +2,16 @@
   <div class="payments-container">
     <div class="header">
       <h1>支付管理</h1>
-      <el-button type="primary" @click="showRechargeDialog = true">
-        <el-icon><CreditCard /></el-icon>
-        账户充值
-      </el-button>
+      <div class="header-buttons">
+        <el-button type="primary" @click="showRechargeDialog = true">
+          <el-icon><CreditCard /></el-icon>
+          账户充值
+        </el-button>
+        <el-button v-if="isAdmin" type="success" @click="showAdminPaymentDialog = true">
+          <el-icon><Money /></el-icon>
+          线下支付录入
+        </el-button>
+      </div>
     </div>
 
     <!-- 账户余额卡片 -->
@@ -121,11 +127,11 @@
           />
           <div class="form-tip">单次充值金额：1-10000元</div>
         </el-form-item>
-        <el-form-item label="支付方式" prop="payment_method">
-          <el-radio-group v-model="rechargeForm.payment_method">
-            <el-radio label="wechat">微信支付</el-radio>
-            <el-radio label="alipay">支付宝</el-radio>
-            <el-radio label="offline">线下支付</el-radio>
+        <el-form-item label="支付方式" prop="payment_method_id">
+          <el-radio-group v-model="rechargeForm.payment_method_id">
+            <el-radio :label="1">现金支付</el-radio>
+            <el-radio :label="2">微信支付</el-radio>
+            <el-radio :label="3">支付宝</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
@@ -141,6 +147,65 @@
         <el-button @click="showRechargeDialog = false">取消</el-button>
         <el-button type="primary" @click="submitRecharge" :loading="rechargeLoading">
           确认充值
+        </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 管理员线下支付录入对话框 -->
+    <el-dialog v-model="showAdminPaymentDialog" title="线下支付录入" width="600px">
+      <el-form :model="adminPaymentForm" :rules="adminPaymentRules" ref="adminPaymentFormRef" label-width="120px">
+        <el-form-item label="选择学员" prop="student_id">
+          <el-select 
+            v-model="adminPaymentForm.student_id" 
+            placeholder="请选择学员" 
+            filterable 
+            remote 
+            :remote-method="searchStudents"
+            :loading="studentsLoading"
+            style="width: 100%"
+          >
+            <el-option 
+              v-for="student in students" 
+              :key="student.id" 
+              :label="`${student.real_name} (${student.username})`" 
+              :value="student.id"
+            />
+          </el-select>
+          <div class="form-tip">输入学员姓名或用户名进行搜索</div>
+        </el-form-item>
+        <el-form-item label="支付金额" prop="amount">
+          <el-input-number 
+            v-model="adminPaymentForm.amount" 
+            :min="1" 
+            :max="10000"
+            :precision="2" 
+            style="width: 100%"
+            placeholder="请输入支付金额"
+          />
+          <div class="form-tip">单次录入金额：1-10000元</div>
+        </el-form-item>
+        <el-form-item label="支付类型" prop="payment_type">
+          <el-select v-model="adminPaymentForm.payment_type" placeholder="请选择支付类型" style="width: 100%">
+            <el-option label="课程费用" value="course_fee" />
+            <el-option label="注册费" value="registration_fee" />
+            <el-option label="器材费" value="equipment_fee" />
+            <el-option label="会员费" value="membership_fee" />
+            <el-option label="其他" value="other" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注说明" prop="description">
+          <el-input 
+            v-model="adminPaymentForm.description" 
+            type="textarea" 
+            :rows="3" 
+            placeholder="请输入线下支付的详细说明"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showAdminPaymentDialog = false">取消</el-button>
+        <el-button type="primary" @click="submitAdminPayment" :loading="adminPaymentLoading">
+          确认录入
         </el-button>
       </template>
     </el-dialog>
@@ -180,11 +245,14 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { CreditCard } from '@element-plus/icons-vue'
+import { CreditCard, Money } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import axios from '@/utils/axios'
 
 const userStore = useUserStore()
+
+// 管理员权限检查
+const isAdmin = computed(() => userStore.isAdmin)
 
 // 响应式数据
 const loading = ref(false)
@@ -210,6 +278,7 @@ const dateRange = ref([])
 // 对话框状态
 const showRechargeDialog = ref(false)
 const showDetailDialog = ref(false)
+const showAdminPaymentDialog = ref(false)
 const selectedTransaction = ref(null)
 
 // 充值表单
@@ -217,7 +286,7 @@ const rechargeFormRef = ref()
 const rechargeLoading = ref(false)
 const rechargeForm = reactive({
   amount: null,
-  payment_method: 'wechat',
+  payment_method_id: 1, // 默认使用第一个支付方式
   description: ''
 })
 
@@ -226,10 +295,40 @@ const rechargeRules = {
     { required: true, message: '请输入充值金额', trigger: 'blur' },
     { type: 'number', min: 1, max: 10000, message: '充值金额必须在1-10000元之间', trigger: 'blur' }
   ],
-  payment_method: [
+  payment_method_id: [
     { required: true, message: '请选择支付方式', trigger: 'change' }
   ]
 }
+
+// 管理员线下支付录入表单
+const adminPaymentFormRef = ref()
+const adminPaymentLoading = ref(false)
+const adminPaymentForm = reactive({
+  student_id: null,
+  amount: null,
+  payment_type: 'course_fee',
+  description: ''
+})
+
+const adminPaymentRules = {
+  student_id: [
+    { required: true, message: '请选择学员', trigger: 'change' }
+  ],
+  amount: [
+    { required: true, message: '请输入支付金额', trigger: 'blur' },
+    { type: 'number', min: 1, max: 10000, message: '支付金额必须在1-10000元之间', trigger: 'blur' }
+  ],
+  payment_type: [
+    { required: true, message: '请选择支付类型', trigger: 'change' }
+  ],
+  description: [
+    { required: true, message: '请输入备注说明', trigger: 'blur' }
+  ]
+}
+
+// 学员搜索相关
+const students = ref([])
+const studentsLoading = ref(false)
 
 // 方法
 const loadAccountInfo = async () => {
@@ -281,17 +380,15 @@ const submitRecharge = async () => {
     showRechargeDialog.value = false
     Object.assign(rechargeForm, {
       amount: null,
-      payment_method: 'wechat',
+      payment_method_id: 1,
       description: ''
     })
     loadAccountInfo()
     loadTransactions()
   } catch (error) {
-    if (error.message) {
-      console.error('充值错误:', error)
-      const message = error.response?.data?.error || '充值失败'
-      ElMessage.error(message)
-    }
+    console.error('充值错误:', error)
+    const message = error.response?.data?.error || '充值失败'
+    ElMessage.error(message)
   } finally {
     rechargeLoading.value = false
   }
@@ -320,6 +417,63 @@ const resetFilters = () => {
 const viewDetail = (transaction) => {
   selectedTransaction.value = transaction
   showDetailDialog.value = true
+}
+
+// 管理员线下支付录入相关方法
+const searchStudents = async (query) => {
+  if (!query || query.length < 2) {
+    students.value = []
+    return
+  }
+  
+  studentsLoading.value = true
+  try {
+    const response = await axios.get('/api/payments/api/admin/students/', {
+      params: { search: query }
+    })
+    students.value = response.data.results || []
+  } catch (error) {
+    console.error('搜索学员失败:', error)
+    ElMessage.error('搜索学员失败')
+  } finally {
+    studentsLoading.value = false
+  }
+}
+
+const submitAdminPayment = async () => {
+  if (!adminPaymentFormRef.value) return
+  
+  try {
+    await adminPaymentFormRef.value.validate()
+  } catch (error) {
+    return
+  }
+  
+  adminPaymentLoading.value = true
+  try {
+    await axios.post('/api/payments/api/admin/offline-payment/', adminPaymentForm)
+    
+    ElMessage.success('线下支付录入成功')
+    showAdminPaymentDialog.value = false
+    
+    // 重置表单
+    Object.assign(adminPaymentForm, {
+      student_id: null,
+      amount: null,
+      payment_type: 'course_fee',
+      description: ''
+    })
+    students.value = []
+    
+    // 刷新交易记录
+    loadTransactions()
+  } catch (error) {
+    console.error('线下支付录入失败:', error)
+    const message = error.response?.data?.message || '线下支付录入失败'
+    ElMessage.error(message)
+  } finally {
+    adminPaymentLoading.value = false
+  }
 }
 
 // 工具方法
@@ -422,6 +576,17 @@ onMounted(async () => {
 .header h1 {
   margin: 0;
   color: #303133;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.form-tip {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
 }
 
 .balance-card {

@@ -26,12 +26,13 @@ def test_admin_login():
         print(f"   用户类型: {admin.user_type}")
         
         # 测试密码验证
-        auth_result = authenticate(username='admin', password='admin123')
+        auth_result = authenticate(username='admin', password='testpass123')
         if auth_result:
             print("✅ 密码验证成功")
             print("\n管理员登录信息:")
             print("- 用户名: admin")
-            print("- 密码: admin123")
+            print("- 密码: testpass123")
+            print("- 前端登录: http://localhost:3002/login")
             print("- 管理后台: http://localhost:8000/admin")
         else:
             print("❌ 密码验证失败")

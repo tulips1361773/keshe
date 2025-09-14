@@ -30,6 +30,12 @@ urlpatterns = [
     # 支付方式API
     path('api/methods/', views.payment_methods, name='api_payment_methods'),
     
+    # 管理员API
+    path('api/admin/offline-payment/', views.admin_offline_payment, name='api_admin_offline_payment'),
+    path('api/admin/students/', views.admin_students_list, name='api_admin_students_list'),
+    path('api/admin/pending-recharges/', views.admin_pending_recharges, name='api_admin_pending_recharges'),
+    path('api/admin/recharge/<str:payment_id>/approve/', views.admin_recharge_approve, name='api_admin_recharge_approve'),
+    
     # 支付详情API (通用模式，必须放在最后)
     path('api/<str:payment_id>/', views.payment_detail, name='api_payment_detail'),
     path('api/<str:payment_id>/confirm/', views.payment_confirm, name='api_payment_confirm'),

@@ -95,6 +95,11 @@
             <span>支付管理</span>
           </el-menu-item>
           
+          <el-menu-item v-if="['super_admin', 'campus_admin'].includes(userStore.user?.user_type)" index="recharge-approval">
+            <el-icon><DocumentChecked /></el-icon>
+            <span>充值审核</span>
+          </el-menu-item>
+          
           <el-menu-item index="evaluations">
             <el-icon><Star /></el-icon>
             <span>课程评价</span>
@@ -290,7 +295,8 @@ import {
   Service,
   Tools,
   CreditCard,
-  Refresh
+  Refresh,
+  DocumentChecked
 } from '@element-plus/icons-vue'
 import axios from '@/utils/axios'
 
@@ -316,6 +322,7 @@ export default {
     Tools,
     CreditCard,
     Refresh,
+    DocumentChecked,
     CoachSelection,
     StudentSchedule
   },
@@ -426,6 +433,8 @@ export default {
         router.push('/reservations')
       } else if (index === 'payments') {
         router.push('/payments')
+      } else if (index === 'recharge-approval') {
+        router.push('/recharge-approval')
       } else if (index === 'evaluations') {
         router.push('/evaluations')
       } else if (index === 'competitions') {

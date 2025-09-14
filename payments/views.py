@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from .models import Payment, PaymentMethod, UserAccount, AccountTransaction, Refund, Invoice
 from .serializers import PaymentSerializer, PaymentMethodSerializer, UserAccountSerializer, AccountTransactionSerializer, RefundSerializer, InvoiceSerializer
 from courses.models import CourseEnrollment
+from accounts.models import User
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -530,6 +531,273 @@ def payment_methods(request):
         return Response({
             'code': 400,
             'message': f'获取支付方式失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def admin_offline_payment(request):
+    """校区管理员线下支付录入API"""
+    try:
+        # 验证管理员权限
+        if request.user.user_type not in ['super_admin', 'campus_admin']:
+            return Response({
+                'code': 403,
+                'message': '权限不足，只有校区管理员可以录入线下支付'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        data = request.data
+        student_id = data.get('student_id')
+        amount = Decimal(str(data.get('amount', 0)))
+        payment_type = data.get('payment_type', 'course_fee')
+        description = data.get('description', '')
+        enrollment_id = data.get('enrollment_id')
+        
+        # 验证学员
+        student = get_object_or_404(User, id=student_id, user_type='student')
+        
+        # 验证报名记录（如果提供）
+        enrollment = None
+        if enrollment_id:
+            enrollment = get_object_or_404(CourseEnrollment, id=enrollment_id, student=student)
+        
+        # 获取现金支付方式
+        cash_method = PaymentMethod.objects.filter(method_type='cash', is_active=True).first()
+        if not cash_method:
+            return Response({
+                'code': 400,
+                'message': '现金支付方式未配置或已禁用'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        with transaction.atomic():
+            # 创建支付记录
+            payment = Payment.objects.create(
+                user=student,
+                enrollment=enrollment,
+                payment_type=payment_type,
+                amount=amount,
+                payment_method=cash_method,
+                status='completed',  # 线下支付直接标记为已完成
+                description=f'管理员线下录入: {description}',
+                paid_at=timezone.now()
+            )
+            
+            # 更新学员账户余额
+            account, created = UserAccount.objects.get_or_create(
+                user=student,
+                defaults={'balance': Decimal('0.00')}
+            )
+            
+            # 记录账户交易
+            AccountTransaction.objects.create(
+                account=account,
+                transaction_type='recharge',
+                amount=amount,
+                balance_before=account.balance,
+                balance_after=account.balance + amount,
+                payment=payment,
+                description=f'管理员线下充值录入: {description}'
+            )
+            
+            # 更新账户余额
+            account.balance += amount
+            account.total_paid += amount
+            account.save()
+        
+        serializer = PaymentSerializer(payment)
+        return Response({
+            'code': 200,
+            'message': '线下支付录入成功',
+            'data': serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'线下支付录入失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def admin_recharge_approve(request, payment_id):
+    """管理员审核充值订单API"""
+    try:
+        # 验证管理员权限
+        if request.user.user_type not in ['super_admin', 'campus_admin']:
+            return Response({
+                'code': 403,
+                'message': '权限不足，只有管理员可以审核充值订单'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # 获取充值订单
+        payment = get_object_or_404(Payment, payment_id=payment_id, payment_type='recharge')
+        
+        if payment.status != 'pending':
+            return Response({
+                'code': 400,
+                'message': '充值订单状态不允许审核'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        approve = request.data.get('approve', False)
+        
+        with transaction.atomic():
+            if approve:
+                # 审核通过
+                payment.status = 'completed'
+                payment.paid_at = timezone.now()
+                payment.save()
+                
+                # 更新用户账户余额
+                account, created = UserAccount.objects.get_or_create(
+                    user=payment.user,
+                    defaults={'balance': Decimal('0.00')}
+                )
+                
+                # 记录账户交易
+                AccountTransaction.objects.create(
+                    account=account,
+                    transaction_type='recharge',
+                    amount=payment.amount,
+                    balance_before=account.balance,
+                    balance_after=account.balance + payment.amount,
+                    payment=payment,
+                    description=f'管理员审核通过充值: {payment.description}'
+                )
+                
+                # 更新账户余额
+                account.balance += payment.amount
+                account.total_paid += payment.amount
+                account.save()
+                
+                message = '充值订单审核通过，用户余额已更新'
+            else:
+                # 审核拒绝
+                payment.status = 'failed'
+                payment.paid_at = timezone.now()
+                payment.save()
+                
+                message = '充值订单已拒绝'
+        
+        serializer = PaymentSerializer(payment)
+        return Response({
+            'code': 200,
+            'message': message,
+            'data': serializer.data
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'充值审核失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_pending_recharges(request):
+    """获取待审核充值订单列表API"""
+    try:
+        # 验证管理员权限
+        if request.user.user_type not in ['super_admin', 'campus_admin']:
+            return Response({
+                'code': 403,
+                'message': '权限不足，只有管理员可以查看待审核充值订单'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # 获取待审核的充值订单
+        payments = Payment.objects.filter(
+            payment_type='recharge',
+            status='pending'
+        ).select_related('user', 'payment_method').order_by('-created_at')
+        
+        # 分页
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 10))
+        paginator = Paginator(payments, page_size)
+        page_obj = paginator.get_page(page)
+        
+        serializer = PaymentSerializer(page_obj.object_list, many=True)
+        
+        return Response({
+            'code': 200,
+            'message': '获取待审核充值订单成功',
+            'data': {
+                'results': serializer.data,
+                'count': paginator.count,
+                'page': page,
+                'page_size': page_size,
+                'total_pages': paginator.num_pages
+            }
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取待审核充值订单失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_students_list(request):
+    """获取学员列表供管理员选择"""
+    try:
+        # 验证管理员权限
+        if request.user.user_type not in ['super_admin', 'campus_admin']:
+            return Response({
+                'code': 403,
+                'message': '权限不足，只有校区管理员可以查看学员列表'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # 获取学员列表
+        students = User.objects.filter(user_type='student', is_active=True)
+        
+        # 搜索功能
+        search = request.GET.get('search', '').strip()
+        if search:
+            from django.db.models import Q
+            students = students.filter(
+                Q(username__icontains=search) | 
+                Q(real_name__icontains=search) |
+                Q(phone__icontains=search)
+            )
+        
+        students = students.order_by('real_name')
+        
+        # 分页
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 20))
+        paginator = Paginator(students, page_size)
+        students_page = paginator.get_page(page)
+        
+        # 构造返回数据
+        students_data = []
+        for student in students_page:
+            students_data.append({
+                'id': student.id,
+                'username': student.username,
+                'real_name': student.real_name,
+                'phone': student.phone,
+                'email': student.email
+            })
+        
+        return Response({
+            'code': 200,
+            'message': '获取学员列表成功',
+            'data': {
+                'students': students_data,
+                'total': paginator.count,
+                'page': page,
+                'page_size': page_size,
+                'total_pages': paginator.num_pages
+            }
+        })
+        
+    except Exception as e:
+        return Response({
+            'code': 400,
+            'message': f'获取学员列表失败: {str(e)}'
         }, status=status.HTTP_400_BAD_REQUEST)
 
 

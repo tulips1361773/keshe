@@ -19,6 +19,7 @@ import Coaches from '@/views/Coaches.vue'
 import CoachDetail from '@/views/CoachDetail.vue'
 import TeachingManagement from '@/components/TeachingManagement.vue'
 import CoachSchedule from '@/components/CoachSchedule.vue'
+import RechargeApproval from '@/views/RechargeApproval.vue'
 
 const routes = [
   {
@@ -176,6 +177,16 @@ const routes = [
     }
   },
   {
+    path: '/recharge-approval',
+    name: 'RechargeApproval',
+    component: RechargeApproval,
+    meta: {
+      title: '充值审核 - 乒乓球培训管理系统',
+      requiresAuth: true,
+      requiresAdmin: true
+    }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue'),
@@ -208,6 +219,24 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresGuest && isAuthenticated) {
     next({ name: 'Dashboard' })
     return
+  }
+  
+  // 需要教练权限的页面
+  if (to.meta.requiresCoach && isAuthenticated) {
+    const userType = userStore.user?.user_type
+    if (!['coach', 'super_admin', 'campus_admin'].includes(userType)) {
+      next({ name: 'Dashboard' })
+      return
+    }
+  }
+  
+  // 需要管理员权限的页面
+  if (to.meta.requiresAdmin && isAuthenticated) {
+    const userType = userStore.user?.user_type
+    if (!['super_admin', 'campus_admin'].includes(userType)) {
+      next({ name: 'Dashboard' })
+      return
+    }
   }
   
   next()

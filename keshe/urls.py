@@ -31,15 +31,10 @@ urlpatterns = [
     path('api/payments/', include('payments.urls')),
     path('api/reservations/', include('reservations.urls')),
     path('api/notifications/', include('notifications.urls')),
-    path('', include('competitions.urls')),
-    
-    # 传统Django视图路由
-    path('campus/', include('campus.urls')),
-    path('courses/', include('courses.urls')),
-    path('payments/', include('payments.urls')),
+    path('', include('competitions.urls'))
     
     # 根路径重定向到管理后台
-    path('', RedirectView.as_view(url='/admin/', permanent=False)),
+    # path('', RedirectView.as_view(url='/admin/', permanent=False)),
 ]
 
 # 开发环境下的静态文件和媒体文件服务
