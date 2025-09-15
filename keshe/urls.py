@@ -22,7 +22,8 @@ from django.conf.urls.static import static
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    # Django admin站点
+    path('admin/', admin.site.urls),
     
     # API路由
     path('api/accounts/', include('accounts.urls')),
