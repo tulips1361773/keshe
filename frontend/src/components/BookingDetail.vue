@@ -350,6 +350,12 @@ const confirmCancel = async () => {
 
 const fetchCancelStats = async () => {
   try {
+    // 确保用户已认证
+    if (!userStore.isAuthenticated || !userStore.token) {
+      console.log('用户未认证，跳过取消统计数据加载')
+      return
+    }
+    
     const response = await fetch('/api/reservations/bookings/cancel_stats/', {
       method: 'GET',
       headers: {
@@ -361,6 +367,10 @@ const fetchCancelStats = async () => {
     
     if (response.ok) {
       cancelStats.value = await response.json()
+    } else if (response.status === 401) {
+      console.error('认证失败，重定向到登录页')
+      await userStore.logout()
+      // 如果有router，可以重定向到登录页
     } else {
       console.error('获取取消统计失败')
     }

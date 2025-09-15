@@ -231,17 +231,35 @@ export default {
     // 加载统计数据
     const loadStats = async () => {
       try {
-        const response = await axios.get('/api/accounts/stats/')
-        if (response.data) {
-          stats.value = [
-            { id: 1, number: response.data.students || '1000+', label: '注册学员' },
-            { id: 2, number: response.data.coaches || '50+', label: '专业教练' },
-            { id: 3, number: response.data.campuses || '10+', label: '培训校区' },
-            { id: 4, number: response.data.course_hours || '5000+', label: '课程时数' }
-          ]
+        // 只有在用户已登录时才调用需要认证的API
+        if (userStore.isAuthenticated) {
+          const response = await axios.get('/api/accounts/stats/')
+          if (response.data) {
+            stats.value = [
+              { id: 1, number: response.data.students || '1000+', label: '注册学员' },
+              { id: 2, number: response.data.coaches || '50+', label: '专业教练' },
+              { id: 3, number: response.data.campuses || '10+', label: '培训校区' },
+              { id: 4, number: response.data.course_hours || '5000+', label: '课程时数' }
+            ]
+            return
+          }
         }
+        // 未登录或API调用失败时使用默认数据
+        stats.value = [
+          { id: 1, number: '1000+', label: '注册学员' },
+          { id: 2, number: '50+', label: '专业教练' },
+          { id: 3, number: '10+', label: '培训校区' },
+          { id: 4, number: '5000+', label: '课程时数' }
+        ]
       } catch (error) {
         console.log('加载统计数据失败，使用默认数据')
+        // 使用默认数据
+        stats.value = [
+          { id: 1, number: '1000+', label: '注册学员' },
+          { id: 2, number: '50+', label: '专业教练' },
+          { id: 3, number: '10+', label: '培训校区' },
+          { id: 4, number: '5000+', label: '课程时数' }
+        ]
       }
     }
     

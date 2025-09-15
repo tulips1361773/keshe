@@ -481,6 +481,12 @@ export default {
     // 加载统计数据
     const loadStats = async () => {
       try {
+        // 确保用户已认证
+        if (!userStore.isAuthenticated) {
+          console.log('用户未认证，跳过统计数据加载')
+          return
+        }
+        
         const response = await axios.get('/api/accounts/stats/')
         if (response.data.success) {
           const data = response.data.data
