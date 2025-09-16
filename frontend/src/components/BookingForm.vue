@@ -456,7 +456,7 @@ const updateDuration = () => {
 }
 
 const getRelationLabel = (relation) => {
-  if (userStore.user.user_type === 'coach') {
+  if (userStore.user?.user_type === 'coach') {
     return `学员: ${relation.student.real_name}`
   } else {
     return `教练: ${relation.coach.real_name}`

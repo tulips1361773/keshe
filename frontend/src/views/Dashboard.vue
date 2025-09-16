@@ -65,6 +65,11 @@
             <span>选择教练</span>
           </el-menu-item>
           
+          <el-menu-item index="coach-change">
+            <el-icon><Switch /></el-icon>
+            <span>教练更换</span>
+          </el-menu-item>
+          
           <el-menu-item v-if="userStore.user?.user_type === 'coach'" index="teaching">
             <el-icon><Star /></el-icon>
             <span>教学管理</span>
@@ -282,6 +287,7 @@ import {
   ArrowDown,
   Setting,
   SwitchButton,
+  Switch,
   Odometer,
   Reading,
   Star,
@@ -308,6 +314,7 @@ export default {
     ArrowDown,
     Setting,
     SwitchButton,
+    Switch,
     Odometer,
     Reading,
     Star,
@@ -429,6 +436,8 @@ export default {
         router.push('/teaching-management')
       } else if (index === 'coach-schedule') {
         router.push('/coach-schedule')
+      } else if (index === 'coach-change') {
+        router.push('/coach-change')
       } else if (index === 'reservations') {
         router.push('/reservations')
       } else if (index === 'payments') {

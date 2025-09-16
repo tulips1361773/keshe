@@ -288,7 +288,7 @@ const getRefundStatusText = (status) => {
 const getRelationText = (relation) => {
   if (!relation) return '未知关系'
   
-  if (userStore.user.user_type === 'coach') {
+  if (userStore.user?.user_type === 'coach') {
     return `学员: ${relation.student?.real_name || '未知'}`
   } else {
     return `教练: ${relation.coach?.real_name || '未知'}`

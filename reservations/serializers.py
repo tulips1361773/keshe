@@ -1,34 +1,17 @@
 from rest_framework import serializers
-from django.utils import timezone
-from datetime import datetime, timedelta
+from django.contrib.auth import get_user_model
+from .models import CoachStudentRelation, Table, Booking
+from .coach_change_models import CoachChangeRequest
+from accounts.serializers import UserSerializer
 
-from .models import CoachStudentRelation, Table, Booking, BookingCancellation
-from accounts.models import User
-from campus.models import Campus
-
-
-class UserSimpleSerializer(serializers.ModelSerializer):
-    """用户简单信息序列化器"""
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'real_name', 'phone', 'email', 'user_type']
-        read_only_fields = ['id', 'username', 'user_type']
-
-
-class CampusSimpleSerializer(serializers.ModelSerializer):
-    """校区简单信息序列化器"""
-    class Meta:
-        model = Campus
-        fields = ['id', 'name', 'address', 'phone']
-        read_only_fields = ['id']
+User = get_user_model()
 
 
 class CoachStudentRelationSerializer(serializers.ModelSerializer):
-    """师生关系序列化器"""
-    coach = UserSimpleSerializer(read_only=True)
-    student = UserSimpleSerializer(read_only=True)
-    coach_id = serializers.IntegerField(write_only=True, required=False)
-    student_id = serializers.IntegerField(write_only=True, required=False)
+    coach_id = serializers.IntegerField(write_only=True)
+    student_id = serializers.IntegerField(write_only=True)
+    coach = UserSerializer(read_only=True)
+    student = UserSerializer(read_only=True)
     
     class Meta:
         model = CoachStudentRelation
@@ -42,344 +25,272 @@ class CoachStudentRelationSerializer(serializers.ModelSerializer):
             'processed_at', 'terminated_at', 'created_at'
         ]
     
-    def validate(self, data):
-        request = self.context.get('request')
-        if not request:
-            return data
-        
-        user = request.user
-        
-        # 根据用户类型验证数据
-        if user.user_type == 'coach':
-            if 'student_id' not in data:
-                raise serializers.ValidationError('教练申请时必须指定学员')
-            
-            # 验证学员存在且为学员类型
-            try:
-                student = User.objects.get(id=data['student_id'], user_type='student')
-                data['student'] = student
-            except User.DoesNotExist:
-                raise serializers.ValidationError('指定的学员不存在')
-            
-            # 检查是否已存在师生关系
-            existing_relation = CoachStudentRelation.objects.filter(
-                coach=user,
-                student=student
-            ).first()
-            
-            if existing_relation:
-                if existing_relation.status == 'pending':
-                    raise serializers.ValidationError('您已经向该学员发送过申请，请等待处理')
-                elif existing_relation.status == 'approved':
-                    raise serializers.ValidationError('您与该学员已经建立了师生关系')
-                elif existing_relation.status == 'rejected':
-                    raise serializers.ValidationError('该学员已拒绝您的申请，暂时无法重新申请')
-        
-        elif user.user_type == 'student':
-            if 'coach_id' not in data:
-                raise serializers.ValidationError('学员申请时必须指定教练')
-            
-            # 验证教练是否存在 - 支持Coach模型ID和User模型ID
-            coach = None
-            try:
-                # 首先尝试通过Coach模型ID查找
-                from accounts.models import Coach
-                coach_profile = Coach.objects.select_related('user').get(id=data['coach_id'])
-                coach = coach_profile.user
-            except Coach.DoesNotExist:
-                try:
-                    # 如果Coach模型ID不存在，尝试User模型ID
-                    coach = User.objects.get(id=data['coach_id'], user_type='coach')
-                except User.DoesNotExist:
-                    raise serializers.ValidationError('指定的教练不存在')
-            
-            if not coach or coach.user_type != 'coach':
-                raise serializers.ValidationError('指定的教练不存在')
-            
-            data['coach'] = coach
-            
-            # 检查是否已存在师生关系
-            existing_relation = CoachStudentRelation.objects.filter(
-                coach=coach,
-                student=user
-            ).first()
-            
-            if existing_relation:
-                if existing_relation.status == 'pending':
-                    raise serializers.ValidationError('您已经向该教练发送过申请，请等待处理')
-                elif existing_relation.status == 'approved':
-                    raise serializers.ValidationError('您已经选择过这位教练了')
-                elif existing_relation.status == 'rejected':
-                    raise serializers.ValidationError('该教练已拒绝您的申请，暂时无法重新申请')
-        
-        else:
-            raise serializers.ValidationError('只有教练和学员可以创建师生关系')
-        
-        return data
-    
     def create(self, validated_data):
-        request = self.context.get('request')
-        user = request.user if request else None
+        coach_id = validated_data.pop('coach_id')
+        student_id = validated_data.pop('student_id')
         
-        # 根据用户类型设置关系
-        if user and user.user_type == 'coach':
-            validated_data['coach'] = user
-            # student已在validate中设置
-        elif user and user.user_type == 'student':
-            validated_data['student'] = user
-            # coach已在validate中设置
+        try:
+            coach = User.objects.get(id=coach_id, user_type='coach')
+            student = User.objects.get(id=student_id, user_type='student')
+        except User.DoesNotExist:
+            raise serializers.ValidationError("指定的教练或学员不存在")
         
-        # 移除临时字段
-        validated_data.pop('coach_id', None)
-        validated_data.pop('student_id', None)
+        # 检查是否已存在关系
+        existing_relation = CoachStudentRelation.objects.filter(
+            coach=coach,
+            student=student
+        ).first()
         
-        # 创建师生关系
-        relation = super().create(validated_data)
+        if existing_relation:
+            if existing_relation.status == 'approved':
+                raise serializers.ValidationError("已经选择过这位教练了")
+            elif existing_relation.status == 'pending':
+                raise serializers.ValidationError("已经向该教练发送过申请，请等待审核")
+            elif existing_relation.status == 'rejected':
+                raise serializers.ValidationError("该教练已拒绝您的申请")
         
-        # 创建通知
-        from notifications.models import Notification
+        validated_data['coach'] = coach
+        validated_data['student'] = student
+        validated_data['applied_by'] = 'student'
         
-        if user and user.user_type == 'student':
-            # 学员申请教练时，通知教练
-            Notification.create_system_notification(
-                recipient=relation.coach,
-                title="新的学员申请",
-                message=f"学员 {user.real_name or user.username} 申请选择您为教练",
-                data={
-                    'relation_id': relation.id,
-                    'type': 'relation_request',
-                    'student_name': user.real_name or user.username,
-                    'student_id': user.id
-                }
-            )
-        elif user and user.user_type == 'coach':
-            # 教练申请学员时，通知学员
-            Notification.create_system_notification(
-                recipient=relation.student,
-                title="教练申请",
-                message=f"教练 {user.real_name or user.username} 申请指导您",
-                data={
-                    'relation_id': relation.id,
-                    'type': 'coach_request',
-                    'coach_name': user.real_name or user.username,
-                    'coach_id': user.id
-                }
-            )
-        
-        return relation
+        return super().create(validated_data)
 
 
 class TableSerializer(serializers.ModelSerializer):
-    """球台序列化器"""
-    campus = CampusSimpleSerializer(read_only=True)
-    
     class Meta:
         model = Table
+        fields = '__all__'
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    coach_name = serializers.CharField(source='relation.coach.real_name', read_only=True)
+    student_name = serializers.CharField(source='relation.student.real_name', read_only=True)
+    table_number = serializers.CharField(source='table.number', read_only=True)
+    coach_id = serializers.IntegerField(source='relation.coach.id', read_only=True)
+    student_id = serializers.IntegerField(source='relation.student.id', read_only=True)
+    
+    # 为了兼容前端，添加嵌套的relation对象
+    relation = serializers.SerializerMethodField()
+    # 为了兼容前端，添加嵌套的table对象
+    table = serializers.SerializerMethodField()
+    
+    def get_relation(self, obj):
+        """返回包含coach和student信息的relation对象"""
+        return {
+            'id': obj.relation.id,
+            'coach': {
+                'id': obj.relation.coach.id,
+                'real_name': obj.relation.coach.real_name,
+                'username': obj.relation.coach.username,
+            },
+            'student': {
+                'id': obj.relation.student.id,
+                'real_name': obj.relation.student.real_name,
+                'username': obj.relation.student.username,
+            }
+        }
+    
+    def get_table(self, obj):
+        """返回包含campus信息的table对象"""
+        return {
+            'id': obj.table.id,
+            'number': obj.table.number,
+            'campus': {
+                'id': obj.table.campus.id,
+                'name': obj.table.campus.name,
+            }
+        }
+    
+    class Meta:
+        model = Booking
         fields = [
-            'id', 'campus', 'number', 'name', 'status',
-            'description', 'is_active', 'created_at', 'updated_at'
+            'id', 'relation', 'table', 'start_time', 'end_time',
+            'status', 'notes', 'created_at', 'updated_at',
+            'coach_id', 'coach_name', 'student_id', 'student_name', 'table_number'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 
-class BookingSerializer(serializers.ModelSerializer):
-    """预约序列化器"""
-    relation = CoachStudentRelationSerializer(read_only=True)
-    table = TableSerializer(read_only=True)
-    coach = UserSimpleSerializer(read_only=True)
-    student = UserSimpleSerializer(read_only=True)
-    cancelled_by = UserSimpleSerializer(read_only=True)
+class CoachChangeRequestSerializer(serializers.ModelSerializer):
+    """教练更换请求序列化器"""
     
-    # 取消申请相关字段
-    has_pending_cancellation = serializers.SerializerMethodField()
-    cancellation_status = serializers.SerializerMethodField()
-    cancellation_info = serializers.SerializerMethodField()
+    # 只写字段
+    current_coach_id = serializers.IntegerField(write_only=True, required=False)
+    target_coach_id = serializers.IntegerField(write_only=True)
+    
+    # 只读字段 - 用户信息
+    student = UserSerializer(read_only=True)
+    current_coach = UserSerializer(read_only=True)
+    target_coach = UserSerializer(read_only=True)
+    
+    # 只读字段 - 审批人信息
+    current_coach_approved_by = UserSerializer(read_only=True)
+    target_coach_approved_by = UserSerializer(read_only=True)
+    campus_admin_approved_by = UserSerializer(read_only=True)
+    processed_by = UserSerializer(read_only=True)
+    
+    # 状态显示字段
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    current_coach_approval_display = serializers.CharField(source='get_current_coach_approval_display', read_only=True)
+    target_coach_approval_display = serializers.CharField(source='get_target_coach_approval_display', read_only=True)
+    campus_admin_approval_display = serializers.CharField(source='get_campus_admin_approval_display', read_only=True)
+    
+    # 计算字段
+    is_all_approved = serializers.BooleanField(read_only=True)
+    has_rejection = serializers.BooleanField(read_only=True)
     
     class Meta:
-        model = Booking
+        model = CoachChangeRequest
         fields = [
-            'id', 'relation', 'table', 'coach', 'student',
-            'start_time', 'end_time', 'duration_hours', 'total_fee',
-            'status', 'confirmed_at', 'cancelled_at', 'cancel_reason',
-            'cancelled_by', 'notes', 'created_at', 'updated_at',
-            'has_pending_cancellation', 'cancellation_status', 'cancellation_info'
+            'id', 'student', 'current_coach', 'target_coach',
+            'current_coach_id', 'target_coach_id',
+            'reason', 'request_date', 'status', 'status_display',
+            
+            # 审批状态
+            'current_coach_approval', 'current_coach_approval_display',
+            'target_coach_approval', 'target_coach_approval_display', 
+            'campus_admin_approval', 'campus_admin_approval_display',
+            
+            # 审批人和时间
+            'current_coach_approved_by', 'current_coach_approved_at',
+            'target_coach_approved_by', 'target_coach_approved_at',
+            'campus_admin_approved_by', 'campus_admin_approved_at',
+            
+            # 审批备注
+            'current_coach_notes', 'target_coach_notes', 'campus_admin_notes',
+            
+            # 处理信息
+            'processed_at', 'processed_by',
+            
+            # 计算字段
+            'is_all_approved', 'has_rejection',
+            
+            # 时间戳
+            'created_at', 'updated_at'
         ]
         read_only_fields = [
-            'id', 'coach', 'student', 'confirmed_at', 'cancelled_at',
-            'cancelled_by', 'created_at', 'updated_at'
+            'id', 'student', 'status', 'request_date',
+            'current_coach_approval', 'target_coach_approval', 'campus_admin_approval',
+            'current_coach_approved_by', 'current_coach_approved_at',
+            'target_coach_approved_by', 'target_coach_approved_at',
+            'campus_admin_approved_by', 'campus_admin_approved_at',
+            'current_coach_notes', 'target_coach_notes', 'campus_admin_notes',
+            'processed_at', 'processed_by', 'created_at', 'updated_at'
         ]
-    
-    def get_has_pending_cancellation(self, obj):
-        """获取是否有待处理的取消申请"""
-        return obj.has_pending_cancellation()
-    
-    def get_cancellation_status(self, obj):
-        """获取取消申请状态"""
-        return obj.get_cancellation_status()
-    
-    def get_cancellation_info(self, obj):
-        """获取取消申请详细信息"""
-        if hasattr(obj, 'cancellation'):
-            cancellation = obj.cancellation
-            return {
-                'id': cancellation.id,
-                'requested_by': {
-                    'id': cancellation.requested_by.id,
-                    'username': cancellation.requested_by.username,
-                    'real_name': cancellation.requested_by.real_name
-                },
-                'reason': cancellation.reason,
-                'status': cancellation.status,
-                'created_at': cancellation.created_at,
-                'processed_by': {
-                    'id': cancellation.processed_by.id,
-                    'username': cancellation.processed_by.username,
-                    'real_name': cancellation.processed_by.real_name
-                } if cancellation.processed_by else None,
-                'processed_at': cancellation.processed_at,
-                'response_message': cancellation.response_message
-            }
-        return None
-
-
-class BookingCreateSerializer(serializers.ModelSerializer):
-    """创建预约序列化器"""
-    relation_id = serializers.IntegerField()
-    table_id = serializers.IntegerField()
-    
-    class Meta:
-        model = Booking
-        fields = [
-            'relation_id', 'table_id', 'start_time', 'end_time',
-            'duration_hours', 'total_fee', 'notes'
-        ]
-    
-    def validate_relation_id(self, value):
-        """验证师生关系"""
-        try:
-            relation = CoachStudentRelation.objects.get(id=value, status='approved')
-            return value
-        except CoachStudentRelation.DoesNotExist:
-            raise serializers.ValidationError('师生关系不存在或未通过审核')
-    
-    def validate_table_id(self, value):
-        """验证球台"""
-        try:
-            table = Table.objects.get(id=value, is_active=True)
-            return value
-        except Table.DoesNotExist:
-            raise serializers.ValidationError('球台不存在或不可用')
     
     def validate(self, data):
-        """验证预约数据"""
-        start_time = data.get('start_time')
-        end_time = data.get('end_time')
-        table_id = data.get('table_id')
+        """验证数据"""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            raise serializers.ValidationError("用户未认证")
         
-        # 验证时间
-        if start_time >= end_time:
-            raise serializers.ValidationError('开始时间必须早于结束时间')
+        # 验证用户类型
+        if request.user.user_type != 'student':
+            raise serializers.ValidationError("只有学员可以申请更换教练")
         
-        # 验证预约时间不能是过去时间
-        if start_time <= timezone.now():
-            raise serializers.ValidationError('预约时间不能是过去时间')
+        # 获取目标教练
+        target_coach_id = data.get('target_coach_id')
+        if not target_coach_id:
+            raise serializers.ValidationError("必须指定目标教练")
         
-        # 验证预约时长
-        duration = (end_time - start_time).total_seconds() / 3600
-        if duration < 0.5:
-            raise serializers.ValidationError('预约时长不能少于30分钟')
-        if duration > 8:
-            raise serializers.ValidationError('预约时长不能超过8小时')
+        try:
+            target_coach = User.objects.get(id=target_coach_id, user_type='coach')
+        except User.DoesNotExist:
+            raise serializers.ValidationError("指定的目标教练不存在")
         
-        # 验证球台在该时间段是否可用
-        overlapping_bookings = Booking.objects.filter(
-            table_id=table_id,
-            start_time__lt=end_time,
-            end_time__gt=start_time,
-            status__in=['pending', 'confirmed']
-        )
+        # 获取当前教练
+        current_coach_id = data.get('current_coach_id')
+        if current_coach_id:
+            try:
+                current_coach = User.objects.get(id=current_coach_id, user_type='coach')
+            except User.DoesNotExist:
+                raise serializers.ValidationError("指定的当前教练不存在")
+        else:
+            # 自动获取学员当前的教练
+            current_relation = CoachStudentRelation.objects.filter(
+                student=request.user,
+                status='approved'
+            ).first()
+            
+            if not current_relation:
+                raise serializers.ValidationError("您当前没有教练，无法申请更换")
+            
+            current_coach = current_relation.coach
+            data['current_coach_id'] = current_coach.id
         
-        if overlapping_bookings.exists():
-            raise serializers.ValidationError('该时间段球台已被预约')
+        # 验证不能更换为同一个教练
+        if current_coach.id == target_coach.id:
+            raise serializers.ValidationError("不能更换为当前教练")
         
-        # 自动计算时长
-        data['duration_hours'] = round(duration, 1)
+        # 检查是否已有待处理的更换请求
+        existing_request = CoachChangeRequest.objects.filter(
+            student=request.user,
+            status='pending'
+        ).first()
+        
+        if existing_request:
+            raise serializers.ValidationError("您已有待处理的教练更换请求，请等待审核完成")
         
         return data
     
     def create(self, validated_data):
-        """创建预约"""
-        relation_id = validated_data.pop('relation_id')
-        table_id = validated_data.pop('table_id')
+        """创建教练更换请求"""
+        request = self.context.get('request')
         
-        relation = CoachStudentRelation.objects.get(id=relation_id)
-        table = Table.objects.get(id=table_id)
+        # 获取教练对象
+        current_coach_id = validated_data.pop('current_coach_id')
+        target_coach_id = validated_data.pop('target_coach_id')
         
-        booking = Booking.objects.create(
-            relation=relation,
-            table=table,
+        current_coach = User.objects.get(id=current_coach_id)
+        target_coach = User.objects.get(id=target_coach_id)
+        
+        # 创建请求
+        coach_change_request = CoachChangeRequest.objects.create(
+            student=request.user,
+            current_coach=current_coach,
+            target_coach=target_coach,
             **validated_data
         )
         
-        return booking
+        return coach_change_request
 
 
-class BookingCancellationSerializer(serializers.ModelSerializer):
-    """预约取消申请序列化器"""
-    booking = BookingSerializer(read_only=True)
-    requested_by = UserSimpleSerializer(read_only=True)
-    processed_by = UserSimpleSerializer(read_only=True)
+class CoachChangeApprovalSerializer(serializers.Serializer):
+    """教练更换审批序列化器"""
     
-    class Meta:
-        model = BookingCancellation
-        fields = [
-            'id', 'booking', 'requested_by', 'reason', 'status',
-            'processed_by', 'processed_at', 'response_message', 'created_at'
-        ]
-        read_only_fields = [
-            'id', 'requested_by', 'status', 'processed_by',
-            'processed_at', 'response_message', 'created_at'
-        ]
-
-
-class BookingCancellationCreateSerializer(serializers.ModelSerializer):
-    """创建预约取消申请序列化器"""
-    booking_id = serializers.IntegerField()
+    action = serializers.ChoiceField(choices=['approve', 'reject'])
+    notes = serializers.CharField(required=False, allow_blank=True, max_length=500)
     
-    class Meta:
-        model = BookingCancellation
-        fields = ['booking_id', 'reason']
-    
-    def validate_booking_id(self, value):
-        """验证预约ID"""
-        try:
-            booking = Booking.objects.get(id=value)
-        except Booking.DoesNotExist:
-            raise serializers.ValidationError('预约不存在')
+    def validate(self, data):
+        """验证审批数据"""
+        request = self.context.get('request')
+        coach_change_request = self.context.get('coach_change_request')
         
-        # 检查预约状态
-        if booking.status not in ['pending', 'confirmed']:
-            raise serializers.ValidationError('预约状态不允许申请取消')
+        if not request or not request.user.is_authenticated:
+            raise serializers.ValidationError("用户未认证")
         
-        # 检查是否已有取消申请
-        if hasattr(booking, 'cancellation'):
-            raise serializers.ValidationError('该预约已有取消申请')
+        if not coach_change_request:
+            raise serializers.ValidationError("未找到教练更换请求")
         
-        return value
-
-
-class BookingListSerializer(serializers.ModelSerializer):
-    """预约列表序列化器（简化版）"""
-    coach_name = serializers.CharField(source='relation.coach.real_name', read_only=True)
-    student_name = serializers.CharField(source='relation.student.real_name', read_only=True)
-    table_info = serializers.CharField(source='table.__str__', read_only=True)
-    campus_name = serializers.CharField(source='table.campus.name', read_only=True)
-    
-    class Meta:
-        model = Booking
-        fields = [
-            'id', 'coach_name', 'student_name', 'table_info', 'campus_name',
-            'start_time', 'end_time', 'duration_hours', 'total_fee',
-            'status', 'created_at'
-        ]
-        read_only_fields = fields
+        # 检查请求状态
+        if coach_change_request.status != 'pending':
+            raise serializers.ValidationError("该请求已处理，无法再次审批")
+        
+        # 检查用户权限
+        user = request.user
+        if user == coach_change_request.current_coach:
+            # 当前教练审批
+            if coach_change_request.current_coach_approval != 'pending':
+                raise serializers.ValidationError("您已经审批过此请求")
+        elif user == coach_change_request.target_coach:
+            # 目标教练审批
+            if coach_change_request.target_coach_approval != 'pending':
+                raise serializers.ValidationError("您已经审批过此请求")
+        elif user.user_type == 'campus_admin':
+            # 校区管理员审批
+            if coach_change_request.campus_admin_approval != 'pending':
+                raise serializers.ValidationError("您已经审批过此请求")
+        else:
+            raise serializers.ValidationError("您没有权限审批此请求")
+        
+        return data

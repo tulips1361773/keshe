@@ -294,3 +294,23 @@ Traceback (most recent call last):
   File "D:\Anaconda\envs\django_keshe\lib\site-packages\django\contrib\admin\options.py", line 811, in get_form
     raise FieldError(
 django.core.exceptions.FieldError: Unknown field(s) (payment_status) specified for Booking. Check fields/fieldsets/exclude attributes of class BookingAdmin.
+ERROR 2025-09-16 00:16:24,986 log 2128 8924 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:18:29,341 log 25880 22292 Internal Server Error: /api/reservations/bookings/
+ERROR 2025-09-16 00:18:39,538 log 25880 25372 Internal Server Error: /api/reservations/bookings/
+ERROR 2025-09-16 00:18:54,861 log 25880 24824 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:18:54,866 log 25880 5504 Internal Server Error: /api/reservations/my-coach-change-requests/
+ERROR 2025-09-16 00:26:20,770 log 25880 25372 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:26:28,156 log 25880 11772 Internal Server Error: /api/reservations/bookings/
+ERROR 2025-09-16 00:27:05,221 log 25880 16544 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:30:57,210 log 13336 22292 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:32:15,309 log 20904 15988 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:32:23,391 log 20904 6440 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:32:39,905 log 20904 7864 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:32:44,488 log 20904 15988 Internal Server Error: /api/reservations/bookings/
+ERROR 2025-09-16 00:33:30,218 log 20904 15988 Internal Server Error: /api/reservations/bookings/
+ERROR 2025-09-16 00:34:07,527 log 20904 6440 Internal Server Error: /api/reservations/bookings/
+ERROR 2025-09-16 00:34:39,465 log 13828 9332 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:34:45,270 log 13828 23248 Internal Server Error: /api/reservations/bookings/
+ERROR 2025-09-16 00:41:11,910 log 27192 27564 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:41:39,248 log 27192 3668 Internal Server Error: /api/reservations/coaches/
+ERROR 2025-09-16 00:43:06,579 log 1876 27156 Internal Server Error: /api/reservations/coaches/

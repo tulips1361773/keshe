@@ -22,6 +22,11 @@ app.use(ElementPlus)
 
 // 初始化用户认证状态
 const userStore = useUserStore()
-userStore.initializeAuth()
 
-app.mount('#app')
+// 使用异步初始化
+const initApp = async () => {
+  await userStore.initializeAuth()
+  app.mount('#app')
+}
+
+initApp()
