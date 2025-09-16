@@ -86,7 +86,7 @@
           <template #default="{ row }">
             <el-button size="small" @click="viewBooking(row)">详情</el-button>
             <el-button 
-              v-if="row.status === 'pending' && userStore.user.user_type === 'coach'"
+              v-if="row.status === 'pending' && userStore.user?.user_type === 'coach'"
               size="small" 
               type="success" 
               @click="confirmBooking(row)"

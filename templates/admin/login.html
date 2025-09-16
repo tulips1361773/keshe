@@ -1,0 +1,280 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    
+    #header {
+        display: none;
+    }
+    
+    #container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        max-width: 400px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    #content {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .login-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+        padding: 40px 30px 30px;
+    }
+    
+    .login-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .login-header i {
+        font-size: 2.5rem;
+        color: #ffd700;
+    }
+    
+    .login-header p {
+        margin: 10px 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .login-form {
+        padding: 40px 30px;
+    }
+    
+    .form-row {
+        margin-bottom: 25px;
+        background: none;
+        padding: 0;
+    }
+    
+    .form-row label {
+        display: block;
+        margin-bottom: 8px;
+        color: #495057;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    
+    .form-row input[type="text"],
+    .form-row input[type="password"] {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    
+    .form-row input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+    
+    .submit-row {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .submit-row input {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 25px;
+        color: white;
+        padding: 15px 40px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .submit-row input:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .errornote {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 500;
+    }
+    
+    .login-footer {
+        background: #f8f9fa;
+        text-align: center;
+        padding: 20px;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .login-footer i {
+        margin-right: 5px;
+        color: #667eea;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 480px) {
+        #container {
+            margin: 10px;
+            border-radius: 15px;
+        }
+        
+        .login-header {
+            padding: 30px 20px 20px;
+        }
+        
+        .login-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .login-form {
+            padding: 30px 20px;
+        }
+        
+        .form-row input {
+            padding: 12px;
+        }
+        
+        .submit-row input {
+            padding: 12px 30px;
+        }
+    }
+    
+    /* 动画效果 */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    #container {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .form-row {
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: both;
+    }
+    
+    .form-row:nth-child(1) { animation-delay: 0.1s; }
+    .form-row:nth-child(2) { animation-delay: 0.2s; }
+    .form-row:nth-child(3) { animation-delay: 0.3s; }
+    .submit-row { animation-delay: 0.4s; }
+</style>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+<div class="login-header">
+    <h1>
+        <i class="fas fa-table-tennis"></i>
+        管理后台
+    </h1>
+    <p>乒乓球培训管理系统</p>
+</div>
+
+<div class="login-form">
+    {% if form.errors and not form.non_field_errors %}
+        <div class="errornote">
+            <i class="fas fa-exclamation-triangle"></i>
+            请修正下面的错误。
+        </div>
+    {% endif %}
+    
+    {% if form.non_field_errors %}
+        <div class="errornote">
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ form.non_field_errors|first }}
+        </div>
+    {% endif %}
+    
+    <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+        <div class="form-row">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="errornote">{{ form.username.errors|first }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-row">
+            {{ form.password.label_tag }}
+            {{ form.password }}
+            {% if form.password.errors %}
+                <div class="errornote">{{ form.password.errors|first }}</div>
+            {% endif %}
+        </div>
+        
+        {% url 'admin_password_reset' as password_reset_url %}
+        {% if password_reset_url %}
+            <div class="password-reset-link" style="text-align: center; margin: 20px 0;">
+                <a href="{{ password_reset_url }}" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">
+                    <i class="fas fa-key"></i> 忘记密码？
+                </a>
+            </div>
+        {% endif %}
+        
+        <div class="submit-row">
+            <input type="submit" value="登录" />
+        </div>
+        
+        {% if user.is_authenticated %}
+            <div style="text-align: center; margin-top: 20px; color: #6c757d; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i>
+                您已经以 {{ user.username }} 身份登录，但没有权限访问此页面。
+                您想要使用不同的账户登录吗？
+            </div>
+        {% endif %}
+    </form>
+</div>
+
+<div class="login-footer">
+    <i class="fas fa-shield-alt"></i>
+    安全登录 · 专业管理
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

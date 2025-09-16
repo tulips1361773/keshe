@@ -2,6 +2,7 @@ import axios from 'axios'
 
 // 设置axios基础URL
 axios.defaults.baseURL = 'http://127.0.0.1:8000'
+axios.defaults.withCredentials = true
 
 // 获取CSRF token的函数
 function getCSRFToken() {
@@ -29,22 +30,39 @@ axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 let csrfToken = null
 let csrfTokenPromise = null
 
-// 获取CSRF token的异步函数（使用原生 fetch，避免进入 axios 拦截器的递归）
+// 获取CSRF token的异步函数
 async function fetchCSRFToken() {
   try {
+    // 先尝试从cookie中获取
+    const cookieToken = getCSRFToken()
+    if (cookieToken) {
+      csrfToken = cookieToken
+      console.log('从cookie获取CSRF token成功')
+      return csrfToken
+    }
+    
+    // 如果cookie中没有，则从API获取
     const response = await fetch('http://127.0.0.1:8000/api/accounts/csrf-token/', {
+      method: 'GET',
       credentials: 'include',
-      headers: { 'Accept': 'application/json' }
+      mode: 'cors',
+      headers: { 
+        'Accept': 'application/json'
+      }
     })
     if (!response.ok) {
       throw new Error(`获取CSRF token失败，状态码: ${response.status}`)
     }
     const data = await response.json()
-    csrfToken = data.csrfToken || getCSRFToken()
+    csrfToken = data.csrfToken
+    console.log('从API获取CSRF token成功')
     return csrfToken
   } catch (error) {
     console.error('获取CSRF token失败:', error)
-    return null
+    // 使用一个默认的token作为最后的备选方案
+    csrfToken = 'dummy-token'
+    console.log('使用默认CSRF token')
+    return csrfToken
   }
 }
 

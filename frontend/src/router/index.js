@@ -17,6 +17,7 @@ import Competitions from '@/views/Competitions.vue'
 import CompetitionDetail from '@/views/CompetitionDetail.vue'
 import Coaches from '@/views/Coaches.vue'
 import CoachDetail from '@/views/CoachDetail.vue'
+import CoachChange from '@/views/CoachChange.vue'
 import TeachingManagement from '@/components/TeachingManagement.vue'
 import CoachSchedule from '@/components/CoachSchedule.vue'
 import RechargeApproval from '@/views/RechargeApproval.vue'
@@ -153,6 +154,15 @@ const routes = [
     component: CoachDetail,
     meta: {
       title: '教练员详情 - 乒乓球培训管理系统',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/coach-change',
+    name: 'CoachChange',
+    component: CoachChange,
+    meta: {
+      title: '教练更换 - 乒乓球培训管理系统',
       requiresAuth: true
     }
   },

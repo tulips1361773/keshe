@@ -4,6 +4,9 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from accounts.models import User
 from campus.models import Campus
 
+# 导入教练更换模型
+from .coach_change_models import CoachChangeRequest
+
 
 class CoachStudentRelation(models.Model):
     """师生关系模型"""

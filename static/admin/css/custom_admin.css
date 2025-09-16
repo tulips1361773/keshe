@@ -1,0 +1,459 @@
+/* 知乎风格的Django Admin美化样式 */
+
+/* CSS变量定义 */
+:root {
+    --primary-color: #0066cc;
+    --primary-dark: #0052a3;
+    --primary-light: #e6f3ff;
+    --secondary-color: #f5f5f5;
+    --text-color: #333333;
+    --text-light: #666666;
+    --text-muted: #999999;
+    --border-color: #e1e4e8;
+    --input-border: #d1d5da;
+    --input-bg: #ffffff;
+    --hover-color: #f6f8fa;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
+    --shadow-hover: 0 8px 25px rgba(0,102,204,0.15);
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.15s ease;
+    --primary-gradient: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    --max-width: 1200px;
+    --header-height: 60px;
+    --sidebar-width: 280px;
+}
+
+/* 全局样式重置 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    color: var(--text-color) !important;
+    line-height: 1.6 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh !important;
+}
+
+/* 页面加载动画 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* 主体内容居中 */
+#content {
+    max-width: var(--max-width) !important;
+    margin: 0 auto !important;
+    padding: 2rem 1rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 知乎风格的标题 */
+h1 {
+    color: var(--text-color) !important;
+    font-weight: 600 !important;
+    font-size: 2.25rem !important;
+    text-align: center !important;
+    margin: 2rem auto !important;
+    padding: 1.5rem 0 !important;
+    max-width: var(--max-width) !important;
+    letter-spacing: -0.025em !important;
+    position: relative !important;
+    animation: fadeInUp 0.6s ease-out !important;
+}
+
+h1::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0.5rem !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 60px !important;
+    height: 3px !important;
+    background: var(--primary-gradient) !important;
+    border-radius: 2px !important;
+}
+
+/* 现代化头部样式 */
+#header {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+    border-bottom: none !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+    padding: 0 !important;
+    height: 70px !important;
+    display: flex !important;
+    align-items: center !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+#header .container {
+    max-width: var(--max-width) !important;
+    margin: 0 auto !important;
+    padding: 0 2rem !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+#branding {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+}
+
+.admin-branding {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+}
+
+#site-name {
+    margin: 0 !important;
+    font-size: 1.6rem !important;
+    font-weight: 600 !important;
+    animation: none !important;
+}
+
+#site-name a {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    transition: var(--transition-fast) !important;
+}
+
+#site-name a:hover {
+    color: #3498db !important;
+    transform: translateY(-1px) !important;
+}
+
+#site-name i {
+    font-size: 1.8rem !important;
+    color: #3498db !important;
+    transition: var(--transition-fast) !important;
+}
+
+#site-name a:hover i {
+    color: #2980b9 !important;
+    transform: rotate(15deg) !important;
+}
+
+.admin-subtitle {
+    color: rgba(255,255,255,0.7) !important;
+    font-size: 0.85rem !important;
+    margin-left: 45px !important;
+    font-weight: 400 !important;
+}
+
+#branding h1::after {
+    display: none !important;
+}
+
+/* 用户工具栏 */
+#user-tools {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-size: 0.875rem !important;
+    background: rgba(255,255,255,0.1) !important;
+    border-radius: 25px !important;
+    padding: 8px 15px !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+#user-tools a {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    padding: 6px 12px !important;
+    border-radius: 18px !important;
+    transition: var(--transition-fast) !important;
+    font-weight: 500 !important;
+    position: relative !important;
+    overflow: hidden !important;
+    font-size: 0.85rem !important;
+}
+
+#user-tools a::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+    transition: var(--transition) !important;
+}
+
+#user-tools a:hover {
+    background: rgba(255,255,255,0.2) !important;
+    color: #3498db !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+}
+
+#user-tools a:hover::before {
+    left: 100% !important;
+}
+
+/* 知乎风格的模块容器 */
+.module {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius-lg) !important;
+    margin: 0 auto 2rem auto !important;
+    padding: 2rem !important;
+    box-shadow: var(--shadow) !important;
+    transition: var(--transition) !important;
+    max-width: 800px !important;
+    position: relative !important;
+    animation: fadeInUp 0.6s ease-out !important;
+    overflow: hidden !important;
+}
+
+.module::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 4px !important;
+    background: var(--primary-gradient) !important;
+    opacity: 0 !important;
+    transition: var(--transition) !important;
+}
+
+.module:hover {
+    box-shadow: var(--shadow-hover) !important;
+    transform: translateY(-4px) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.module:hover::before {
+    opacity: 1 !important;
+}
+
+/* 知乎风格的应用列表 */
+.app-list {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+    gap: 2rem !important;
+    margin: 0 auto !important;
+    max-width: var(--max-width) !important;
+    padding: 0 1rem !important;
+    animation: fadeInUp 0.8s ease-out 0.2s both !important;
+}
+
+.app-list .app h2 {
+    background: var(--primary-gradient) !important;
+    color: white !important;
+    margin: -2rem -2rem 1.5rem -2rem !important;
+    padding: 1.5rem 2rem !important;
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0 !important;
+    letter-spacing: 0.025em !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.app-list .app h2::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+    transition: var(--transition) !important;
+}
+
+.app-list .app:hover h2::before {
+    left: 100% !important;
+}
+
+.app-list .app .model-link {
+    display: flex !important;
+    align-items: center !important;
+    padding: 1rem 1.25rem !important;
+    color: var(--text-color) !important;
+    text-decoration: none !important;
+    border-radius: var(--border-radius) !important;
+    margin-bottom: 0.75rem !important;
+    transition: var(--transition) !important;
+    font-weight: 500 !important;
+    border: 1px solid transparent !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.app-list .app .model-link::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100% !important;
+    width: 3px !important;
+    background: var(--primary-color) !important;
+    transform: scaleY(0) !important;
+    transition: var(--transition) !important;
+    transform-origin: bottom !important;
+}
+
+.app-list .app .model-link::after {
+    content: '→' !important;
+    margin-left: auto !important;
+    opacity: 0 !important;
+    transform: translateX(-10px) !important;
+    transition: var(--transition) !important;
+    color: var(--primary-color) !important;
+    font-weight: bold !important;
+}
+
+.app-list .app .model-link:hover {
+    background: var(--hover-color) !important;
+    border-color: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+    transform: translateX(8px) !important;
+    box-shadow: var(--shadow) !important;
+}
+
+.app-list .app .model-link:hover::before {
+    transform: scaleY(1) !important;
+}
+
+.app-list .app .model-link:hover::after {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+}
+
+/* 面包屑导航 */
+.breadcrumbs {
+    background: var(--input-bg) !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: var(--border-radius) !important;
+    margin: 0 auto 1.5rem auto !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow) !important;
+    max-width: var(--max-width) !important;
+    font-size: 0.875rem !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    :root {
+        --max-width: 100% !important;
+    }
+    
+    #content {
+        padding: 1rem 0.5rem !important;
+    }
+    
+    .module {
+        padding: 1.5rem 1rem !important;
+        margin-bottom: 1rem !important;
+        border-radius: var(--border-radius) !important;
+    }
+    
+    .app-list {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        padding: 0 0.5rem !important;
+    }
+    
+    h1 {
+        font-size: 1.75rem !important;
+        padding: 1rem 0 !important;
+    }
+    
+    #header {
+        position: relative !important;
+        height: auto !important;
+        padding: 1rem 0 !important;
+    }
+    
+    #header .container {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        padding: 0 1rem !important;
+    }
+    
+    .admin-branding {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 8px !important;
+    }
+    
+    #site-name {
+        font-size: 1.4rem !important;
+    }
+    
+    .admin-subtitle {
+        margin-left: 0 !important;
+        font-size: 0.8rem !important;
+    }
+    
+    #user-tools {
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        padding: 6px 12px !important;
+    }
+    
+    #user-tools a {
+        font-size: 0.8rem !important;
+        padding: 5px 10px !important;
+    }
+}
+
+/* 平板设备适配 */
+@media (max-width: 1024px) and (min-width: 769px) {
+    :root {
+        --max-width: 95% !important;
+    }
+    
+    .app-list {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    }
+    
+    #header .container {
+        padding: 0 1.5rem !important;
+    }
+}

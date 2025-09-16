@@ -25,8 +25,8 @@ urlpatterns = [
     # 头像上传API
     path('upload-avatar/', views.upload_avatar, name='upload_avatar'),
     
-    # 传统Django视图
-    path('login/', views.login_view, name='login'),
-    path('dashboard/', views.dashboard_view, name='dashboard'),
-    path('profile/', views.profile_view, name='profile'),
+    # 传统Django视图（使用不同的路径避免冲突）
+    path('web/login/', views.login_view, name='login'),
+    path('web/dashboard/', views.dashboard_view, name='dashboard'),
+    path('web/profile/', views.profile_view, name='profile'),
 ]

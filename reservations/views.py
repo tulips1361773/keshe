@@ -1,44 +1,31 @@
-from django.shortcuts import render
-from django.utils import timezone
-from django.db.models import Q
-from rest_framework import status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework import generics, status, permissions
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import PageNumberPagination
-from datetime import datetime, timedelta
-from notifications.models import Notification
-import logging
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from django.db import transaction, models
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
-# 导入错误处理工具
-from keshe.utils import APIErrorHandler, BusinessLogicError, log_user_action, PerformanceMonitor
-
-logger = logging.getLogger(__name__)
-
-from .models import CoachStudentRelation, Table, Booking, BookingCancellation
+from .models import CoachStudentRelation, Table, Booking
+from .coach_change_models import CoachChangeRequest
 from .serializers import (
-    CoachStudentRelationSerializer,
-    TableSerializer,
+    CoachStudentRelationSerializer, 
+    TableSerializer, 
     BookingSerializer,
-    BookingCancellationSerializer,
-    BookingCancellationCreateSerializer,
-    BookingCreateSerializer
+    CoachChangeRequestSerializer,
+    CoachChangeApprovalSerializer
 )
-from accounts.models import User
-from campus.models import Campus
+from accounts.models import Coach
+
+User = get_user_model()
 
 
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
-
-class CoachStudentRelationViewSet(viewsets.ModelViewSet):
-    """师生关系管理"""
+class CoachStudentRelationListCreateView(generics.ListCreateAPIView):
+    """师生关系列表和创建视图"""
     serializer_class = CoachStudentRelationSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = StandardResultsSetPagination
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
@@ -48,740 +35,398 @@ class CoachStudentRelationViewSet(viewsets.ModelViewSet):
             return CoachStudentRelation.objects.filter(student=user)
         else:
             return CoachStudentRelation.objects.none()
+
+
+class CoachStudentRelationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """师生关系详情视图"""
+    serializer_class = CoachStudentRelationSerializer
+    permission_classes = [permissions.IsAuthenticated]
     
-    def perform_create(self, serializer):
+    def get_queryset(self):
         user = self.request.user
         if user.user_type == 'coach':
-            serializer.save(coach=user, applied_by='coach')
+            return CoachStudentRelation.objects.filter(coach=user)
         elif user.user_type == 'student':
-            serializer.save(student=user, applied_by='student')
+            return CoachStudentRelation.objects.filter(student=user)
+        else:
+            return CoachStudentRelation.objects.none()
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def approve_relation(request, relation_id):
+    """审批师生关系"""
+    try:
+        relation = CoachStudentRelation.objects.get(id=relation_id)
+    except CoachStudentRelation.DoesNotExist:
+        return Response({'error': '师生关系不存在'}, status=status.HTTP_404_NOT_FOUND)
     
-    @action(detail=True, methods=['post'])
-    def approve(self, request, pk=None):
-        """同意师生关系申请"""
-        relation = self.get_object()
-        user = request.user
-        
-        # 检查权限
-        if user not in [relation.coach, relation.student]:
-            return Response(
-                {'error': '只有相关的教练或学员可以处理申请'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        if relation.status != 'pending':
-            return Response(
-                {'error': '申请状态不正确'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+    user = request.user
+    action = request.data.get('action')  # 'approve' 或 'reject'
+    
+    # 检查权限
+    if user != relation.coach and user != relation.student:
+        return Response({'error': '无权限操作此关系'}, status=status.HTTP_403_FORBIDDEN)
+    
+    if relation.status != 'pending':
+        return Response({'error': '该关系已处理'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if action == 'approve':
         relation.status = 'approved'
         relation.processed_at = timezone.now()
-        relation.save()
-        
-        # 创建通知
-        if user == relation.coach:
-            # 教练同意申请，通知学员
-            recipient = relation.student
-            message = f"教练 {user.username} 已同意您的师生关系申请"
-        else:
-            # 学员同意申请，通知教练
-            recipient = relation.coach
-            message = f"学员 {user.username} 已同意您的师生关系申请"
-        
-        Notification.create_system_notification(
-            recipient=recipient,
-            title="师生关系审核结果",
-            message=message,
-            data={'relation_id': relation.id, 'type': 'relation_approved'}
-        )
-        
-        return Response({'message': '申请已同意'})
-    
-    @action(detail=True, methods=['post'])
-    def reject(self, request, pk=None):
-        """拒绝师生关系申请"""
-        relation = self.get_object()
-        user = request.user
-        
-        # 检查权限
-        if user not in [relation.coach, relation.student]:
-            return Response(
-                {'error': '只有相关的教练或学员可以处理申请'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        if relation.status != 'pending':
-            return Response(
-                {'error': '申请状态不正确'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+        message = '师生关系已通过审核'
+    elif action == 'reject':
         relation.status = 'rejected'
         relation.processed_at = timezone.now()
-        relation.save()
-        
-        # 创建通知
-        if user == relation.coach:
-            # 教练拒绝申请，通知学员
-            recipient = relation.student
-            message = f"教练 {user.username} 已拒绝您的师生关系申请"
-        else:
-            # 学员拒绝申请，通知教练
-            recipient = relation.coach
-            message = f"学员 {user.username} 已拒绝您的师生关系申请"
-        
-        Notification.create_system_notification(
-            recipient=recipient,
-            title="师生关系审核结果",
-            message=message,
-            data={'relation_id': relation.id, 'type': 'relation_rejected'}
-        )
-        
-        return Response({'message': '申请已拒绝'})
-
-
-class TableViewSet(viewsets.ReadOnlyModelViewSet):
-    """球台信息查看"""
-    serializer_class = TableSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        queryset = Table.objects.filter(is_active=True)
-        campus_id = self.request.query_params.get('campus_id')
-        if campus_id:
-            queryset = queryset.filter(campus_id=campus_id)
-        return queryset
-    
-    @action(detail=False, methods=['get'])
-    def available(self, request):
-        """获取可用球台"""
-        start_time = request.query_params.get('start_time')
-        end_time = request.query_params.get('end_time')
-        campus_id = request.query_params.get('campus_id')
-        
-        if not all([start_time, end_time]):
-            return Response(
-                {'error': '请提供开始时间和结束时间'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        try:
-            start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-            end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-        except ValueError:
-            return Response(
-                {'error': '时间格式不正确'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # 获取基础查询集
-        queryset = Table.objects.filter(is_active=True, status='available')
-        if campus_id:
-            queryset = queryset.filter(campus_id=campus_id)
-        
-        # 排除已被预约的球台
-        occupied_tables = Booking.objects.filter(
-            start_time__lt=end_dt,
-            end_time__gt=start_dt,
-            status__in=['pending', 'confirmed']
-        ).values_list('table_id', flat=True)
-        
-        available_tables = queryset.exclude(id__in=occupied_tables)
-        serializer = self.get_serializer(available_tables, many=True)
-        
-        return Response(serializer.data)
-
-
-class BookingViewSet(viewsets.ModelViewSet):
-    """预约管理"""
-    permission_classes = [IsAuthenticated]
-    pagination_class = StandardResultsSetPagination
-    
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return BookingCreateSerializer
-        return BookingSerializer
-    
-    def get_queryset(self):
-        user = self.request.user
-        queryset = Booking.objects.select_related(
-            'relation__coach',
-            'relation__student',
-            'table__campus',
-            'cancelled_by',
-            'cancellation__requested_by',
-            'cancellation__processed_by'
-        ).prefetch_related(
-            'relation'
-        )
-        
-        if user.user_type == 'coach':
-            queryset = queryset.filter(relation__coach=user)
-        elif user.user_type == 'student':
-            queryset = queryset.filter(relation__student=user)
-        else:
-            return Booking.objects.none()
-        
-        # 过滤参数
-        status_filter = self.request.query_params.get('status')
-        if status_filter:
-            queryset = queryset.filter(status=status_filter)
-        
-        date_from = self.request.query_params.get('date_from')
-        if date_from:
-            try:
-                date_from = datetime.fromisoformat(date_from)
-                queryset = queryset.filter(start_time__gte=date_from)
-            except ValueError:
-                pass
-        
-        date_to = self.request.query_params.get('date_to')
-        if date_to:
-            try:
-                date_to = datetime.fromisoformat(date_to)
-                queryset = queryset.filter(start_time__lte=date_to)
-            except ValueError:
-                pass
-        
-        return queryset.order_by('-start_time')
-    
-    def perform_create(self, serializer):
-        user = self.request.user
-        
-        try:
-            logger.info(f"User {user.username} attempting to create booking")
-            
-            # 验证师生关系
-            relation_id = self.request.data.get('relation_id')
-            if not relation_id:
-                raise BusinessLogicError("师生关系ID不能为空", "missing_relation_id")
-            
-            try:
-                relation = CoachStudentRelation.objects.get(
-                    id=relation_id,
-                    status='approved'
-                )
-                if user not in [relation.coach, relation.student]:
-                    raise BusinessLogicError('无权限创建此预约', 'permission_denied', 403)
-            except CoachStudentRelation.DoesNotExist:
-                raise BusinessLogicError('师生关系不存在或未通过审核', 'relation_not_found', 404)
-            
-            # 检查时间冲突
-            start_time = serializer.validated_data.get('start_time')
-            end_time = serializer.validated_data.get('end_time')
-            table_id = serializer.validated_data.get('table_id')
-            
-            if start_time and end_time and table_id:
-                conflicting_bookings = Booking.objects.filter(
-                    table_id=table_id,
-                    status__in=['pending', 'confirmed'],
-                    start_time__lt=end_time,
-                    end_time__gt=start_time
-                )
-                
-                if conflicting_bookings.exists():
-                    raise BusinessLogicError('该时间段已被预约', 'time_conflict', 409)
-            
-            # 保存预约
-            booking = serializer.save()
-            
-            # 记录用户操作
-            log_user_action(
-                user, 
-                'create_booking', 
-                f'booking_{booking.id}',
-                {
-                    'relation_id': relation_id,
-                    'table_id': table_id,
-                    'start_time': str(start_time),
-                    'end_time': str(end_time)
-                }
-            )
-            
-            # 创建通知
-            try:
-                if user == relation.coach:
-                    # 教练创建预约，通知学员
-                    recipient = relation.student
-                    message = f"教练 {relation.coach.username} 为您创建了一个新的预约"
-                else:
-                    # 学员创建预约，通知教练
-                    recipient = relation.coach
-                    message = f"学员 {relation.student.username} 创建了一个新的预约"
-                
-                Notification.objects.create(
-                    recipient=recipient,
-                    sender=user,
-                    message=message,
-                    notification_type='booking_created',
-                    related_object_id=booking.id
-                )
-                
-                logger.info(f"Notification created for booking {booking.id}")
-                
-            except Exception as e:
-                logger.warning(f"Failed to create notification for booking {booking.id}: {e}")
-                # 通知创建失败不应该影响预约创建
-            
-            logger.info(f"Booking {booking.id} created successfully by user {user.username}")
-            
-        except BusinessLogicError:
-            # 重新抛出业务逻辑错误，让DRF处理
-            raise
-        except Exception as e:
-            logger.error(f"Unexpected error creating booking for user {user.username}: {e}")
-            raise BusinessLogicError('创建预约时发生错误', 'creation_failed', 500)
-    
-    @action(detail=True, methods=['post'])
-    def confirm(self, request, pk=None):
-        """确认预约"""
-        booking = self.get_object()
-        user = request.user
-        
-        # 检查权限（通常是教练确认）
-        if user != booking.coach:
-            return Response(
-                {'error': '只有教练可以确认预约'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        if booking.status != 'pending':
-            return Response(
-                {'error': '预约状态不正确'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        booking.status = 'confirmed'
-        booking.confirmed_at = timezone.now()
-        booking.save()
-        
-        # 创建通知
-        Notification.objects.create(
-            recipient=booking.relation.student,
-            sender=request.user,
-            message=f"您的预约已被教练 {request.user.username} 确认",
-            notification_type='booking_confirmed',
-            related_object_id=booking.id
-        )
-        
-        return Response({'message': '预约已确认'})
-    
-    @action(detail=True, methods=['post'])
-    def cancel(self, request, pk=None):
-        """申请取消预约（需要对方确认）"""
-        booking = self.get_object()
-        user = request.user
-        reason = request.data.get('reason', '')
-        
-        if not reason.strip():
-            return Response(
-                {'error': '请输入取消原因'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # 检查是否可以取消
-        can_cancel, message = booking.can_cancel(user)
-        if not can_cancel:
-            return Response(
-                {'error': message},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # 检查是否已有待处理的取消申请
-        existing_cancellation = BookingCancellation.objects.filter(
-            booking=booking,
-            status='pending'
-        ).first()
-        
-        if existing_cancellation:
-            return Response(
-                {'error': '该预约已有待处理的取消申请'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # 创建取消申请
-        cancellation = BookingCancellation.objects.create(
-            booking=booking,
-            requested_by=user,
-            reason=reason
-        )
-        
-        # 确定需要确认的对方
-        if user == booking.relation.coach:
-            # 教练申请取消，需要学员确认
-            recipient = booking.relation.student
-            message = f"教练 {user.username} 申请取消预约，请您确认"
-        else:
-            # 学员申请取消，需要教练确认
-            recipient = booking.relation.coach
-            message = f"学员 {user.username} 申请取消预约，请您确认"
-        
-        # 创建通知
-        Notification.create_booking_notification(
-            recipient=recipient,
-            title="预约取消申请",
-            message=message,
-            sender=user,
-            data={
-                'cancellation_id': cancellation.id,
-                'booking_id': booking.id,
-                'type': 'cancellation_request',
-                'reason': reason
-            }
-        )
-        
-        return Response({
-            'message': '取消申请已提交，等待对方确认',
-            'cancellation_id': cancellation.id
-        })
-    
-    @action(detail=True, methods=['post'])
-    def complete(self, request, pk=None):
-        """完成预约"""
-        booking = self.get_object()
-        user = request.user
-        
-        # 检查权限
-        if user not in [booking.coach, booking.student]:
-            return Response(
-                {'error': '只有相关的教练或学员可以标记完成'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        if booking.status != 'confirmed':
-            return Response(
-                {'error': '只有已确认的预约可以标记完成'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # 检查时间（只能在课程结束后标记完成）
-        if timezone.now() < booking.end_time:
-            return Response(
-                {'error': '课程尚未结束，无法标记完成'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        booking.status = 'completed'
-        booking.save()
-        
-        return Response({'message': '预约已完成'})
-    
-    @action(detail=False, methods=['get'])
-    def my_schedule(self, request):
-        """获取我的课表"""
-        user = request.user
-        
-        # 获取日期范围参数
-        date_from = request.query_params.get('date_from')
-        date_to = request.query_params.get('date_to')
-        
-        # 如果没有指定日期范围，默认获取本周的课表
-        if not date_from or not date_to:
-            from datetime import datetime, timedelta
-            today = datetime.now().date()
-            # 获取本周一
-            monday = today - timedelta(days=today.weekday())
-            # 获取本周日
-            sunday = monday + timedelta(days=6)
-            date_from = monday.isoformat()
-            date_to = sunday.isoformat()
-        
-        try:
-            from datetime import datetime as dt
-            start_date = dt.strptime(date_from, '%Y-%m-%d')
-            end_date = dt.strptime(date_to, '%Y-%m-%d')
-            # 设置结束日期为当天的23:59:59
-            end_date = end_date.replace(hour=23, minute=59, second=59)
-        except ValueError:
-            return Response(
-                {'error': '日期格式不正确，请使用YYYY-MM-DD格式'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # 获取用户的预约记录
-        queryset = self.get_queryset().filter(
-            start_time__gte=start_date,
-            start_time__lte=end_date
-        ).order_by('start_time')
-        
-        serializer = self.get_serializer(queryset, many=True)
-        
-        return Response({
-            'date_from': date_from,
-            'date_to': date_to,
-            'bookings': serializer.data,
-            'total_count': queryset.count()
-        })
-    
-    @action(detail=False, methods=['get'])
-    def cancel_stats(self, request):
-        """获取用户的取消统计信息"""
-        user = request.user
-        
-        # 计算本月开始时间
-        current_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        
-        # 统计本月取消次数
-        cancel_count = Booking.objects.filter(
-            Q(relation__coach=user) | Q(relation__student=user),
-            cancelled_at__gte=current_month,
-            cancelled_by=user
-        ).count()
-        
-        # 检查是否达到限制
-        max_cancels = 3
-        can_cancel_more = cancel_count < max_cancels
-        
-        return Response({
-            'monthly_cancel_count': cancel_count,
-            'max_monthly_cancels': max_cancels,
-            'can_cancel_more': can_cancel_more,
-            'remaining_cancels': max(0, max_cancels - cancel_count)
-        })
-
-
-class BookingCancellationViewSet(viewsets.ModelViewSet):
-    """预约取消申请管理"""
-    permission_classes = [IsAuthenticated]
-    pagination_class = StandardResultsSetPagination
-    
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return BookingCancellationCreateSerializer
-        return BookingCancellationSerializer
-    
-    def get_queryset(self):
-        user = self.request.user
-        queryset = BookingCancellation.objects.all()
-        
-        if user.user_type == 'coach':
-            # 教练可以看到自己相关的取消申请
-            queryset = queryset.filter(
-                Q(booking__relation__coach=user) |
-                Q(requested_by=user)
-            )
-        elif user.user_type == 'student':
-            # 学员只能看到自己的申请
-            queryset = queryset.filter(
-                Q(booking__relation__student=user) |
-                Q(requested_by=user)
-            )
-        else:
-            return BookingCancellation.objects.none()
-        
-        return queryset.order_by('-created_at')
-    
-    def create(self, request, *args, **kwargs):
-        """创建取消申请"""
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        # 获取预约对象
-        booking_id = serializer.validated_data['booking_id']
-        booking = Booking.objects.get(id=booking_id)
-        
-        # 检查权限：只有相关的教练或学员可以申请取消
-        if request.user not in [booking.relation.coach, booking.relation.student]:
-            return Response(
-                {'error': '只有相关的教练或学员可以申请取消'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        # 创建取消申请
-        cancellation = BookingCancellation.objects.create(
-            booking=booking,
-            requested_by=request.user,
-            reason=serializer.validated_data['reason']
-        )
-        
-        # 返回详细信息
-        response_serializer = BookingCancellationSerializer(cancellation)
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-    
-    @action(detail=True, methods=['post'])
-    def approve(self, request, pk=None):
-        """同意取消申请"""
-        cancellation = self.get_object()
-        user = request.user
-        response_message = request.data.get('response_message', '')
-        
-        # 检查权限：只有对方（非申请人）才能确认取消申请
-        booking = cancellation.booking
-        if user == cancellation.requested_by:
-            return Response(
-                {'error': '不能确认自己的取消申请'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        # 确保当前用户是预约的相关方（教练或学员）
-        if user not in [booking.relation.coach, booking.relation.student] and not user.is_staff:
-            return Response(
-                {'error': '只有预约相关方或管理员可以处理取消申请'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        if cancellation.status != 'pending':
-            return Response(
-                {'error': '申请状态不正确'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # 更新取消申请状态
-        cancellation.status = 'approved'
-        cancellation.processed_by = user
-        cancellation.processed_at = timezone.now()
-        cancellation.response_message = response_message
-        cancellation.save()
-        
-        # 更新预约状态
-        booking.status = 'cancelled'
-        booking.cancelled_at = timezone.now()
-        booking.cancelled_by = cancellation.requested_by
-        booking.cancel_reason = cancellation.reason
-        booking.save()
-        
-        # 创建通知
-        from notifications.models import Notification
-        Notification.create_booking_notification(
-            recipient=cancellation.requested_by,
-            title="取消申请已同意",
-            message=f"您的预约取消申请已被 {user.real_name or user.username} 同意",
-            sender=user,
-            data={
-                'cancellation_id': cancellation.id,
-                'booking_id': booking.id,
-                'type': 'cancellation_approved',
-                'response_message': response_message
-            }
-        )
-        
-        return Response({'message': '取消申请已同意，预约已取消'})
-    
-    @action(detail=True, methods=['post'])
-    def reject(self, request, pk=None):
-        """拒绝取消申请"""
-        cancellation = self.get_object()
-        user = request.user
-        response_message = request.data.get('response_message', '')
-        
-        # 检查权限：只有对方（非申请人）才能确认取消申请
-        booking = cancellation.booking
-        if user == cancellation.requested_by:
-            return Response(
-                {'error': '不能处理自己的取消申请'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        # 确保当前用户是预约的相关方（教练或学员）
-        if user not in [booking.relation.coach, booking.relation.student] and not user.is_staff:
-            return Response(
-                {'error': '只有预约相关方或管理员可以处理取消申请'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        if cancellation.status != 'pending':
-            return Response(
-                {'error': '申请状态不正确'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # 更新取消申请状态
-        cancellation.status = 'rejected'
-        cancellation.processed_by = user
-        cancellation.processed_at = timezone.now()
-        cancellation.response_message = response_message
-        cancellation.save()
-        
-        # 创建通知
-        from notifications.models import Notification
-        Notification.create_booking_notification(
-            recipient=cancellation.requested_by,
-            title="取消申请已拒绝",
-            message=f"您的预约取消申请已被 {user.real_name or user.username} 拒绝",
-            sender=user,
-            data={
-                'cancellation_id': cancellation.id,
-                'booking_id': booking.id,
-                'type': 'cancellation_rejected',
-                'response_message': response_message
-            }
-        )
-        
-        return Response({'message': '取消申请已拒绝'})
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_coaches(request):
-    """获取教练列表"""
-    coaches = User.objects.filter(user_type='coach', is_active=True)
-    data = [{
-        'id': coach.id,
-        'real_name': coach.real_name,
-        'phone': coach.phone,
-        'email': coach.email
-    } for coach in coaches]
-    
-    return Response(data)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_students(request):
-    """获取学员列表（仅教练可用）"""
-    if request.user.user_type != 'coach':
-        return Response(
-            {'error': '只有教练可以查看学员列表'},
-            status=status.HTTP_403_FORBIDDEN
-        )
-    
-    students = User.objects.filter(user_type='student', is_active=True)
-    data = [{
-        'id': student.id,
-        'real_name': student.real_name,
-        'phone': student.phone,
-        'email': student.email
-    } for student in students]
-    
-    return Response(data)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def booking_statistics(request):
-    """预约统计"""
-    user = request.user
-    
-    # 基础查询
-    if user.user_type == 'coach':
-        bookings = Booking.objects.filter(relation__coach=user)
-    elif user.user_type == 'student':
-        bookings = Booking.objects.filter(relation__student=user)
+        message = '师生关系已拒绝'
     else:
-        return Response({'error': '权限不足'}, status=status.HTTP_403_FORBIDDEN)
+        return Response({'error': '无效的操作'}, status=status.HTTP_400_BAD_REQUEST)
     
-    # 统计数据
-    total_bookings = bookings.count()
-    pending_bookings = bookings.filter(status='pending').count()
-    confirmed_bookings = bookings.filter(status='confirmed').count()
-    completed_bookings = bookings.filter(status='completed').count()
-    cancelled_bookings = bookings.filter(status='cancelled').count()
-    
-    # 本月统计
-    current_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    month_bookings = bookings.filter(created_at__gte=current_month).count()
-    month_completed = bookings.filter(
-        status='completed',
-        created_at__gte=current_month
-    ).count()
+    relation.save()
     
     return Response({
-        'total_bookings': total_bookings,
-        'pending_bookings': pending_bookings,
-        'confirmed_bookings': confirmed_bookings,
-        'completed_bookings': completed_bookings,
-        'cancelled_bookings': cancelled_bookings,
-        'month_bookings': month_bookings,
-        'month_completed': month_completed,
+        'message': message,
+        'relation': CoachStudentRelationSerializer(relation).data
+    })
+
+
+class TableListView(generics.ListAPIView):
+    """球台列表视图"""
+    queryset = Table.objects.filter(is_active=True)
+    serializer_class = TableSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class BookingListCreateView(generics.ListCreateAPIView):
+    """预约列表和创建视图"""
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        if user.user_type == 'coach':
+            return Booking.objects.filter(relation__coach=user)
+        elif user.user_type == 'student':
+            return Booking.objects.filter(relation__student=user)
+        else:
+            return Booking.objects.none()
+    
+    def get(self, request, *args, **kwargs):
+        """处理GET请求，支持my_schedule端点的日期过滤"""
+        # 检查是否是my_schedule端点
+        if 'my_schedule' in request.path:
+            return self.get_my_schedule(request)
+        return super().get(request, *args, **kwargs)
+    
+    def get_my_schedule(self, request):
+        """获取我的课表"""
+        from datetime import datetime
+        
+        # 获取日期参数
+        date_from = request.GET.get('date_from')
+        date_to = request.GET.get('date_to')
+        
+        queryset = self.get_queryset()
+        
+        # 应用日期过滤
+        if date_from:
+            try:
+                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+                queryset = queryset.filter(start_time__date__gte=date_from_obj)
+            except ValueError:
+                return Response({'error': '日期格式错误'}, status=400)
+        
+        if date_to:
+            try:
+                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+                queryset = queryset.filter(start_time__date__lte=date_to_obj)
+            except ValueError:
+                return Response({'error': '日期格式错误'}, status=400)
+        
+        # 序列化数据
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({'bookings': serializer.data})
+
+
+class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """预约详情视图"""
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        if user.user_type == 'coach':
+            return Booking.objects.filter(relation__coach=user)
+        elif user.user_type == 'student':
+            return Booking.objects.filter(relation__student=user)
+        else:
+            return Booking.objects.none()
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def coach_list(request):
+    """获取教练列表"""
+    coaches = User.objects.filter(user_type='coach', is_active=True)
+    
+    coach_data = []
+    for coach in coaches:
+        try:
+            coach_profile = Coach.objects.get(user=coach)
+            coach_info = {
+                'id': coach.id,
+                'username': coach.username,
+                'real_name': coach.real_name,
+                'phone': coach.phone,
+                'email': coach.email,
+                'level': coach_profile.coach_level,
+                'hourly_rate': coach_profile.hourly_rate,
+                'max_students': coach_profile.max_students,
+                'current_students': coach_profile.current_students_count,
+                'bio': coach_profile.achievements,
+                'specialties': None,
+                'is_available': True
+            }
+        except Coach.DoesNotExist:
+            coach_info = {
+                'id': coach.id,
+                'username': coach.username,
+                'real_name': coach.real_name,
+                'phone': coach.phone,
+                'email': coach.email,
+                'level': None,
+                'hourly_rate': None,
+                'max_students': None,
+                'current_students': 0,
+                'bio': None,
+                'specialties': None,
+                'is_available': True
+            }
+        
+        coach_data.append(coach_info)
+    
+    return Response(coach_data)
+
+
+# ==================== 教练更换相关视图 ====================
+
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name='post')
+class CoachChangeRequestListCreateView(generics.ListCreateAPIView):
+    """教练更换请求列表和创建视图"""
+    serializer_class = CoachChangeRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        if user.user_type == 'student':
+            # 学员只能看到自己的更换请求
+            return CoachChangeRequest.objects.filter(student=user)
+        elif user.user_type == 'coach':
+            # 教练可以看到与自己相关的更换请求（作为当前教练或目标教练）
+            return CoachChangeRequest.objects.filter(
+                models.Q(current_coach=user) | models.Q(target_coach=user)
+            )
+        elif user.user_type == 'campus_admin':
+            # 校区管理员可以看到所有更换请求
+            return CoachChangeRequest.objects.all()
+        else:
+            return CoachChangeRequest.objects.none()
+    
+    def perform_create(self, serializer):
+        """创建教练更换请求"""
+        serializer.save()
+
+
+class CoachChangeRequestDetailView(generics.RetrieveAPIView):
+    """教练更换请求详情视图"""
+    serializer_class = CoachChangeRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        if user.user_type == 'student':
+            return CoachChangeRequest.objects.filter(student=user)
+        elif user.user_type == 'coach':
+            return CoachChangeRequest.objects.filter(
+                models.Q(current_coach=user) | models.Q(target_coach=user)
+            )
+        elif user.user_type == 'campus_admin':
+            return CoachChangeRequest.objects.all()
+        else:
+            return CoachChangeRequest.objects.none()
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def approve_coach_change(request, request_id):
+    """审批教练更换请求"""
+    try:
+        coach_change_request = CoachChangeRequest.objects.get(id=request_id)
+    except CoachChangeRequest.DoesNotExist:
+        return Response({'error': '教练更换请求不存在'}, status=status.HTTP_404_NOT_FOUND)
+    
+    # 创建审批序列化器
+    serializer = CoachChangeApprovalSerializer(
+        data=request.data,
+        context={
+            'request': request,
+            'coach_change_request': coach_change_request
+        }
+    )
+    
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    action = serializer.validated_data['action']
+    notes = serializer.validated_data.get('notes', '')
+    user = request.user
+    
+    with transaction.atomic():
+        # 根据用户身份进行审批
+        if user == coach_change_request.current_coach:
+            # 当前教练审批
+            if action == 'approve':
+                coach_change_request.current_coach_approval = 'approved'
+            else:
+                coach_change_request.current_coach_approval = 'rejected'
+            
+            coach_change_request.current_coach_approved_by = user
+            coach_change_request.current_coach_approved_at = timezone.now()
+            coach_change_request.current_coach_notes = notes
+            
+        elif user == coach_change_request.target_coach:
+            # 目标教练审批
+            if action == 'approve':
+                coach_change_request.target_coach_approval = 'approved'
+            else:
+                coach_change_request.target_coach_approval = 'rejected'
+            
+            coach_change_request.target_coach_approved_by = user
+            coach_change_request.target_coach_approved_at = timezone.now()
+            coach_change_request.target_coach_notes = notes
+            
+        elif user.user_type == 'campus_admin':
+            # 校区管理员审批
+            if action == 'approve':
+                coach_change_request.campus_admin_approval = 'approved'
+            else:
+                coach_change_request.campus_admin_approval = 'rejected'
+            
+            coach_change_request.campus_admin_approved_by = user
+            coach_change_request.campus_admin_approved_at = timezone.now()
+            coach_change_request.campus_admin_notes = notes
+        
+        # 检查是否所有审批都完成
+        if coach_change_request.has_rejection:
+            # 有拒绝，直接设为拒绝状态
+            coach_change_request.status = 'rejected'
+            coach_change_request.processed_at = timezone.now()
+            coach_change_request.processed_by = user
+            
+        elif coach_change_request.is_all_approved:
+            # 所有审批都通过，执行教练更换
+            coach_change_request.status = 'approved'
+            coach_change_request.processed_at = timezone.now()
+            coach_change_request.processed_by = user
+            
+            # 执行教练更换逻辑
+            coach_change_request.execute_coach_change()
+        
+        coach_change_request.save()
+    
+    # 返回更新后的请求信息
+    response_serializer = CoachChangeRequestSerializer(coach_change_request)
+    
+    return Response({
+        'message': f'审批成功：{action}',
+        'request': response_serializer.data
+    })
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def my_coach_change_requests(request):
+    """获取我的教练更换请求"""
+    user = request.user
+    
+    if user.user_type != 'student':
+        return Response({'error': '只有学员可以查看自己的更换请求'}, status=status.HTTP_403_FORBIDDEN)
+    
+    requests = CoachChangeRequest.objects.filter(student=user).order_by('-created_at')
+    serializer = CoachChangeRequestSerializer(requests, many=True)
+    
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def pending_coach_change_approvals(request):
+    """获取待我审批的教练更换请求"""
+    user = request.user
+    
+    if user.user_type == 'coach':
+        # 教练查看待审批的请求
+        requests = CoachChangeRequest.objects.filter(
+            models.Q(current_coach=user, current_coach_approval='pending') |
+            models.Q(target_coach=user, target_coach_approval='pending'),
+            status='pending'
+        ).order_by('-created_at')
+        
+    elif user.user_type == 'campus_admin':
+        # 校区管理员查看待审批的请求
+        requests = CoachChangeRequest.objects.filter(
+            campus_admin_approval='pending',
+            status='pending'
+        ).order_by('-created_at')
+        
+    else:
+        return Response({'error': '无权限查看审批列表'}, status=status.HTTP_403_FORBIDDEN)
+    
+    serializer = CoachChangeRequestSerializer(requests, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def coach_change_statistics(request):
+    """获取教练更换统计信息"""
+    user = request.user
+    
+    if user.user_type == 'campus_admin':
+        # 管理员可以查看全部统计
+        total_requests = CoachChangeRequest.objects.count()
+        pending_requests = CoachChangeRequest.objects.filter(status='pending').count()
+        approved_requests = CoachChangeRequest.objects.filter(status='approved').count()
+        rejected_requests = CoachChangeRequest.objects.filter(status='rejected').count()
+        
+    elif user.user_type == 'coach':
+        # 教练查看与自己相关的统计
+        related_requests = CoachChangeRequest.objects.filter(
+            models.Q(current_coach=user) | models.Q(target_coach=user)
+        )
+        total_requests = related_requests.count()
+        pending_requests = related_requests.filter(status='pending').count()
+        approved_requests = related_requests.filter(status='approved').count()
+        rejected_requests = related_requests.filter(status='rejected').count()
+        
+    elif user.user_type == 'student':
+        # 学员查看自己的统计
+        my_requests = CoachChangeRequest.objects.filter(student=user)
+        total_requests = my_requests.count()
+        pending_requests = my_requests.filter(status='pending').count()
+        approved_requests = my_requests.filter(status='approved').count()
+        rejected_requests = my_requests.filter(status='rejected').count()
+        
+    else:
+        return Response({'error': '无权限查看统计信息'}, status=status.HTTP_403_FORBIDDEN)
+    
+    return Response({
+        'total_requests': total_requests,
+        'pending_requests': pending_requests,
+        'approved_requests': approved_requests,
+        'rejected_requests': rejected_requests,
+        'approval_rate': round(approved_requests / total_requests * 100, 2) if total_requests > 0 else 0
     })

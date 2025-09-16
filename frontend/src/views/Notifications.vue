@@ -224,9 +224,11 @@ import {
   Warning 
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import { useRouter } from 'vue-router'
 import axios from '@/utils/axios'
 
 const userStore = useUserStore()
+const router = useRouter()
 
 // 响应式数据
 const loading = ref(false)
@@ -284,6 +286,12 @@ const loadNotifications = async () => {
 
 const loadStats = async () => {
   try {
+    // 确保用户已认证
+    if (!userStore.isAuthenticated) {
+      console.log('用户未认证，跳过通知统计数据加载')
+      return
+    }
+    
     const response = await axios.get('/api/notifications/stats/')
     
     // 处理后端返回的数据结构
@@ -294,6 +302,11 @@ const loadStats = async () => {
     bookingCount.value = data.booking || 0
   } catch (error) {
     console.error('加载统计数据错误:', error)
+    if (error.response?.status === 401) {
+      // 认证失败时重定向到登录页
+      await userStore.logout()
+      router.push('/login')
+    }
   }
 }
 
