@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置王教练Token</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .token-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn.success {
+            background: #28a745;
+        }
+        .btn.danger {
+            background: #dc3545;
+        }
+        .result {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .token-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        .instructions {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ffeaa7;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 设置王教练认证Token</h1>
+        
+        <div class="instructions">
+            <strong>说明：</strong>这个页面用于设置王教练的认证token，解决前端课表页面无法显示预约数据的问题。
+        </div>
+        
+        <div class="token-section">
+            <h3>王教练Token信息</h3>
+            <div class="token-display">
+                <strong>Token:</strong> d19bc017c7975acbfcafcd5413825ec51b5da242<br>
+                <strong>用户名:</strong> 王教练<br>
+                <strong>用户ID:</strong> 224<br>
+                <strong>用户类型:</strong> 教练
+            </div>
+        </div>
+        
+        <div class="token-section">
+            <h3>操作按钮</h3>
+            <button class="btn success" onclick="setWangCoachToken()">设置王教练Token</button>
+            <button class="btn" onclick="checkCurrentToken()">检查当前Token</button>
+            <button class="btn danger" onclick="clearToken()">清除Token</button>
+            <button class="btn" onclick="testAPI()">测试API调用</button>
+        </div>
+        
+        <div id="result"></div>
+        
+        <div class="instructions">
+            <strong>使用步骤：</strong>
+            <ol>
+                <li>点击"设置王教练Token"按钮</li>
+                <li>打开前端课表页面: <a href="http://localhost:3002" target="_blank">http://localhost:3002</a></li>
+                <li>刷新页面，课表应该能正常显示王教练的预约数据</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const WANG_COACH_TOKEN = 'd19bc017c7975acbfcafcd5413825ec51b5da242';
+        const API_BASE = 'http://127.0.0.1:8000';
+        
+        function setWangCoachToken() {
+            try {
+                // 设置token到localStorage
+                localStorage.setItem('token', WANG_COACH_TOKEN);
+                
+                // 设置用户信息
+                const userInfo = {
+                    id: 224,
+                    username: '王教练',
+                    real_name: '王教练',
+                    user_type: 'coach',
+                    email: 'wangcoach@example.com'
+                };
+                localStorage.setItem('user', JSON.stringify(userInfo));
+                
+                showResult('✅ 王教练Token设置成功！\n' + 
+                    `Token: ${WANG_COACH_TOKEN}\n` + 
+                    `用户: ${userInfo.username} (${userInfo.real_name})`, 'success');
+                    
+            } catch (error) {
+                showResult(`❌ 设置Token失败: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkCurrentToken() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            let status = '当前认证状态:\n';
+            
+            if (token) {
+                status += `✅ Token: ${token}\n`;
+                if (token === WANG_COACH_TOKEN) {
+                    status += '✅ 这是王教练的Token\n';
+                } else {
+                    status += '⚠️ 这不是王教练的Token\n';
+                }
+            } else {
+                status += '❌ 未设置Token\n';
+            }
+            
+            if (user) {
+                try {
+                    const userObj = JSON.parse(user);
+                    status += `✅ 用户: ${userObj.username} (${userObj.real_name})\n`;
+                } catch (e) {
+                    status += '❌ 用户信息格式错误\n';
+                }
+            } else {
+                status += '❌ 未设置用户信息\n';
+            }
+            
+            const resultClass = (token && user) ? 'success' : 'error';
+            showResult(status, resultClass);
+        }
+        
+        function clearToken() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            showResult('🗑️ 认证信息已清除', 'info');
+        }
+        
+        async function testAPI() {
+            showResult('正在测试API...', 'info');
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showResult('❌ 未设置Token，请先设置认证', 'error');
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE}/api/reservations/bookings/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const count = data.results ? data.results.length : 0;
+                    showResult(`✅ API测试成功！\n` + 
+                        `状态码: ${response.status}\n` + 
+                        `预约数量: ${count}\n` + 
+                        `响应数据: ${JSON.stringify(data, null, 2).substring(0, 500)}...`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    showResult(`❌ API测试失败\n` + 
+                        `状态码: ${response.status}\n` + 
+                        `错误信息: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ API测试出错: ${error.message}`, 'error');
+            }
+        }
+        
+        function showResult(text, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="result ${type}">${text}</div>`;
+        }
+        
+        // 页面加载时检查当前状态
+        window.onload = function() {
+            checkCurrentToken();
+        }
+    </script>
+</body>
+</html>

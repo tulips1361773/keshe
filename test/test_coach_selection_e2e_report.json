@@ -1,0 +1,90 @@
+{
+  "summary": {
+    "total_tests": 8,
+    "passed_tests": 3,
+    "failed_tests": 5,
+    "pass_rate": "37.5%",
+    "test_time": "2025-09-12 21:55:09",
+    "test_environment": {
+      "frontend_url": "http://localhost:3001",
+      "backend_url": "http://localhost:8000",
+      "test_user": "e2e_test_student"
+    }
+  },
+  "detailed_results": [
+    {
+      "test_name": "主页访问",
+      "success": true,
+      "message": "主页加载成功",
+      "timestamp": "2025-09-12 21:53:55",
+      "details": {
+        "页面标题": "首页 - 乒乓球培训管理系统",
+        "URL": "http://localhost:3001/"
+      },
+      "screenshot": null
+    },
+    {
+      "test_name": "教练员选择页面导航",
+      "success": true,
+      "message": "成功导航到教练员选择页面",
+      "timestamp": "2025-09-12 21:53:59",
+      "details": {
+        "目标URL": "http://localhost:3001/#/coach-selection",
+        "当前URL": "http://localhost:3001/#/coach-selection"
+      },
+      "screenshot": "screenshot_coach_selection_page_1757685238.png"
+    },
+    {
+      "test_name": "教练员列表显示",
+      "success": false,
+      "message": "未找到教练员列表容器",
+      "timestamp": "2025-09-12 21:54:19",
+      "details": {},
+      "screenshot": null
+    },
+    {
+      "test_name": "搜索功能测试",
+      "success": false,
+      "message": "测试异常: Message: no such element: Unable to locate element: {\"method\":\"css selector\",\"selector\":\"input[placeholder*='搜索'], input[type='search']\"}\n  (Session info: chrome=140.0.7339.128); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception\nStacktrace:\n\tGetHandleVerifier [0x0x7ff762e1fc95+79861]\n\tGetHandleVerifier [0x0x7ff762e1fcf0+79952]\n\t(No symbol) [0x0x7ff762b9cada]\n\t(No symbol) [0x0x7ff762bf4457]\n\t(No symbol) [0x0x7ff762bf471c]\n\t(No symbol) [0x0x7ff762c48217]\n\t(No symbol) [0x0x7ff762c1cb1f]\n\t(No symbol) [0x0x7ff762c44f8b]\n\t(No symbol) [0x0x7ff762c1c8b3]\n\t(No symbol) [0x0x7ff762be5272]\n\t(No symbol) [0x0x7ff762be6043]\n\tGetHandleVerifier [0x0x7ff7630db9cd+2946349]\n\tGetHandleVerifier [0x0x7ff7630d5c4a+2922410]\n\tGetHandleVerifier [0x0x7ff7630f59d7+3052855]\n\tGetHandleVerifier [0x0x7ff762e3aa7e+189918]\n\tGetHandleVerifier [0x0x7ff762e42a1f+222591]\n\tGetHandleVerifier [0x0x7ff762e28ab4+116244]\n\tGetHandleVerifier [0x0x7ff762e28c69+116681]\n\tGetHandleVerifier [0x0x7ff762e0f048+11176]\n\tBaseThreadInitThunk [0x0x7ff88bea7374+20]\n\tRtlUserThreadStart [0x0x7ff88d1fcc91+33]\n",
+      "timestamp": "2025-09-12 21:54:29",
+      "details": {},
+      "screenshot": null
+    },
+    {
+      "test_name": "筛选功能",
+      "success": false,
+      "message": "未找到筛选控件",
+      "timestamp": "2025-09-12 21:54:39",
+      "details": {},
+      "screenshot": null
+    },
+    {
+      "test_name": "教练员选择",
+      "success": false,
+      "message": "未找到教练员卡片",
+      "timestamp": "2025-09-12 21:54:49",
+      "details": {},
+      "screenshot": null
+    },
+    {
+      "test_name": "我的教练员显示",
+      "success": false,
+      "message": "未找到我的教练员部分",
+      "timestamp": "2025-09-12 21:54:59",
+      "details": {},
+      "screenshot": null
+    },
+    {
+      "test_name": "数据一致性验证",
+      "success": true,
+      "message": "前后端数据一致",
+      "timestamp": "2025-09-12 21:55:09",
+      "details": {
+        "数据库记录数": 0,
+        "前端显示数": 0,
+        "差异": 0
+      },
+      "screenshot": null
+    }
+  ]
+}
