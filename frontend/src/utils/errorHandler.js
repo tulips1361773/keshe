@@ -21,18 +21,50 @@ export const handleError = async (error, context = '', showMessage = true) => {
   // 根据错误类型显示不同的用户提示
   const { ElMessage } = await import('element-plus')
   
-  if (error.name === 'NetworkError' || error.message?.includes('fetch')) {
+  // 处理 axios 错误响应
+  if (error.response) {
+    const { status, data } = error.response
+    
+    if (status === 400) {
+      // 处理400错误，优先显示后端返回的具体错误信息
+      if (data.error) {
+        ElMessage.error(data.error)
+      } else if (data.non_field_errors) {
+        ElMessage.error(data.non_field_errors[0])
+      } else if (data.detail) {
+        ElMessage.error(data.detail)
+      } else {
+        // 处理字段级错误
+        const fieldErrors = []
+        Object.keys(data).forEach(field => {
+          if (Array.isArray(data[field])) {
+            fieldErrors.push(`${getFieldLabel(field)}: ${data[field][0]}`)
+          }
+        })
+        
+        if (fieldErrors.length > 0) {
+          ElMessage.error(fieldErrors.join('; '))
+        } else {
+          ElMessage.error('请检查输入信息')
+        }
+      }
+    } else if (status === 401) {
+      ElMessage.error('登录已过期，请重新登录')
+    } else if (status === 403) {
+      ElMessage.error('没有权限执行此操作')
+    } else if (status === 404) {
+      ElMessage.error('请求的资源不存在')
+    } else if (status === 409) {
+      ElMessage.error('操作冲突，请刷新页面后重试')
+    } else if (status >= 500) {
+      ElMessage.error('服务器内部错误，请稍后重试')
+    } else {
+      ElMessage.error(data.error || data.message || '操作失败，请稍后重试')
+    }
+  } else if (error.name === 'NetworkError' || error.message?.includes('fetch')) {
     ElMessage.error('网络连接失败，请检查网络后重试')
   } else if (error.name === 'ValidationError') {
     ElMessage.warning('请检查输入信息是否正确')
-  } else if (error.status === 401) {
-    ElMessage.error('登录已过期，请重新登录')
-  } else if (error.status === 403) {
-    ElMessage.error('没有权限执行此操作')
-  } else if (error.status === 404) {
-    ElMessage.error('请求的资源不存在')
-  } else if (error.status === 500) {
-    ElMessage.error('服务器内部错误，请稍后重试')
   } else {
     ElMessage.error(error.message || '操作失败，请稍后重试')
   }
