@@ -242,20 +242,20 @@ export default {
           // 处理API返回的数据
           const data = response.data
           console.log('教练详情API响应:', data)
-          console.log('用户信息:', data.user)
-          console.log('头像字段:', data.user?.avatar)
+          console.log('用户信息:', data.user_info)
+          console.log('头像字段:', data.avatar, data.user_info?.avatar)
           
           coach.value = {
             id: data.id,
-            real_name: data.user?.real_name || data.user?.username || '未知教练',
-            avatar: data.user?.avatar || '/static/default-avatar.svg',
+            real_name: data.real_name || data.user_info?.real_name || '未知教练',
+            avatar: data.user_info?.avatar || data.avatar || '/static/default-avatar.svg',
             coach_level: data.coach_level || 'junior',
             status: data.status || 'pending',
-            phone: data.user?.phone || '未提供',
+            phone: data.phone || data.user_info?.phone || '未提供',
             user_info: {
-              email: data.user?.email || '未提供',
-              username: data.user?.username || '未提供',
-              avatar: data.user?.avatar || '/static/default-avatar.svg'
+              email: data.user_info?.email || '未提供',
+              username: data.user_info?.username || '未提供',
+              avatar: data.user_info?.avatar || data.avatar || '/static/default-avatar.svg'
             },
             created_at: data.created_at,
             rating: data.rating || 0,

@@ -111,8 +111,8 @@
               <div class="coach-basic-info">
                 <h3 class="coach-name">{{ coach.real_name }}</h3>
                 <div class="coach-level">
-                  <el-tag :type="getLevelTagType(coach.level)" size="small">
-                    {{ getLevelText(coach.level) }}
+                  <el-tag :type="getLevelTagType(coach.coach_level)" size="small">
+                    {{ getLevelText(coach.coach_level) }}
                   </el-tag>
                 </div>
                 <div class="coach-rating">
@@ -224,7 +224,7 @@
             </el-avatar>
             <div class="coach-info">
               <span class="coach-name">{{ coach.real_name }}</span>
-              <span class="coach-level">{{ getLevelText(coach.level) }}</span>
+              <span class="coach-level">{{ getLevelText(coach.coach_level) }}</span>
             </div>
             <div class="coach-actions">
               <el-button type="primary" link @click="viewCoachDetail(coach)">
@@ -319,24 +319,46 @@ export default {
     
     const fetchSelectedCoaches = async () => {
       try {
+        console.log('开始获取师生关系数据...')
         const response = await axios.get('/api/reservations/relations/')
         console.log('师生关系API响应:', response.data)
         
-        if (response.data && response.data.length > 0) {
+        const relations = response.data.results || response.data || []
+        console.log('解析出的师生关系数据:', relations)
+        
+        if (relations.length > 0) {
           // 获取所有师生关系，包括待审核的
-          selectedCoaches.value = response.data.map(relation => {
+          // 需要通过教练的用户ID找到对应的Coach模型ID
+          console.log('获取教练列表以进行ID映射...')
+          const coachesResponse = await axios.get('/api/accounts/coaches/')
+          const allCoaches = coachesResponse.data.results || []
+          console.log('所有教练数据:', allCoaches)
+          
+          selectedCoaches.value = relations.map(relation => {
             console.log('处理师生关系:', relation)
-            return {
-              id: relation.coach_id,
-              real_name: relation.coach?.real_name || '未知教练',
-              level: relation.coach?.coach_level || 'junior',
-              avatar: relation.coach?.user?.avatar || relation.coach?.avatar || '/default-avatar.svg',
+            
+            // 通过用户ID找到对应的Coach记录
+            const coachRecord = allCoaches.find(coach => coach.user === relation.coach?.id)
+            const coachId = coachRecord ? coachRecord.id : relation.coach?.id
+            
+            console.log('用户ID:', relation.coach?.id, '对应的Coach ID:', coachId)
+            console.log('找到的Coach记录:', coachRecord)
+            
+            const mappedCoach = {
+              id: coachId, // 使用Coach模型的ID
+              real_name: relation.coach?.real_name || coachRecord?.real_name || '未知教练',
+              coach_level: coachRecord?.coach_level || 'junior', // 从Coach记录获取等级
+              avatar: relation.coach?.avatar || coachRecord?.user_info?.avatar || '/default-avatar.svg',
               status: relation.status,
               applied_at: relation.applied_at
             }
+            
+            console.log('映射后的教练数据:', mappedCoach)
+            return mappedCoach
           })
           console.log('处理后的selectedCoaches:', selectedCoaches.value)
         } else {
+          console.log('当前用户没有师生关系记录')
           selectedCoaches.value = []
         }
       } catch (error) {
@@ -524,21 +546,12 @@ export default {
     }
     
     const isCoachSelected = (coachId) => {
-      // coachId是Coach模型ID，需要与selectedCoaches中存储的用户ID进行比较
-      // 在selectedCoaches中，id字段存储的是用户ID（relation.coach_id）
-      // 所以需要找到对应的教练，然后比较其用户ID
-      const coach = coaches.value.find(c => c.id === coachId)
-      if (!coach) return false
-      
-      // 使用coach.user而不是coach.user_info.id，因为user字段直接存储用户ID
-      return selectedCoaches.value.some(selectedCoach => selectedCoach.id === coach.user)
+      // coachId是Coach模型ID，需要与selectedCoaches中存储的教练ID进行比较
+      return selectedCoaches.value.some(selectedCoach => selectedCoach.id === coachId)
     }
     
     const getCoachButtonText = (coachId) => {
-      const coach = coaches.value.find(c => c.id === coachId)
-      if (!coach) return '选择教练'
-      
-      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coach.user)
+      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coachId)
       if (!selectedCoach) return '选择教练'
       
       console.log('getCoachButtonText - coachId:', coachId, 'selectedCoach:', selectedCoach)
@@ -556,10 +569,7 @@ export default {
     }
     
     const getCoachButtonType = (coachId) => {
-      const coach = coaches.value.find(c => c.id === coachId)
-      if (!coach) return 'primary'
-      
-      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coach.user)
+      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coachId)
       if (!selectedCoach) return 'primary'
       
       console.log('getCoachButtonType - coachId:', coachId, 'selectedCoach:', selectedCoach)
@@ -577,10 +587,7 @@ export default {
     }
     
     const isCoachDisabled = (coachId) => {
-      const coach = coaches.value.find(c => c.id === coachId)
-      if (!coach) return false
-      
-      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coach.user)
+      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coachId)
       if (!selectedCoach) return false
       
       // 已选择、正在审核、已拒绝的都不能再点击
