@@ -333,16 +333,18 @@ const getStatusTagType = (status) => {
   const typeMap = {
     'pending': 'warning',
     'confirmed': 'success',
+    'pending_cancellation': 'warning',
     'completed': 'info',
     'cancelled': 'danger'
   }
-  return typeMap[status] || 'default'
+  return typeMap[status] || 'info'
 }
 
 const getStatusText = (status) => {
   const textMap = {
     'pending': '待确认',
     'confirmed': '已确认',
+    'pending_cancellation': '待审核取消',
     'completed': '已完成',
     'cancelled': '已取消'
   }

@@ -345,8 +345,16 @@ class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
             return Booking.objects.filter(relation__coach=user)
         return Booking.objects.none()
     
+    def post(self, request, *args, **kwargs):
+        """处理POST请求的取消预约"""
+        return self.cancel_booking(request, *args, **kwargs)
+    
     def destroy(self, request, *args, **kwargs):
         """取消预约并处理退费"""
+        return self.cancel_booking(request, *args, **kwargs)
+    
+    def cancel_booking(self, request, *args, **kwargs):
+        """创建取消申请的方法"""
         try:
             with transaction.atomic():
                 booking = self.get_object()
@@ -357,56 +365,256 @@ class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
                         'error': '预约已经被取消'
                     }, status=status.HTTP_400_BAD_REQUEST)
                 
-                # 检查是否可以取消（24小时内）
-                now = timezone.now()
-                time_until_booking = booking.start_time - now
+                # 检查是否已有待处理的取消申请
+                from .models import BookingCancellation
+                if BookingCancellation.objects.filter(booking=booking, status='pending').exists():
+                    return Response({
+                        'error': '已有待处理的取消申请'
+                    }, status=status.HTTP_400_BAD_REQUEST)
                 
-                # 如果预约已确认且已付费，需要处理退费
+                # 检查是否可以取消（传入用户参数）
+                can_cancel, reason = booking.can_cancel(request.user)
+                if not can_cancel:
+                    return Response({
+                        'error': reason
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                # 创建取消申请
+                cancellation = BookingCancellation.objects.create(
+                    booking=booking,
+                    requested_by=request.user,
+                    reason=request.data.get('reason', ''),
+                    status='pending'
+                )
+                
+                # 更新预约状态为待审核取消
+                booking.status = 'pending_cancellation'
+                booking.save()
+                
+                return Response({
+                    'message': '取消申请已提交，等待教练审核',
+                    'cancellation_id': cancellation.id,
+                    'status': 'pending_cancellation'
+                }, status=status.HTTP_201_CREATED)
+                
+        except Exception as e:
+            return Response({
+                'error': f'提交取消申请失败: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def approve_cancellation(request, cancellation_id):
+    """教练审核取消申请"""
+    try:
+        from .models import BookingCancellation
+        from accounts.models import UserAccount
+        from payments.models import AccountTransaction
+        
+        with transaction.atomic():
+            # 获取取消申请
+            try:
+                cancellation = BookingCancellation.objects.get(id=cancellation_id)
+            except BookingCancellation.DoesNotExist:
+                return Response({
+                    'error': '取消申请不存在'
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            # 检查权限：只有教练可以审核
+            if not hasattr(request.user, 'coach_profile'):
+                return Response({
+                    'error': '只有教练可以审核取消申请'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # 检查是否是该预约的教练
+            if cancellation.booking.relation.coach.user != request.user:
+                return Response({
+                    'error': '您只能审核自己的预约取消申请'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # 检查申请状态
+            if cancellation.status != 'pending':
+                return Response({
+                    'error': '该申请已经被处理过了'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 获取审核结果
+            action = request.data.get('action')  # 'approve' 或 'reject'
+            coach_comment = request.data.get('comment', '')
+            
+            if action == 'approve':
+                # 批准取消申请
+                booking = cancellation.booking
+                
+                # 处理退费逻辑
+                refund_amount = 0
+                refund_message = ''
+                
                 if booking.status == 'confirmed' and booking.payment_status == 'paid':
-                    student = booking.relation.student
-                    try:
-                        student_account = UserAccount.objects.get(user=student)
-                    except UserAccount.DoesNotExist:
-                        return Response({
-                            'error': '学员账户不存在，无法处理退费'
-                        }, status=status.HTTP_400_BAD_REQUEST)
+                    # 计算距离预约开始时间
+                    now = timezone.now()
+                    time_until_booking = booking.start_time - now
                     
-                    # 24小时内取消可以退费
-                    if time_until_booking.total_seconds() > 24 * 3600:  # 24小时 = 86400秒
-                        # 退费
-                        student_account.balance += booking.total_fee
-                        student_account.save()
-                        
-                        # 创建退费交易记录
-                        AccountTransaction.objects.create(
-                            account=student_account,
-                            transaction_type='refund',
-                            amount=booking.total_fee,
-                            balance_before=student_account.balance - booking.total_fee,
-                            balance_after=student_account.balance,
-                            description=f'预约取消退费 - 教练：{booking.relation.coach.real_name}，时间：{booking.start_time.strftime("%Y-%m-%d %H:%M")}'
-                        )
-                        
-                        booking.payment_status = 'refunded'
-                        refund_message = f'已退费 ¥{booking.total_fee:.2f}'
+                    # 24小时前取消可以退费
+                    if time_until_booking.total_seconds() > 24 * 3600:
+                        student = booking.relation.student
+                        try:
+                            student_account = UserAccount.objects.get(user=student)
+                            
+                            # 退费
+                            refund_amount = booking.total_fee
+                            student_account.balance += refund_amount
+                            student_account.save()
+                            
+                            # 创建退费交易记录
+                            AccountTransaction.objects.create(
+                                account=student_account,
+                                transaction_type='refund',
+                                amount=refund_amount,
+                                balance_before=student_account.balance - refund_amount,
+                                balance_after=student_account.balance,
+                                description=f'预约取消退费 - 教练：{booking.relation.coach.real_name}，时间：{booking.start_time.strftime("%Y-%m-%d %H:%M")}'
+                            )
+                            
+                            booking.payment_status = 'refunded'
+                            refund_message = f'已退费 ¥{refund_amount:.2f}'
+                            
+                        except UserAccount.DoesNotExist:
+                            return Response({
+                                'error': '学员账户不存在，无法处理退费'
+                            }, status=status.HTTP_400_BAD_REQUEST)
                     else:
-                        # 24小时内取消不退费
                         refund_message = '距离预约时间不足24小时，不予退费'
                 
                 # 更新预约状态
                 booking.status = 'cancelled'
+                booking.cancelled_at = timezone.now()
+                booking.cancelled_by = request.user
                 booking.save()
                 
+                # 更新取消申请状态
+                cancellation.status = 'approved'
+                cancellation.processed_by = request.user
+                cancellation.processed_at = timezone.now()
+                cancellation.response_message = coach_comment
+                cancellation.save()
+                
                 return Response({
-                    'message': '预约已取消',
-                    'refund_info': refund_message if 'refund_message' in locals() else '未产生费用'
+                    'message': '取消申请已批准，预约已取消',
+                    'refund_info': refund_message,
+                    'refund_amount': float(refund_amount)
                 }, status=status.HTTP_200_OK)
                 
-        except Exception as e:
-            return Response({
-                'error': f'取消预约失败: {str(e)}'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            elif action == 'reject':
+                # 拒绝取消申请
+                booking = cancellation.booking
+                
+                # 恢复预约状态为已确认
+                booking.status = 'confirmed'
+                booking.save()
+                
+                # 更新取消申请状态
+                cancellation.status = 'rejected'
+                cancellation.processed_by = request.user
+                cancellation.processed_at = timezone.now()
+                cancellation.response_message = coach_comment
+                cancellation.save()
+                
+                return Response({
+                    'message': '取消申请已拒绝，预约状态已恢复'
+                }, status=status.HTTP_200_OK)
+                
+            else:
+                return Response({
+                    'error': '无效的操作，请选择 approve 或 reject'
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+    except Exception as e:
+        return Response({
+            'error': f'处理取消申请失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def pending_cancellations(request):
+    """获取待审核的取消申请列表（教练用）"""
+    try:
+        from .models import BookingCancellation
+        
+        # 检查权限：只有教练可以查看
+        if not hasattr(request.user, 'coach_profile'):
+            return Response({
+                'error': '只有教练可以查看待审核的取消申请'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # 获取该教练的待审核取消申请
+        cancellations = BookingCancellation.objects.filter(
+            booking__relation__coach__user=request.user,
+            status='pending'
+        ).select_related(
+            'booking__relation__student',
+            'booking__relation__coach',
+            'requested_by'
+        ).order_by('-created_at')
+        
+        cancellation_list = []
+        for cancellation in cancellations:
+            booking = cancellation.booking
+            cancellation_list.append({
+                'id': cancellation.id,
+                'booking_id': booking.id,
+                'student_name': booking.relation.student.real_name,
+                'start_time': booking.start_time.strftime('%Y-%m-%d %H:%M'),
+                'end_time': booking.end_time.strftime('%Y-%m-%d %H:%M'),
+                'total_fee': float(booking.total_fee),
+                'payment_status': booking.payment_status,
+                'reason': cancellation.reason,
+                'requested_at': cancellation.created_at.strftime('%Y-%m-%d %H:%M'),
+                'requested_by': cancellation.requested_by.real_name
+            })
+        
+        return Response({
+            'cancellations': cancellation_list,
+            'count': len(cancellation_list)
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'error': f'获取待审核取消申请失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def cancel_stats(request):
+    """获取用户的取消统计信息"""
+    user = request.user
+    
+    # 获取当前月份的开始时间
+    current_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    # 统计本月取消次数
+    from django.db.models import Q
+    monthly_cancel_count = Booking.objects.filter(
+        Q(relation__coach=user) | Q(relation__student=user),
+        cancelled_at__gte=current_month,
+        cancelled_by=user
+    ).count()
+    
+    # 最大取消次数限制
+    max_monthly_cancels = 3
+    
+    # 是否还能取消
+    can_cancel_more = monthly_cancel_count < max_monthly_cancels
+    
+    return Response({
+        'monthly_cancel_count': monthly_cancel_count,
+        'max_monthly_cancels': max_monthly_cancels,
+        'can_cancel_more': can_cancel_more,
+        'remaining_cancels': max_monthly_cancels - monthly_cancel_count
+    })
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])

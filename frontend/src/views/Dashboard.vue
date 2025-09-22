@@ -80,6 +80,16 @@
             <span>我的课表</span>
           </el-menu-item>
           
+          <el-menu-item v-if="userStore.user?.user_type === 'coach'" index="cancellation-approval">
+            <el-icon><DocumentChecked /></el-icon>
+            <span>取消申请审核</span>
+          </el-menu-item>
+          
+          <el-menu-item v-if="userStore.user?.user_type === 'coach'" index="cancellation-approval">
+            <el-icon><DocumentChecked /></el-icon>
+            <span>取消申请审核</span>
+          </el-menu-item>
+          
           <el-menu-item index="reservations">
             <el-icon><Calendar /></el-icon>
             <span>预约管理</span>
@@ -450,6 +460,8 @@ export default {
         router.push('/teaching-management')
       } else if (index === 'coach-schedule') {
         router.push('/coach-schedule')
+      } else if (index === 'cancellation-approval') {
+        router.push('/cancellation-approval')
       } else if (index === 'coach-change') {
         router.push('/coach-change')
       } else if (index === 'reservations') {

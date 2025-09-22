@@ -440,6 +440,7 @@ const getStatusType = (status) => {
   const types = {
     pending: 'warning',
     confirmed: 'success',
+    pending_cancellation: 'warning',
     completed: 'info',
     cancelled: 'danger'
   }
@@ -450,6 +451,7 @@ const getStatusText = (status) => {
   const texts = {
     pending: '待确认',
     confirmed: '已确认',
+    pending_cancellation: '待审核取消',
     completed: '已完成',
     cancelled: '已取消'
   }

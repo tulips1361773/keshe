@@ -133,9 +133,12 @@
   <!-- 取消预约对话框 -->
   <el-dialog
     v-model="cancelDialogVisible"
-    title="取消预约"
+    title="提交取消申请"
     width="400px"
   >
+    <p style="margin-bottom: 16px; color: #666;">
+      提交取消申请后，需要等待教练审核。教练审核通过后，预约将被取消。
+    </p>
     <el-form :model="cancelForm" :rules="cancelRules" ref="cancelFormRef">
       <el-form-item label="取消原因" prop="reason">
         <el-input
@@ -154,7 +157,7 @@
         @click="confirmCancel"
         :loading="cancelling"
       >
-        确认取消
+        提交申请
       </el-button>
     </template>
   </el-dialog>
@@ -231,6 +234,7 @@ const getStatusTagType = (status) => {
   const typeMap = {
     'pending': 'warning',
     'confirmed': 'success',
+    'pending_cancellation': 'warning',
     'cancelled': 'danger',
     'completed': 'info'
   }
@@ -241,6 +245,7 @@ const getStatusText = (status) => {
   const textMap = {
     'pending': '待确认',
     'confirmed': '已确认',
+    'pending_cancellation': '待审核取消',
     'cancelled': '已取消',
     'completed': '已完成'
   }
@@ -330,18 +335,19 @@ const confirmCancel = async () => {
     })
     
     if (response.ok) {
-      ElMessage.success('预约已取消')
+      const result = await response.json()
+      ElMessage.success('取消申请已提交，等待教练审核')
       cancelDialogVisible.value = false
       visible.value = false
       emit('refresh')
     } else {
       const error = await response.json()
-      ElMessage.error(error.error || '取消预约失败')
+      ElMessage.error(error.error || '提交取消申请失败')
     }
   } catch (error) {
     if (error.message) {
-      console.error('取消预约错误:', error)
-      ElMessage.error('取消预约失败')
+      console.error('提交取消申请错误:', error)
+      ElMessage.error('提交取消申请失败')
     }
   } finally {
     cancelling.value = false

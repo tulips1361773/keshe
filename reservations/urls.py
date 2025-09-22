@@ -15,10 +15,13 @@ urlpatterns = [
     path('tables/available/', views.available_tables, name='available-tables'),
     
     # 预约管理
-    path('bookings/', views.BookingListCreateView.as_view(), name='booking-list-create'),
-    path('bookings/my_schedule/', views.BookingListCreateView.as_view(), name='my-schedule'),
+    path('bookings/', views.BookingListCreateView.as_view(), name='booking-list'),
     path('bookings/<int:pk>/', views.BookingDetailView.as_view(), name='booking-detail'),
-    path('bookings/<int:booking_id>/confirm/', views.confirm_booking, name='confirm-booking'),
+    path('bookings/<int:pk>/cancel/', views.BookingDetailView.as_view(), name='booking-cancel'),
+    path('bookings/<int:booking_id>/confirm/', views.confirm_booking, name='booking-confirm'),
+    path('bookings/cancel_stats/', views.cancel_stats, name='cancel-stats'),
+    path('cancellations/<int:cancellation_id>/approve/', views.approve_cancellation, name='approve-cancellation'),
+    path('cancellations/pending/', views.pending_cancellations, name='pending-cancellations'),
     
     # 教练列表
     path('coaches/', views.coach_list, name='coach-list'),

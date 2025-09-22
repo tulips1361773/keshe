@@ -21,6 +21,7 @@ import CoachChange from '@/views/CoachChange.vue'
 import TeachingManagement from '@/components/TeachingManagement.vue'
 import CoachSchedule from '@/components/CoachSchedule.vue'
 import RechargeApproval from '@/views/RechargeApproval.vue'
+import CancellationApproval from '@/components/CancellationApproval.vue'
 
 const routes = [
   {
@@ -182,6 +183,16 @@ const routes = [
     component: CoachSchedule,
     meta: {
       title: '我的课表 - 乒乓球培训管理系统',
+      requiresAuth: true,
+      requiresCoach: true
+    }
+  },
+  {
+    path: '/cancellation-approval',
+    name: 'CancellationApproval',
+    component: CancellationApproval,
+    meta: {
+      title: '取消申请审核 - 乒乓球培训管理系统',
       requiresAuth: true,
       requiresCoach: true
     }
