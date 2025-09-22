@@ -178,16 +178,6 @@ class Booking(models.Model):
         decimal_places=2,
         verbose_name='总费用'
     )
-    payment_status = models.CharField(
-        max_length=20,
-        choices=[
-            ('unpaid', '未支付'),
-            ('paid', '已支付'),
-            ('refunded', '已退款'),
-        ],
-        default='unpaid',
-        verbose_name='支付状态'
-    )
     status = models.CharField(
         max_length=20,
         choices=BOOKING_STATUS_CHOICES,

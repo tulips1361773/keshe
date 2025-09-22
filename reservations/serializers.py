@@ -69,10 +69,6 @@ class BookingSerializer(serializers.ModelSerializer):
     coach_id = serializers.IntegerField(source='relation.coach.id', read_only=True)
     student_id = serializers.IntegerField(source='relation.student.id', read_only=True)
     
-    # 添加写入字段
-    relation_id = serializers.IntegerField(write_only=True)
-    table_id = serializers.IntegerField(write_only=True)
-    
     # 为了兼容前端，添加嵌套的relation对象
     relation = serializers.SerializerMethodField()
     # 为了兼容前端，添加嵌套的table对象
@@ -105,47 +101,11 @@ class BookingSerializer(serializers.ModelSerializer):
             }
         }
     
-    def create(self, validated_data):
-        """创建预约"""
-        from .models import CoachStudentRelation, Table
-        from decimal import Decimal
-        from datetime import datetime
-        
-        # 获取relation_id和table_id
-        relation_id = validated_data.pop('relation_id')
-        table_id = validated_data.pop('table_id')
-        
-        # 获取关联对象
-        relation = CoachStudentRelation.objects.get(id=relation_id)
-        table = Table.objects.get(id=table_id)
-        
-        # 计算时长和费用
-        start_time = validated_data['start_time']
-        end_time = validated_data['end_time']
-        
-        if isinstance(start_time, str):
-            start_time = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
-        if isinstance(end_time, str):
-            end_time = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-            
-        duration = (end_time - start_time).total_seconds() / 3600  # 转换为小时
-        
-        # 创建预约
-        booking = Booking.objects.create(
-            relation=relation,
-            table=table,
-            duration_hours=Decimal(str(duration)),
-            total_fee=Decimal('100.00'),  # 临时固定费用，后续可以根据业务逻辑计算
-            **validated_data
-        )
-        
-        return booking
-    
     class Meta:
         model = Booking
         fields = [
-            'id', 'relation', 'table', 'relation_id', 'table_id',
-            'start_time', 'end_time', 'status', 'notes', 'created_at', 'updated_at',
+            'id', 'relation', 'table', 'start_time', 'end_time',
+            'status', 'notes', 'created_at', 'updated_at',
             'coach_id', 'coach_name', 'student_id', 'student_name', 'table_number'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

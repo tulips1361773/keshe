@@ -1,24 +1,20 @@
-from rest_framework import generics, status, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 from django.contrib.auth import get_user_model
-from django.db import transaction, models
+from datetime import datetime, timedelta
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from datetime import datetime
-
-from .models import CoachStudentRelation, Table, Booking
-from .coach_change_models import CoachChangeRequest
+from .models import CoachStudentRelation, Table, Booking, CoachChangeRequest
 from .serializers import (
     CoachStudentRelationSerializer, 
     TableSerializer, 
-    BookingSerializer,
-    CoachChangeRequestSerializer,
-    CoachChangeApprovalSerializer
+    BookingSerializer, 
+    CoachChangeRequestSerializer
 )
-from accounts.models import Coach
+from payments.models import UserAccount, AccountTransaction
 
 User = get_user_model()
 
@@ -177,6 +173,51 @@ class BookingListCreateView(generics.ListCreateAPIView):
         else:
             return Booking.objects.none()
     
+    def create(self, request, *args, **kwargs):
+        """创建预约，包含余额检查"""
+        try:
+            with transaction.atomic():
+                # 获取学员账户（只有学员可以创建预约）
+                if request.user.user_type != 'student':
+                    return Response({
+                        'error': '只有学员可以创建预约'
+                    }, status=status.HTTP_403_FORBIDDEN)
+                
+                # 获取或创建学员账户
+                student_account, created = UserAccount.objects.get_or_create(
+                    user=request.user,
+                    defaults={'balance': 0.00}
+                )
+                
+                # 获取预约费用
+                total_fee = float(request.data.get('total_fee', 0))
+                if total_fee <= 0:
+                    return Response({
+                        'error': '预约费用必须大于0'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                # 检查账户余额
+                if student_account.balance < total_fee:
+                    return Response({
+                        'error': f'账户余额不足。当前余额：¥{student_account.balance:.2f}，需要：¥{total_fee:.2f}，请先充值'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                # 创建预约
+                serializer = self.get_serializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                booking = serializer.save()
+                
+                # 预约创建成功，但费用暂不扣除（等待教练确认）
+                return Response({
+                    'message': '预约创建成功，等待教练确认',
+                    'booking': serializer.data
+                }, status=status.HTTP_201_CREATED)
+                
+        except Exception as e:
+            return Response({
+                'error': f'创建预约失败: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
     def get(self, request, *args, **kwargs):
         """处理GET请求，支持my_schedule端点的日期过滤"""
         # 检查是否是my_schedule端点
@@ -214,6 +255,81 @@ class BookingListCreateView(generics.ListCreateAPIView):
         return Response({'bookings': serializer.data})
 
 
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def confirm_booking(request, booking_id):
+    """教练确认预约并扣除学员费用"""
+    try:
+        with transaction.atomic():
+            # 获取预约
+            booking = get_object_or_404(Booking, id=booking_id)
+            
+            # 权限检查：只有教练可以确认预约
+            if request.user.user_type != 'coach':
+                return Response({
+                    'error': '只有教练可以确认预约'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # 检查是否是该教练的预约
+            if booking.relation.coach != request.user:
+                return Response({
+                    'error': '您只能确认自己的预约'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # 检查预约状态
+            if booking.status != 'pending':
+                return Response({
+                    'error': f'预约状态不允许确认，当前状态：{booking.get_status_display()}'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 获取学员账户
+            student = booking.relation.student
+            try:
+                student_account = UserAccount.objects.get(user=student)
+            except UserAccount.DoesNotExist:
+                return Response({
+                    'error': '学员账户不存在'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 再次检查余额（防止并发问题）
+            if student_account.balance < booking.total_fee:
+                return Response({
+                    'error': f'学员账户余额不足。当前余额：¥{student_account.balance:.2f}，需要：¥{booking.total_fee:.2f}'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 扣除费用
+            student_account.balance -= booking.total_fee
+            student_account.save()
+            
+            # 创建交易记录
+            AccountTransaction.objects.create(
+                account=student_account,
+                transaction_type='payment',
+                amount=booking.total_fee,
+                balance_before=student_account.balance + booking.total_fee,
+                balance_after=student_account.balance,
+                description=f'预约课程费用 - 教练：{booking.relation.coach.real_name}，时间：{booking.start_time.strftime("%Y-%m-%d %H:%M")}'
+            )
+            
+            # 更新预约状态
+            booking.status = 'confirmed'
+            booking.payment_status = 'paid'
+            booking.save()
+            
+            # 返回成功响应
+            serializer = BookingSerializer(booking)
+            return Response({
+                'message': '预约确认成功，费用已扣除',
+                'booking': serializer.data,
+                'student_balance': float(student_account.balance)
+            }, status=status.HTTP_200_OK)
+            
+    except Exception as e:
+        return Response({
+            'error': f'确认预约失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
 class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
     """预约详情视图"""
     serializer_class = BookingSerializer
@@ -221,12 +337,73 @@ class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
     
     def get_queryset(self):
         user = self.request.user
-        if user.user_type == 'coach':
-            return Booking.objects.filter(relation__coach=user)
-        elif user.user_type == 'student':
+        if user.user_type == 'student':
             return Booking.objects.filter(relation__student=user)
-        else:
-            return Booking.objects.none()
+        elif user.user_type == 'coach':
+            return Booking.objects.filter(relation__coach=user)
+        return Booking.objects.none()
+    
+    def destroy(self, request, *args, **kwargs):
+        """取消预约并处理退费"""
+        try:
+            with transaction.atomic():
+                booking = self.get_object()
+                
+                # 检查预约状态
+                if booking.status == 'cancelled':
+                    return Response({
+                        'error': '预约已经被取消'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                # 检查是否可以取消（24小时内）
+                now = timezone.now()
+                time_until_booking = booking.start_time - now
+                
+                # 如果预约已确认且已付费，需要处理退费
+                if booking.status == 'confirmed' and booking.payment_status == 'paid':
+                    student = booking.relation.student
+                    try:
+                        student_account = UserAccount.objects.get(user=student)
+                    except UserAccount.DoesNotExist:
+                        return Response({
+                            'error': '学员账户不存在，无法处理退费'
+                        }, status=status.HTTP_400_BAD_REQUEST)
+                    
+                    # 24小时内取消可以退费
+                    if time_until_booking.total_seconds() > 24 * 3600:  # 24小时 = 86400秒
+                        # 退费
+                        student_account.balance += booking.total_fee
+                        student_account.save()
+                        
+                        # 创建退费交易记录
+                        AccountTransaction.objects.create(
+                            account=student_account,
+                            transaction_type='refund',
+                            amount=booking.total_fee,
+                            balance_before=student_account.balance - booking.total_fee,
+                            balance_after=student_account.balance,
+                            description=f'预约取消退费 - 教练：{booking.relation.coach.real_name}，时间：{booking.start_time.strftime("%Y-%m-%d %H:%M")}'
+                        )
+                        
+                        booking.payment_status = 'refunded'
+                        refund_message = f'已退费 ¥{booking.total_fee:.2f}'
+                    else:
+                        # 24小时内取消不退费
+                        refund_message = '距离预约时间不足24小时，不予退费'
+                
+                # 更新预约状态
+                booking.status = 'cancelled'
+                booking.save()
+                
+                return Response({
+                    'message': '预约已取消',
+                    'refund_info': refund_message if 'refund_message' in locals() else '未产生费用'
+                }, status=status.HTTP_200_OK)
+                
+        except Exception as e:
+            return Response({
+                'error': f'取消预约失败: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

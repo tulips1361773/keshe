@@ -102,13 +102,10 @@
         <div class="form-tip" v-if="!form.start_time || !form.end_time || !form.campus_id">
           请先选择校区和预约时间
         </div>
-        <div class="form-tip" v-else-if="form.start_time && form.end_time && !durationText.includes('小时')">
-          {{ durationText }}
-        </div>
         <div class="form-tip" v-else-if="tablesLoading">
           正在加载可用球台...
         </div>
-        <div class="form-tip" v-else-if="!availableTables.length && durationText.includes('小时')">
+        <div class="form-tip" v-else-if="!availableTables.length">
           该时间段暂无可用球台，请调整时间
         </div>
         <div class="form-tip success" v-else>
