@@ -198,11 +198,18 @@ export const useUserStore = defineStore('user', {
       if (storedToken) {
         this.token = storedToken
         axios.defaults.headers.common['Authorization'] = `Token ${storedToken}`
+        
+        // 尝试获取用户信息
         const result = await this.fetchProfile()
         // 如果获取用户信息失败，说明token无效
         if (!result || !result.success) {
+          console.warn('Token无效，清除认证状态')
           this.logout()
+        } else {
+          console.log('用户认证状态初始化成功:', this.user)
         }
+      } else {
+        console.log('未找到存储的token，用户未登录')
       }
     }
   }

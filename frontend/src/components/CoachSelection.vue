@@ -246,6 +246,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { User, Search, View, Check } from '@element-plus/icons-vue'
 import axios from '@/utils/axios'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'CoachSelection',
@@ -257,6 +258,7 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const userStore = useUserStore()
     
     // 响应式数据
     const loading = ref(false)
@@ -366,6 +368,23 @@ export default {
     
     const selectCoach = async (coach) => {
       try {
+        // 检查用户认证状态
+        if (!userStore.isAuthenticated) {
+          ElMessage.error('请先登录后再选择教练')
+          return
+        }
+        
+        // 检查用户信息是否已加载
+        if (!userStore.userInfo || !userStore.userInfo.id) {
+          ElMessage.error('用户信息加载中，请稍后重试')
+          // 尝试重新获取用户信息
+          await userStore.fetchProfile()
+          if (!userStore.userInfo || !userStore.userInfo.id) {
+            ElMessage.error('无法获取用户信息，请重新登录')
+            return
+          }
+        }
+        
         await ElMessageBox.confirm(
           `确定要选择 ${coach.real_name} 作为您的教练吗？`,
           '确认选择教练',
@@ -378,10 +397,17 @@ export default {
         
         selectingCoach.value = coach.id
         
-        const response = await axios.post('/api/reservations/relations/', {
-          coach_id: coach.user_id || coach.id,
+        const requestData = {
+          coach_id: coach.user,  // 使用用户ID而不是Coach模型ID
+          student_id: userStore.userInfo.id,  // 确保有值后再使用
           notes: `学员选择教练：${coach.real_name}`
-        })
+        }
+        
+        console.log('发送的请求数据:', requestData)
+        console.log('教练对象:', coach)
+        console.log('用户信息:', userStore.userInfo)
+        
+        const response = await axios.post('/api/reservations/relations/', requestData)
         
         if (response.status === 201 || response.status === 200) {
           ElMessage.success('选择教练成功！')
@@ -407,7 +433,10 @@ export default {
             console.log(`HTTP状态码: ${status}, 响应数据:`, data)
             
             if (status === 400) {
-              if (data.non_field_errors && data.non_field_errors.length > 0) {
+              // 处理数组格式的错误信息
+              if (Array.isArray(data) && data.length > 0) {
+                errorMessage = data[0]
+              } else if (data.non_field_errors && data.non_field_errors.length > 0) {
                 const errorDetail = data.non_field_errors[0]
                 if (typeof errorDetail === 'string') {
                   errorMessage = errorDetail
@@ -458,14 +487,14 @@ export default {
         // 先获取师生关系列表，找到对应的关系记录
         const relationsResponse = await axios.get('/api/reservations/relations/')
         const relation = relationsResponse.data.find(r => 
-          r.coach_id === coachId && r.status === 'approved'
+          r.coach_id === coach.user && r.status === 'approved'  // 使用用户ID查找关系
         )
         
         if (relation) {
           // 删除师生关系
           const response = await axios.delete(`/api/reservations/relations/${relation.id}/`)
           ElMessage.success('取消选择成功！')
-          selectedCoaches.value = selectedCoaches.value.filter(c => c.id !== coachId)
+          selectedCoaches.value = selectedCoaches.value.filter(c => c.id !== coach.user)  // 使用用户ID过滤
           // 刷新教练列表
           fetchCoaches()
         } else {
@@ -485,7 +514,13 @@ export default {
     }
     
     const isCoachSelected = (coachId) => {
-      return selectedCoaches.value.some(coach => coach.id === coachId)
+      // coachId是Coach模型ID，需要与selectedCoaches中存储的用户ID进行比较
+      // 在selectedCoaches中，id字段存储的是用户ID（relation.coach_id）
+      // 所以需要找到对应的教练，然后比较其用户ID
+      const coach = coaches.value.find(c => c.id === coachId)
+      if (!coach) return false
+      
+      return selectedCoaches.value.some(selectedCoach => selectedCoach.id === coach.user)
     }
     
     // 辅助方法

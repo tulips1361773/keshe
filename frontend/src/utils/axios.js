@@ -81,33 +81,41 @@ axios.interceptors.request.use(
       config.headers['Authorization'] = `Token ${token}`
     }
 
-    // 如果没有CSRF token，尝试获取（使用单例Promise防抖）
-    if (!csrfToken) {
-      csrfTokenPromise = csrfTokenPromise || fetchCSRFToken()
-      await csrfTokenPromise
-      csrfTokenPromise = null
-    }
-    
-    // 添加CSRF token到请求头
-    if (csrfToken) {
-      config.headers['X-CSRFToken'] = csrfToken
-    }
-    
-    // 从cookie中获取CSRF token作为备选
-    const cookieToken = getCSRFToken()
-    if (cookieToken && !config.headers['X-CSRFToken']) {
-      config.headers['X-CSRFToken'] = cookieToken
-    }
-    
-    // 确保POST/PUT/PATCH请求包含Content-Type
-    const method = (config.method || '').toLowerCase()
-    if (['post', 'put', 'patch'].includes(method)) {
+    // 对于需要CSRF保护的请求，添加CSRF token
+    if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase())) {
+      // 优先从cookie中获取CSRF token
+      const cookieToken = getCSRFToken()
+      if (cookieToken) {
+        config.headers['X-CSRFToken'] = cookieToken
+      } else {
+        // 如果cookie中没有，从API获取
+        if (!csrfToken) {
+          csrfTokenPromise = csrfTokenPromise || fetchCSRFToken()
+          await csrfTokenPromise
+          csrfTokenPromise = null
+        }
+        if (csrfToken && csrfToken !== 'dummy-token') {
+          config.headers['X-CSRFToken'] = csrfToken
+        }
+      }
+      
+      // 确保POST/PUT/PATCH请求包含Content-Type
       config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json'
     }
+    
+    console.log('请求配置:', {
+      method: config.method,
+      url: config.url,
+      headers: {
+        'Authorization': config.headers['Authorization'] ? 'Token ***' : 'None',
+        'X-CSRFToken': config.headers['X-CSRFToken'] ? config.headers['X-CSRFToken'].substring(0, 10) + '...' : 'None'
+      }
+    })
     
     return config
   },
   (error) => {
+    console.error('请求拦截器错误:', error)
     return Promise.reject(error)
   }
 )
