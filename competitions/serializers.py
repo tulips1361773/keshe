@@ -15,11 +15,13 @@ class CompetitionSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.username', read_only=True)
     registration_count = serializers.SerializerMethodField()
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    competition_type_display = serializers.CharField(source='get_competition_type_display', read_only=True)
     
     class Meta:
         model = Competition
         fields = [
-            'id', 'title', 'description', 'campus', 'campus_name', 'competition_date',
+            'id', 'name', 'title', 'competition_type', 'competition_type_display', 
+            'description', 'campus', 'campus_name', 'competition_date',
             'registration_start', 'registration_end', 'registration_fee',
             'max_participants_per_group', 'status', 'status_display',
             'created_by', 'created_by_name', 'created_at', 'updated_at', 'registration_count'
@@ -108,7 +110,7 @@ class CompetitionMatchSerializer(serializers.ModelSerializer):
             'id', 'competition', 'competition_name', 'group', 'group_name',
             'player1', 'player1_name', 'player1_real_name',
             'player2', 'player2_name', 'player2_real_name',
-            'match_number', 'round_number', 'scheduled_time',
+            'round_number', 'scheduled_time',
             'actual_start_time', 'actual_end_time', 'table_number',
             'status', 'status_display', 'winner', 'winner_name', 'notes'
         ]

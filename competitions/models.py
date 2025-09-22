@@ -18,13 +18,27 @@ class Competition(models.Model):
         ('cancelled', '已取消'),
     ]
     
+    COMPETITION_TYPE_CHOICES = [
+        ('monthly', '月赛'),
+        ('single', '单打'),
+        ('double', '双打'),
+        ('team', '团体赛'),
+    ]
+    
     GROUP_CHOICES = [
         ('A', '甲组'),
         ('B', '乙组'),
         ('C', '丙组'),
     ]
     
+    name = models.CharField(max_length=200, verbose_name='比赛名称', default='默认比赛')
     title = models.CharField(max_length=200, verbose_name='比赛标题')
+    competition_type = models.CharField(
+        max_length=20,
+        choices=COMPETITION_TYPE_CHOICES,
+        default='monthly',
+        verbose_name='比赛类型'
+    )
     description = models.TextField(blank=True, verbose_name='比赛描述')
     campus = models.ForeignKey(Campus, on_delete=models.CASCADE, verbose_name='举办校区')
     competition_date = models.DateTimeField(verbose_name='比赛时间')

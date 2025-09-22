@@ -20,18 +20,18 @@
         @click="viewCompetition(competition.id)"
       >
         <div class="card-header">
-          <h3>{{ competition.name }}</h3>
+          <h3>{{ competition.title }}</h3>
           <span class="status-badge" :class="competition.status">
             {{ getStatusText(competition.status) }}
           </span>
         </div>
         <div class="card-body">
-          <p><strong>类型:</strong> {{ getTypeText(competition.competition_type) }}</p>
-          <p><strong>校区:</strong> {{ competition.campus_name }}</p>
-          <p><strong>报名截止:</strong> {{ formatDate(competition.registration_deadline) }}</p>
-          <p><strong>比赛时间:</strong> {{ formatDate(competition.start_date) }}</p>
-          <p><strong>已报名:</strong> {{ competition.registration_count }}/{{ competition.max_participants }}</p>
-        </div>
+           <p><strong>类型:</strong> {{ getTypeText(competition.competition_type) }}</p>
+           <p><strong>校区:</strong> {{ competition.campus_name }}</p>
+           <p><strong>报名截止:</strong> {{ formatDate(competition.registration_end) }}</p>
+           <p><strong>比赛时间:</strong> {{ formatDate(competition.competition_date) }}</p>
+           <p><strong>已报名:</strong> {{ competition.registration_count }}/{{ competition.max_participants_per_group }}</p>
+         </div>
         <div class="card-actions">
           <button 
             v-if="canRegister(competition)" 
@@ -219,12 +219,12 @@ export default {
     }
 
     // 判断是否可以报名
-    const canRegister = (competition) => {
-      return userStore.user?.user_type === 'student' && 
-             competition.status === 'registration' && 
-             !isRegistered(competition.id) &&
-             competition.registration_count < competition.max_participants
-    }
+     const canRegister = (competition) => {
+       return userStore.user?.user_type === 'student' && 
+              competition.status === 'registration' && 
+              !isRegistered(competition.id) &&
+              competition.registration_count < competition.max_participants_per_group
+     }
 
     // 判断是否已报名
     const isRegistered = (competitionId) => {

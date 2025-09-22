@@ -13,7 +13,9 @@ export const useUserStore = defineStore('user', {
     userInfo: (state) => state.user,
     isStudent: (state) => state.user?.user_type === 'student',
     isCoach: (state) => state.user?.user_type === 'coach',
-    isAdmin: (state) => state.user?.user_type === 'admin'
+    isAdmin: (state) => state.user?.user_type === 'super_admin' || state.user?.user_type === 'campus_admin',
+    isSuperAdmin: (state) => state.user?.user_type === 'super_admin',
+    isCampusAdmin: (state) => state.user?.user_type === 'campus_admin'
   },
 
   actions: {
