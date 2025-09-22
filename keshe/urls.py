@@ -36,7 +36,8 @@ def api_root(request):
             'payments': '/api/payments/',
             'reservations': '/api/reservations/',
             'notifications': '/api/notifications/',
-            'competitions': '/api/competitions/'
+            'competitions': '/api/competitions/',
+            'logs': '/api/logs/'
         }
     })
 
@@ -54,6 +55,7 @@ urlpatterns = [
     path('api/payments/', include(('payments.urls', 'payments_api'), namespace='payments_api')),
     path('api/reservations/', include('reservations.urls')),
     path('api/notifications/', include('notifications.urls')),
+    path('api/logs/', include('logs.urls')),
     
     # 管理员页面路由
     path('payments/', include('payments.urls')),
