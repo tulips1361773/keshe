@@ -18,6 +18,7 @@ urlpatterns = [
     path('bookings/', views.BookingListCreateView.as_view(), name='booking-list-create'),
     path('bookings/my_schedule/', views.BookingListCreateView.as_view(), name='my-schedule'),
     path('bookings/<int:pk>/', views.BookingDetailView.as_view(), name='booking-detail'),
+    path('bookings/<int:booking_id>/confirm/', views.confirm_booking, name='confirm-booking'),
     
     # 教练列表
     path('coaches/', views.coach_list, name='coach-list'),

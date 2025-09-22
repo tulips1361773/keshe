@@ -184,6 +184,17 @@ class Booking(models.Model):
         default='pending',
         verbose_name='预约状态'
     )
+    payment_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('unpaid', '未支付'),
+            ('partial', '部分支付'),
+            ('paid', '已支付'),
+            ('refunded', '已退款'),
+        ],
+        default='unpaid',
+        verbose_name='支付状态'
+    )
     confirmed_at = models.DateTimeField(
         blank=True,
         null=True,

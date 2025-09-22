@@ -69,9 +69,12 @@ class BookingSerializer(serializers.ModelSerializer):
     coach_id = serializers.IntegerField(source='relation.coach.id', read_only=True)
     student_id = serializers.IntegerField(source='relation.student.id', read_only=True)
     
-    # 为了兼容前端，添加嵌套的relation对象
+    # 添加前端兼容字段
+    relation_id = serializers.IntegerField(write_only=True, required=False)
+    table_id = serializers.IntegerField(write_only=True, required=False)
+    
+    # 用于返回的嵌套对象
     relation = serializers.SerializerMethodField()
-    # 为了兼容前端，添加嵌套的table对象
     table = serializers.SerializerMethodField()
     
     def get_relation(self, obj):
@@ -101,11 +104,21 @@ class BookingSerializer(serializers.ModelSerializer):
             }
         }
     
+    def create(self, validated_data):
+        # 处理前端字段映射
+        if 'relation_id' in validated_data:
+            validated_data['relation_id'] = validated_data.pop('relation_id')
+        if 'table_id' in validated_data:
+            validated_data['table_id'] = validated_data.pop('table_id')
+        
+        return super().create(validated_data)
+    
     class Meta:
         model = Booking
         fields = [
-            'id', 'relation', 'table', 'start_time', 'end_time',
-            'status', 'notes', 'created_at', 'updated_at',
+            'id', 'relation', 'table', 'relation_id', 'table_id', 'start_time', 'end_time',
+            'duration_hours', 'total_fee', 'status',
+            'notes', 'created_at', 'updated_at',
             'coach_id', 'coach_name', 'student_id', 'student_name', 'table_number'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
