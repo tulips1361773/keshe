@@ -14460,3 +14460,9 @@ django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. Y
 [2025-09-22 10:20:05] INFO django.server: "GET /api/accounts/stats/ HTTP/1.1" 200 103
 [2025-09-22 10:20:05] INFO django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 200 1075
 [2025-09-22 10:20:05] INFO django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 200 65
+[2025-09-22 10:20:18] WARNING django.server: "GET /api/accounts/stats/ HTTP/1.1" 403 34
+[2025-09-22 10:20:18] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-22 10:20:18] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34
+[2025-09-22 10:20:18] WARNING django.server: "GET /api/accounts/stats/ HTTP/1.1" 403 34
+[2025-09-22 10:20:18] WARNING django.server: "GET /api/notifications/list/?page=1&page_size=5 HTTP/1.1" 403 34
+[2025-09-22 10:20:18] WARNING django.server: "GET /api/notifications/unread-count/ HTTP/1.1" 403 34

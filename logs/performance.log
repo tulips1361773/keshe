@@ -1194,3 +1194,9 @@
 [2025-09-22 10:19:18] WARNING keshe.middleware: API Response: {'url': '/api/accounts/stats/', 'method': 'GET', 'status_code': 403, 'duration_ms': 5.0, 'user': 'Anonymous'}
 [2025-09-22 10:19:18] WARNING keshe.middleware: API Response: {'url': '/api/notifications/list/?page=1&page_size=5', 'method': 'GET', 'status_code': 403, 'duration_ms': 3.99, 'user': 'Anonymous'}
 [2025-09-22 10:19:18] WARNING keshe.middleware: API Response: {'url': '/api/notifications/unread-count/', 'method': 'GET', 'status_code': 403, 'duration_ms': 3.99, 'user': 'Anonymous'}
+[2025-09-22 10:20:18] WARNING keshe.middleware: API Response: {'url': '/api/accounts/stats/', 'method': 'GET', 'status_code': 403, 'duration_ms': 3.06, 'user': 'Anonymous'}
+[2025-09-22 10:20:18] WARNING keshe.middleware: API Response: {'url': '/api/notifications/list/?page=1&page_size=5', 'method': 'GET', 'status_code': 403, 'duration_ms': 3.06, 'user': 'Anonymous'}
+[2025-09-22 10:20:18] WARNING keshe.middleware: API Response: {'url': '/api/notifications/unread-count/', 'method': 'GET', 'status_code': 403, 'duration_ms': 2.99, 'user': 'Anonymous'}
+[2025-09-22 10:20:18] WARNING keshe.middleware: API Response: {'url': '/api/accounts/stats/', 'method': 'GET', 'status_code': 403, 'duration_ms': 3.99, 'user': 'Anonymous'}
+[2025-09-22 10:20:18] WARNING keshe.middleware: API Response: {'url': '/api/notifications/list/?page=1&page_size=5', 'method': 'GET', 'status_code': 403, 'duration_ms': 2.99, 'user': 'Anonymous'}
+[2025-09-22 10:20:18] WARNING keshe.middleware: API Response: {'url': '/api/notifications/unread-count/', 'method': 'GET', 'status_code': 403, 'duration_ms': 2.99, 'user': 'Anonymous'}
