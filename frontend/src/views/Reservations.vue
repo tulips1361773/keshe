@@ -94,6 +94,14 @@
               确认
             </el-button>
             <el-button 
+              v-if="row.status === 'pending' && userStore.user?.user_type === 'coach'"
+              size="small" 
+              type="danger" 
+              @click="rejectBooking(row)"
+            >
+              拒绝
+            </el-button>
+            <el-button 
               v-if="['pending', 'confirmed'].includes(row.status) && !row.has_pending_cancellation"
               size="small" 
               type="danger" 
@@ -313,6 +321,38 @@ const confirmBooking = async (booking) => {
   }
 }
 
+const rejectBooking = async (booking) => {
+  try {
+    const { value: reason } = await ElMessageBox.prompt(
+      '请输入拒绝原因：',
+      '拒绝预约',
+      {
+        confirmButtonText: '拒绝',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请输入拒绝原因',
+        inputValidator: (value) => {
+          if (!value || !value.trim()) {
+            return '请输入拒绝原因'
+          }
+          return true
+        }
+      }
+    )
+    
+    await axios.post(`/api/reservations/bookings/${booking.id}/reject/`, {
+      reason: reason
+    })
+    ElMessage.success('预约已拒绝')
+    loadBookings()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('拒绝预约错误:', error)
+      const message = error.response?.data?.error || '拒绝预约失败'
+      ElMessage.error(message)
+    }
+  }
+}
+
 const cancelBooking = (booking) => {
   selectedBooking.value = booking
   cancelForm.reason = ''
@@ -375,7 +415,10 @@ const approveCancellation = async (booking) => {
       }
     )
     
-    await axios.post(`/api/reservations/cancellations/${booking.cancellation_info.id}/approve/`)
+    await axios.post(`/api/reservations/cancellations/${booking.cancellation_info.id}/approve/`, {
+      action: 'approve',
+      comment: '同意取消申请'
+    })
     ElMessage.success('已同意取消申请，预约已取消')
     loadBookings()
   } catch (error) {
@@ -405,8 +448,9 @@ const rejectCancellation = async (booking) => {
       }
     )
     
-    await axios.post(`/api/reservations/cancellations/${booking.cancellation_info.id}/reject/`, {
-      response_message: reason
+    await axios.post(`/api/reservations/cancellations/${booking.cancellation_info.id}/approve/`, {
+      action: 'reject',
+      comment: reason
     })
     ElMessage.success('已拒绝取消申请')
     loadBookings()
@@ -466,6 +510,8 @@ const canProcessCancellation = (booking) => {
   if (!booking.cancellation_info) return false
   
   const currentUser = userStore.user
+  if (!currentUser) return false
+  
   const requestedBy = booking.cancellation_info.requested_by_id
   
   // 如果是自己申请的取消，不能处理
@@ -474,9 +520,11 @@ const canProcessCancellation = (booking) => {
   // 检查预约关系：教练只能处理学员的申请，学员只能处理教练的申请
   if (currentUser.user_type === 'coach') {
     // 教练只能处理学员发起的取消申请
+    // 检查申请人是否是这个预约的学员
     return booking.relation?.student?.id === requestedBy
   } else if (currentUser.user_type === 'student') {
     // 学员只能处理教练发起的取消申请
+    // 检查申请人是否是这个预约的教练
     return booking.relation?.coach?.id === requestedBy
   }
   

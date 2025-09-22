@@ -169,9 +169,13 @@ class BookingListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
         if user.user_type == 'coach':
-            return Booking.objects.filter(relation__coach=user)
+            return Booking.objects.filter(relation__coach=user).select_related(
+                'relation__coach', 'relation__student', 'table__campus', 'cancellation'
+            )
         elif user.user_type == 'student':
-            return Booking.objects.filter(relation__student=user)
+            return Booking.objects.filter(relation__student=user).select_related(
+                'relation__coach', 'relation__student', 'table__campus', 'cancellation'
+            )
         else:
             return Booking.objects.none()
     
@@ -332,6 +336,56 @@ def confirm_booking(request, booking_id):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def reject_booking(request, booking_id):
+    """教练拒绝预约"""
+    try:
+        with transaction.atomic():
+            # 获取预约
+            booking = get_object_or_404(Booking, id=booking_id)
+            
+            # 权限检查：只有教练可以拒绝预约
+            if request.user.user_type != 'coach':
+                return Response({
+                    'error': '只有教练可以拒绝预约'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # 检查是否是该教练的预约
+            if booking.relation.coach != request.user:
+                return Response({
+                    'error': '您只能拒绝自己的预约'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # 检查预约状态
+            if booking.status != 'pending':
+                return Response({
+                    'error': f'预约状态不允许拒绝，当前状态：{booking.get_status_display()}'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 获取拒绝原因
+            reason = request.data.get('reason', '教练拒绝了预约')
+            
+            # 更新预约状态
+            booking.status = 'cancelled'
+            booking.cancelled_at = timezone.now()
+            booking.cancelled_by = request.user
+            booking.cancel_reason = reason
+            booking.save()
+            
+            return Response({
+                'message': '预约已拒绝',
+                'booking_id': booking.id,
+                'status': 'cancelled',
+                'reason': reason
+            }, status=status.HTTP_200_OK)
+            
+    except Exception as e:
+        return Response({
+            'error': f'拒绝预约失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
 class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
     """预约详情视图"""
     serializer_class = BookingSerializer
@@ -405,12 +459,55 @@ class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
+def complete_booking(request, booking_id):
+    """完成预约"""
+    try:
+        with transaction.atomic():
+            # 获取预约
+            booking = get_object_or_404(Booking, id=booking_id)
+            
+            # 权限检查：只有教练可以完成预约
+            if request.user.user_type != 'coach':
+                return Response({
+                    'error': '只有教练可以完成预约'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # 检查是否是该教练的预约
+            if booking.relation.coach != request.user:
+                return Response({
+                    'error': '您只能完成自己的预约'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            # 检查预约状态
+            if booking.status != 'confirmed':
+                return Response({
+                    'error': f'预约状态不允许完成，当前状态：{booking.get_status_display()}'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 更新预约状态为已完成
+            booking.status = 'completed'
+            booking.save()
+            
+            # 返回成功响应
+            serializer = BookingSerializer(booking)
+            return Response({
+                'message': '预约已完成',
+                'booking': serializer.data
+            }, status=status.HTTP_200_OK)
+            
+    except Exception as e:
+        return Response({
+            'error': f'完成预约失败: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
 def approve_cancellation(request, cancellation_id):
     """教练审核取消申请"""
     try:
         from .models import BookingCancellation
-        from accounts.models import UserAccount
-        from payments.models import AccountTransaction
+        from payments.models import UserAccount, AccountTransaction
         
         with transaction.atomic():
             # 获取取消申请
@@ -428,7 +525,7 @@ def approve_cancellation(request, cancellation_id):
                 }, status=status.HTTP_403_FORBIDDEN)
             
             # 检查是否是该预约的教练
-            if cancellation.booking.relation.coach.user != request.user:
+            if cancellation.booking.relation.coach != request.user:
                 return Response({
                     'error': '您只能审核自己的预约取消申请'
                 }, status=status.HTTP_403_FORBIDDEN)

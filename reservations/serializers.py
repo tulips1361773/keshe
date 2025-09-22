@@ -73,6 +73,10 @@ class BookingSerializer(serializers.ModelSerializer):
     relation_id = serializers.IntegerField(write_only=True, required=False)
     table_id = serializers.IntegerField(write_only=True, required=False)
     
+    # 取消申请相关字段
+    has_pending_cancellation = serializers.SerializerMethodField()
+    cancellation_info = serializers.SerializerMethodField()
+    
     # 用于返回的嵌套对象
     relation = serializers.SerializerMethodField()
     table = serializers.SerializerMethodField()
@@ -104,6 +108,23 @@ class BookingSerializer(serializers.ModelSerializer):
             }
         }
     
+    def get_has_pending_cancellation(self, obj):
+        """检查是否有待处理的取消申请"""
+        return hasattr(obj, 'cancellation') and obj.cancellation.status == 'pending'
+    
+    def get_cancellation_info(self, obj):
+        """获取取消申请信息"""
+        if hasattr(obj, 'cancellation') and obj.cancellation.status == 'pending':
+            return {
+                'id': obj.cancellation.id,
+                'reason': obj.cancellation.reason,
+                'requested_by_id': obj.cancellation.requested_by.id,
+                'requested_by_name': obj.cancellation.requested_by.real_name or obj.cancellation.requested_by.username,
+                'requested_at': obj.cancellation.created_at.strftime('%Y-%m-%d %H:%M'),
+                'status': obj.cancellation.status
+            }
+        return None
+    
     def create(self, validated_data):
         # 处理前端字段映射
         if 'relation_id' in validated_data:
@@ -119,7 +140,8 @@ class BookingSerializer(serializers.ModelSerializer):
             'id', 'relation', 'table', 'relation_id', 'table_id', 'start_time', 'end_time',
             'duration_hours', 'total_fee', 'status',
             'notes', 'created_at', 'updated_at',
-            'coach_id', 'coach_name', 'student_id', 'student_name', 'table_number'
+            'coach_id', 'coach_name', 'student_id', 'student_name', 'table_number',
+            'has_pending_cancellation', 'cancellation_info'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
