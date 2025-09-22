@@ -513,122 +513,138 @@ def complete_booking(request, booking_id):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def approve_cancellation(request, cancellation_id):
-    """教练审核取消申请"""
+    """审核取消申请（支持双向审核）"""
     try:
         from .models import BookingCancellation
         from payments.models import UserAccount, AccountTransaction
         
+        # 获取取消申请
+        try:
+            cancellation = BookingCancellation.objects.get(id=cancellation_id)
+        except BookingCancellation.DoesNotExist:
+            return Response({
+                'error': '取消申请不存在'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        booking = cancellation.booking
+        
+        # 检查权限：只有对方可以审核取消申请
+        if cancellation.requested_by == request.user:
+            return Response({
+                'error': '不能审核自己的取消申请'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # 教练只能审核学员的取消申请，学员只能审核教练的取消申请
+        if request.user.user_type == 'coach':
+            if booking.relation.coach != request.user or cancellation.requested_by.user_type != 'student':
+                return Response({
+                    'error': '只能审核自己学员的取消申请'
+                }, status=status.HTTP_403_FORBIDDEN)
+        elif request.user.user_type == 'student':
+            if booking.relation.student != request.user or cancellation.requested_by.user_type != 'coach':
+                return Response({
+                    'error': '只能审核自己教练的取消申请'
+                }, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({
+                'error': '权限不足'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # 检查申请状态
+        if cancellation.status != 'pending':
+            return Response({
+                'error': '该申请已经被处理过了'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
         with transaction.atomic():
-            # 获取取消申请
-            try:
-                cancellation = BookingCancellation.objects.get(id=cancellation_id)
-            except BookingCancellation.DoesNotExist:
+            # 在事务内部再次检查预约状态，确保数据一致性
+            if booking.status not in ['confirmed', 'pending']:
                 return Response({
-                    'error': '取消申请不存在'
-                }, status=status.HTTP_404_NOT_FOUND)
-            
-            # 检查权限：只有教练可以审核
-            if not hasattr(request.user, 'coach_profile'):
-                return Response({
-                    'error': '只有教练可以审核取消申请'
-                }, status=status.HTTP_403_FORBIDDEN)
-            
-            # 检查是否是该预约的教练
-            if cancellation.booking.relation.coach != request.user:
-                return Response({
-                    'error': '您只能审核自己的预约取消申请'
-                }, status=status.HTTP_403_FORBIDDEN)
-            
-            # 检查申请状态
-            if cancellation.status != 'pending':
-                return Response({
-                    'error': '该申请已经被处理过了'
+                    'error': '预约状态不允许取消'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # 获取审核结果
             action = request.data.get('action')  # 'approve' 或 'reject'
-            coach_comment = request.data.get('comment', '')
+            response_message = request.data.get('comment', '')
             
             if action == 'approve':
                 # 批准取消申请
-                booking = cancellation.booking
                 
-                # 处理退费逻辑
-                refund_amount = 0
-                refund_message = ''
+                # 处理退款逻辑（在状态更新之前处理）
+                refund_processed = False
                 
-                if booking.status == 'confirmed' and booking.payment_status == 'paid':
-                    # 计算距离预约开始时间
-                    now = timezone.now()
-                    time_until_booking = booking.start_time - now
+                # 检查是否需要退款：
+                # 1. 预约支付状态为 'paid'
+                # 2. 或者存在支付交易记录但预约状态未更新（数据不一致情况）
+                should_refund = False
+                
+                if booking.payment_status == 'paid':
+                    should_refund = True
+                elif booking.payment_status in ['unpaid', 'pending']:
+                    # 检查是否存在实际的支付交易记录
+                    from payments.models import Payment
+                    payment_exists = Payment.objects.filter(
+                        booking_id=booking.id,
+                        status='approved'
+                    ).exists()
                     
-                    # 24小时前取消可以退费
-                    if time_until_booking.total_seconds() > 24 * 3600:
-                        student = booking.relation.student
-                        try:
-                            student_account = UserAccount.objects.get(user=student)
-                            
-                            # 退费
-                            refund_amount = booking.total_fee
-                            student_account.balance += refund_amount
-                            student_account.save()
-                            
-                            # 创建退费交易记录
-                            AccountTransaction.objects.create(
-                                account=student_account,
-                                transaction_type='refund',
-                                amount=refund_amount,
-                                balance_before=student_account.balance - refund_amount,
-                                balance_after=student_account.balance,
-                                description=f'预约取消退费 - 教练：{booking.relation.coach.real_name}，时间：{booking.start_time.strftime("%Y-%m-%d %H:%M")}'
-                            )
-                            
-                            booking.payment_status = 'refunded'
-                            refund_message = f'已退费 ¥{refund_amount:.2f}'
-                            
-                        except UserAccount.DoesNotExist:
-                            return Response({
-                                'error': '学员账户不存在，无法处理退费'
-                            }, status=status.HTTP_400_BAD_REQUEST)
-                    else:
-                        refund_message = '距离预约时间不足24小时，不予退费'
+                    if payment_exists:
+                        should_refund = True
+                        print(f"发现数据不一致：预约{booking.id}存在已批准的支付记录但payment_status为{booking.payment_status}")
                 
-                # 更新预约状态
-                booking.status = 'cancelled'
-                booking.cancelled_at = timezone.now()
-                booking.cancelled_by = request.user
-                booking.save()
+                if should_refund:
+                    user_account = UserAccount.objects.get(user=booking.relation.student)
+                    
+                    # 直接退还金额到账户余额
+                    # 注意：对于已确认的预约，金额已经从冻结转为实际扣费，所以只需要增加余额
+                    user_account.balance += booking.total_fee
+                    user_account.save()
+                    
+                    # 创建退款交易记录
+                    AccountTransaction.objects.create(
+                        account=user_account,
+                        transaction_type='refund',
+                        amount=booking.total_fee,
+                        balance_before=user_account.balance - booking.total_fee,
+                        balance_after=user_account.balance,
+                        description=f'预约取消退款 - 预约ID: {booking.id}'
+                    )
+                    
+                    # 更新预约支付状态
+                    booking.payment_status = 'refunded'
+                    refund_processed = True
                 
                 # 更新取消申请状态
                 cancellation.status = 'approved'
                 cancellation.processed_by = request.user
                 cancellation.processed_at = timezone.now()
-                cancellation.response_message = coach_comment
+                cancellation.response_message = response_message
                 cancellation.save()
+                
+                # 更新预约状态为已取消
+                booking.status = 'cancelled'
+                booking.cancelled_at = timezone.now()
+                booking.cancelled_by = request.user
+                booking.save()
                 
                 return Response({
                     'message': '取消申请已批准，预约已取消',
-                    'refund_info': refund_message,
-                    'refund_amount': float(refund_amount)
+                    'refund_processed': refund_processed,
+                    'refund_amount': float(booking.total_fee) if refund_processed else 0.0
                 }, status=status.HTTP_200_OK)
                 
             elif action == 'reject':
                 # 拒绝取消申请
-                booking = cancellation.booking
-                
-                # 恢复预约状态为已确认
-                booking.status = 'confirmed'
-                booking.save()
                 
                 # 更新取消申请状态
                 cancellation.status = 'rejected'
                 cancellation.processed_by = request.user
                 cancellation.processed_at = timezone.now()
-                cancellation.response_message = coach_comment
+                cancellation.response_message = response_message
                 cancellation.save()
                 
                 return Response({
-                    'message': '取消申请已拒绝，预约状态已恢复'
+                    'message': '取消申请已拒绝'
                 }, status=status.HTTP_200_OK)
                 
             else:
@@ -726,45 +742,64 @@ def cancel_stats(request):
 @permission_classes([permissions.IsAuthenticated])
 def coach_list(request):
     """获取教练列表"""
-    coaches = User.objects.filter(user_type='coach', is_active=True)
-    
-    coach_data = []
-    for coach in coaches:
-        try:
-            coach_profile = Coach.objects.get(user=coach)
-            coach_info = {
-                'id': coach.id,
-                'username': coach.username,
-                'real_name': coach.real_name,
-                'phone': coach.phone,
-                'email': coach.email,
-                'level': coach_profile.coach_level,
-                'hourly_rate': coach_profile.hourly_rate,
-                'max_students': coach_profile.max_students,
-                'current_students': coach_profile.current_students_count,
-                'bio': coach_profile.achievements,
-                'specialties': None,
-                'is_available': True
-            }
-        except Coach.DoesNotExist:
-            coach_info = {
-                'id': coach.id,
-                'username': coach.username,
-                'real_name': coach.real_name,
-                'phone': coach.phone,
-                'email': coach.email,
-                'level': None,
-                'hourly_rate': None,
-                'max_students': None,
-                'current_students': 0,
-                'bio': None,
-                'specialties': None,
-                'is_available': True
-            }
+    try:
+        from accounts.models import Coach
         
-        coach_data.append(coach_info)
-    
-    return Response(coach_data)
+        coaches = User.objects.filter(user_type='coach', is_active=True)
+        
+        coach_data = []
+        for coach in coaches:
+            try:
+                coach_profile = Coach.objects.get(user=coach)
+                # 安全地获取current_students_count
+                try:
+                    current_students = coach_profile.current_students_count
+                except Exception as e:
+                    print(f"获取教练 {coach.real_name} 的学员数量失败: {e}")
+                    current_students = 0
+                
+                coach_info = {
+                    'id': coach.id,
+                    'username': coach.username,
+                    'real_name': coach.real_name,
+                    'phone': coach.phone,
+                    'email': coach.email,
+                    'level': coach_profile.coach_level,
+                    'hourly_rate': float(coach_profile.hourly_rate) if coach_profile.hourly_rate else 0.0,
+                    'max_students': coach_profile.max_students,
+                    'current_students': current_students,
+                    'bio': coach_profile.achievements,
+                    'specialties': None,
+                    'is_available': True
+                }
+            except Coach.DoesNotExist:
+                coach_info = {
+                    'id': coach.id,
+                    'username': coach.username,
+                    'real_name': coach.real_name,
+                    'phone': coach.phone,
+                    'email': coach.email,
+                    'level': None,
+                    'hourly_rate': 0.0,
+                    'max_students': None,
+                    'current_students': 0,
+                    'bio': None,
+                    'specialties': None,
+                    'is_available': True
+                }
+            except Exception as e:
+                print(f"处理教练 {coach.real_name} 信息时出错: {e}")
+                continue
+            
+            coach_data.append(coach_info)
+        
+        return Response(coach_data)
+        
+    except Exception as e:
+        print(f"获取教练列表失败: {e}")
+        return Response({
+            'error': f'获取教练列表失败: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # ==================== 教练更换相关视图 ====================

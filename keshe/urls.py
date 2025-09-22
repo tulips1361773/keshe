@@ -19,8 +19,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from django.http import JsonResponse
+from django.views.static import serve
+import os
 
 def api_root(request):
     """API根路径，返回API信息"""
@@ -62,6 +64,9 @@ urlpatterns = [
     
     # 比赛相关路由
     path('', include('competitions.urls')),
+    
+    # 测试页面路由
+    path('frontend_refund_test.html', TemplateView.as_view(template_name='frontend_refund_test.html'), name='frontend_refund_test'),
 ]
 
 # 开发环境下的静态文件和媒体文件服务

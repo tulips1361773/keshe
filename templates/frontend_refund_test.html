@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端退款功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn.success {
+            background-color: #28a745;
+        }
+        .btn.danger {
+            background-color: #dc3545;
+        }
+        .btn.warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success-result {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error-result {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info-result {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-success {
+            background-color: #28a745;
+        }
+        .status-error {
+            background-color: #dc3545;
+        }
+        .status-warning {
+            background-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 前端退款功能测试</h1>
+        <p>这个页面用于测试前端退款功能的完整流程，包括认证设置、API调用和数据验证。</p>
+    </div>
+
+    <div class="grid">
+        <!-- 认证设置 -->
+        <div class="container">
+            <div class="section">
+                <h3>🔐 认证设置</h3>
+                <div class="input-group">
+                    <label for="userType">用户类型:</label>
+                    <select id="userType">
+                        <option value="student">学员 (test_student)</option>
+                        <option value="coach">教练 (test_coach)</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="setAuth()">设置认证</button>
+                <button class="btn warning" onclick="checkAuth()">检查认证状态</button>
+                <button class="btn danger" onclick="clearAuth()">清除认证</button>
+                <div id="authResult" class="result"></div>
+            </div>
+
+            <div class="section">
+                <h3>📋 取消申请管理</h3>
+                <button class="btn" onclick="loadCancellations()">加载取消申请</button>
+                <button class="btn success" onclick="createTestCancellation()">创建测试申请</button>
+                <div id="cancellationResult" class="result"></div>
+            </div>
+        </div>
+
+        <!-- 退款测试 -->
+        <div class="container">
+            <div class="section">
+                <h3>💰 退款功能测试</h3>
+                <div class="input-group">
+                    <label for="cancellationId">取消申请ID:</label>
+                    <input type="number" id="cancellationId" placeholder="输入取消申请ID">
+                </div>
+                <div class="input-group">
+                    <label for="approvalComment">审核意见:</label>
+                    <input type="text" id="approvalComment" value="测试退款功能" placeholder="输入审核意见">
+                </div>
+                <button class="btn success" onclick="approveRefund()">批准并退款</button>
+                <button class="btn danger" onclick="rejectCancellation()">拒绝申请</button>
+                <div id="refundResult" class="result"></div>
+            </div>
+
+            <div class="section">
+                <h3>📊 账户状态检查</h3>
+                <button class="btn" onclick="checkAccountBalance()">检查账户余额</button>
+                <button class="btn" onclick="checkRefundHistory()">查看退款记录</button>
+                <div id="accountResult" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h3>🔍 完整流程测试</h3>
+            <p>点击下面的按钮执行完整的退款测试流程：</p>
+            <button class="btn success" onclick="runFullTest()">🚀 执行完整测试</button>
+            <div id="fullTestResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        
+        // 用户token映射
+        const USER_TOKENS = {
+            student: '24a07ad9b5449bc0c1e514c3928428695c3e98bd',
+            coach: 'debd3579aa7a6b674a4fe9f61167409feca6a535'
+        };
+
+        function showResult(elementId, message, className = 'info-result') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${className}`;
+        }
+
+        function appendResult(elementId, message, className = 'info-result') {
+            const element = document.getElementById(elementId);
+            element.textContent += '\n' + message;
+            element.className = `result ${className}`;
+        }
+
+        // 设置认证
+        function setAuth() {
+            const userType = document.getElementById('userType').value;
+            const token = USER_TOKENS[userType];
+            
+            if (!token) {
+                showResult('authResult', '❌ 未找到对应用户的token', 'error-result');
+                return;
+            }
+
+            localStorage.setItem('token', token);
+            localStorage.setItem('userType', userType);
+            
+            showResult('authResult', 
+                `✅ 认证设置成功！\n` +
+                `用户类型: ${userType}\n` +
+                `Token: ${token.substring(0, 20)}...`, 
+                'success-result'
+            );
+        }
+
+        // 检查认证状态
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const userType = localStorage.getItem('userType');
+            
+            let status = '认证状态检查:\n';
+            
+            if (token) {
+                status += `✅ Token: ${token.substring(0, 20)}...\n`;
+                status += `✅ 用户类型: ${userType || '未设置'}\n`;
+            } else {
+                status += '❌ 未设置Token\n';
+            }
+            
+            const resultClass = token ? 'success-result' : 'error-result';
+            showResult('authResult', status, resultClass);
+        }
+
+        // 清除认证
+        function clearAuth() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userType');
+            showResult('authResult', '🗑️ 认证信息已清除', 'info-result');
+        }
+
+        // 通用API请求函数
+        async function apiRequest(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('未设置认证token，请先设置认证');
+            }
+
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            const mergedOptions = {
+                ...defaultOptions,
+                ...options,
+                headers: {
+                    ...defaultOptions.headers,
+                    ...options.headers
+                }
+            };
+
+            const response = await fetch(url, mergedOptions);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(`API请求失败 (${response.status}): ${data.error || data.message || '未知错误'}`);
+            }
+            
+            return { response, data };
+        }
+
+        // 加载取消申请
+        async function loadCancellations() {
+            try {
+                showResult('cancellationResult', '正在加载取消申请...', 'info-result');
+                
+                const { data } = await apiRequest(`${API_BASE}/reservations/cancellations/pending/`);
+                
+                const cancellations = data.cancellations || [];
+                let result = `✅ 加载成功，共 ${cancellations.length} 个待审核申请:\n\n`;
+                
+                cancellations.forEach((c, index) => {
+                    result += `${index + 1}. ID: ${c.id}\n`;
+                    result += `   学员: ${c.student_name}\n`;
+                    result += `   费用: ¥${c.total_fee}\n`;
+                    result += `   状态: ${c.status}\n`;
+                    result += `   申请时间: ${c.requested_at}\n\n`;
+                });
+                
+                if (cancellations.length === 0) {
+                    result += '暂无待审核申请';
+                }
+                
+                showResult('cancellationResult', result, 'success-result');
+                
+            } catch (error) {
+                showResult('cancellationResult', `❌ 加载失败: ${error.message}`, 'error-result');
+            }
+        }
+
+        // 创建测试取消申请
+        async function createTestCancellation() {
+            try {
+                showResult('cancellationResult', '正在创建测试取消申请...', 'info-result');
+                
+                // 这里需要调用后端API创建测试数据
+                const response = await fetch('http://localhost:8000/create_test_cancellation/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showResult('cancellationResult', 
+                        `✅ 测试申请创建成功!\n` +
+                        `预约ID: ${result.booking_id}\n` +
+                        `取消申请ID: ${result.cancellation_id}\n` +
+                        `费用: ¥${result.fee}`, 
+                        'success-result'
+                    );
+                } else {
+                    showResult('cancellationResult', '❌ 创建测试申请失败，请手动创建', 'error-result');
+                }
+                
+            } catch (error) {
+                showResult('cancellationResult', `❌ 创建失败: ${error.message}`, 'error-result');
+            }
+        }
+
+        // 批准退款
+        async function approveRefund() {
+            const cancellationId = document.getElementById('cancellationId').value;
+            const comment = document.getElementById('approvalComment').value;
+            
+            if (!cancellationId) {
+                showResult('refundResult', '❌ 请输入取消申请ID', 'error-result');
+                return;
+            }
+
+            try {
+                showResult('refundResult', '正在处理退款申请...', 'info-result');
+                
+                const { data } = await apiRequest(
+                    `${API_BASE}/reservations/cancellations/${cancellationId}/approve/`,
+                    {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'approve',
+                            comment: comment
+                        })
+                    }
+                );
+                
+                let result = `✅ 退款处理成功!\n`;
+                result += `消息: ${data.message}\n`;
+                if (data.refund_info) {
+                    result += `退款信息: ${data.refund_info}\n`;
+                }
+                if (data.refund_amount) {
+                    result += `退款金额: ¥${data.refund_amount}\n`;
+                }
+                
+                showResult('refundResult', result, 'success-result');
+                
+            } catch (error) {
+                showResult('refundResult', `❌ 退款失败: ${error.message}`, 'error-result');
+            }
+        }
+
+        // 拒绝申请
+        async function rejectCancellation() {
+            const cancellationId = document.getElementById('cancellationId').value;
+            const comment = document.getElementById('approvalComment').value;
+            
+            if (!cancellationId) {
+                showResult('refundResult', '❌ 请输入取消申请ID', 'error-result');
+                return;
+            }
+
+            try {
+                showResult('refundResult', '正在拒绝申请...', 'info-result');
+                
+                const { data } = await apiRequest(
+                    `${API_BASE}/reservations/cancellations/${cancellationId}/approve/`,
+                    {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'reject',
+                            comment: comment
+                        })
+                    }
+                );
+                
+                showResult('refundResult', `✅ 申请已拒绝: ${data.message}`, 'success-result');
+                
+            } catch (error) {
+                showResult('refundResult', `❌ 拒绝失败: ${error.message}`, 'error-result');
+            }
+        }
+
+        // 检查账户余额
+        async function checkAccountBalance() {
+            try {
+                showResult('accountResult', '正在检查账户余额...', 'info-result');
+                
+                const { data } = await apiRequest(`${API_BASE}/payments/api/account/`);
+                
+                let result = `✅ 账户信息:\n`;
+                result += `余额: ¥${data.balance}\n`;
+                result += `冻结金额: ¥${data.frozen_amount}\n`;
+                result += `可用余额: ¥${data.available_balance}\n`;
+                
+                showResult('accountResult', result, 'success-result');
+                
+            } catch (error) {
+                showResult('accountResult', `❌ 查询失败: ${error.message}`, 'error-result');
+            }
+        }
+
+        // 查看退款记录
+        async function checkRefundHistory() {
+            try {
+                appendResult('accountResult', '\n正在查询退款记录...', 'info-result');
+                
+                const { data } = await apiRequest(`${API_BASE}/payments/api/transactions/?transaction_type=refund`);
+                
+                const transactions = data.transactions || [];
+                let result = `\n✅ 退款记录 (共${transactions.length}条):\n`;
+                
+                transactions.slice(0, 5).forEach((t, index) => {
+                    result += `${index + 1}. ¥${t.amount} - ${t.description}\n`;
+                    result += `   时间: ${t.created_at}\n`;
+                });
+                
+                appendResult('accountResult', result, 'success-result');
+                
+            } catch (error) {
+                appendResult('accountResult', `\n❌ 查询退款记录失败: ${error.message}`, 'error-result');
+            }
+        }
+
+        // 执行完整测试
+        async function runFullTest() {
+            showResult('fullTestResult', '🚀 开始执行完整测试流程...\n', 'info-result');
+            
+            try {
+                // 1. 设置教练认证
+                document.getElementById('userType').value = 'coach';
+                setAuth();
+                appendResult('fullTestResult', '✅ 1. 教练认证设置完成');
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 2. 加载取消申请
+                appendResult('fullTestResult', '\n📋 2. 加载取消申请...');
+                await loadCancellations();
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 3. 检查账户余额
+                appendResult('fullTestResult', '\n💰 3. 检查学员账户余额...');
+                document.getElementById('userType').value = 'student';
+                setAuth();
+                await checkAccountBalance();
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 4. 切换回教练进行退款测试
+                appendResult('fullTestResult', '\n🔄 4. 切换回教练身份...');
+                document.getElementById('userType').value = 'coach';
+                setAuth();
+                
+                appendResult('fullTestResult', '\n✅ 完整测试流程执行完成！\n请手动输入取消申请ID进行退款测试。', 'success-result');
+                
+            } catch (error) {
+                appendResult('fullTestResult', `\n❌ 测试过程中出现错误: ${error.message}`, 'error-result');
+            }
+        }
+
+        // 页面加载时检查认证状态
+        window.onload = function() {
+            checkAuth();
+        };
+    </script>
+</body>
+</html>
