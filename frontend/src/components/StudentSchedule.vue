@@ -305,6 +305,11 @@ export default {
     
     const getBookingsForTimeSlot = (date, hour) => {
       return bookings.value.filter(booking => {
+        // 过滤掉已取消的课程
+        if (booking.status === 'cancelled') {
+          return false
+        }
+        
         const bookingDate = new Date(booking.start_time)
         return bookingDate.toDateString() === date.toDateString() &&
                bookingDate.getHours() === hour
@@ -320,6 +325,9 @@ export default {
           break
         case 'confirmed':
           classes.push('status-confirmed')
+          break
+        case 'pending_cancellation':
+          classes.push('status-pending-cancellation')
           break
         case 'completed':
           classes.push('status-completed')
@@ -694,6 +702,13 @@ export default {
   color: #155724;
 }
 
+.booking-block.status-pending-cancellation {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  opacity: 0.6;
+}
+
 .booking-block.status-completed {
   background: #d1ecf1;
   border: 1px solid #bee5eb;
@@ -812,6 +827,12 @@ export default {
 .booking-item.status-confirmed {
   background: #d4edda;
   border: 1px solid #c3e6cb;
+}
+
+.booking-item.status-pending-cancellation {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  opacity: 0.6;
 }
 
 .booking-item.status-completed {

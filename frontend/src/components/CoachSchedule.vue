@@ -309,6 +309,11 @@ const isPastTime = (date, hour) => {
 
 const getBookingsForTimeSlot = (date, hour) => {
   return bookings.value.filter(booking => {
+    // 过滤掉已取消的课程
+    if (booking.status === 'cancelled') {
+      return false
+    }
+    
     const bookingStart = new Date(booking.start_time)
     const bookingEnd = new Date(booking.end_time)
     const slotStart = new Date(date)
@@ -324,6 +329,7 @@ const getBookingClass = (booking) => {
   return {
     'booking-pending': booking.status === 'pending',
     'booking-confirmed': booking.status === 'confirmed',
+    'booking-pending-cancellation': booking.status === 'pending_cancellation',
     'booking-completed': booking.status === 'completed',
     'booking-cancelled': booking.status === 'cancelled'
   }
@@ -696,6 +702,13 @@ watch(viewMode, () => {
   background: #d4edda;
   border: 1px solid #c3e6cb;
   color: #155724;
+}
+
+.booking-pending-cancellation {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  opacity: 0.6;
 }
 
 .booking-completed {
