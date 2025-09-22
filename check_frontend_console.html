@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端课程表调试</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>前端课程表调试</h1>
+    <div id="result"></div>
+    
+    <script>
+        // 设置axios默认配置
+        axios.defaults.baseURL = 'http://127.0.0.1:8000';
+        
+        // 从localStorage获取token
+        const token = localStorage.getItem('token');
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
+        
+        console.log('Token:', token);
+        
+        async function testScheduleAPI() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                console.log('开始测试课程表API...');
+                
+                // 计算日期范围
+                const today = new Date();
+                const weekLater = new Date(today);
+                weekLater.setDate(today.getDate() + 7);
+                
+                const dateFrom = today.toISOString().split('T')[0];
+                const dateTo = weekLater.toISOString().split('T')[0];
+                
+                console.log('日期范围:', dateFrom, '到', dateTo);
+                
+                // 测试API调用
+                const response = await axios.get('/api/reservations/bookings/my_schedule/', {
+                    params: {
+                        date_from: dateFrom,
+                        date_to: dateTo
+                    }
+                });
+                
+                console.log('API响应:', response);
+                console.log('响应数据:', response.data);
+                
+                const bookings = response.data.bookings || [];
+                
+                resultDiv.innerHTML = `
+                    <h2>✅ API调用成功</h2>
+                    <p>状态码: ${response.status}</p>
+                    <p>预约数量: ${bookings.length}</p>
+                    <h3>预约列表:</h3>
+                    <ul>
+                        ${bookings.slice(0, 5).map(booking => 
+                            `<li>${booking.start_time} - ${booking.status}</li>`
+                        ).join('')}
+                    </ul>
+                `;
+                
+            } catch (error) {
+                console.error('API调用失败:', error);
+                console.error('错误详情:', error.response);
+                
+                resultDiv.innerHTML = `
+                    <h2>❌ API调用失败</h2>
+                    <p>错误信息: ${error.message}</p>
+                    <p>状态码: ${error.response?.status}</p>
+                    <p>错误详情: ${JSON.stringify(error.response?.data)}</p>
+                `;
+            }
+        }
+        
+        // 页面加载后执行测试
+        window.onload = function() {
+            console.log('页面加载完成，开始测试...');
+            testScheduleAPI();
+        };
+    </script>
+</body>
+</html>

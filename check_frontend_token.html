@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端Token检查</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>前端Token检查</h1>
+    <div id="result"></div>
+    
+    <script>
+        const resultDiv = document.getElementById('result');
+        
+        // 检查localStorage中的token
+        const token = localStorage.getItem('token');
+        console.log('localStorage中的token:', token);
+        
+        // 设置测试token
+        const testToken = 'd548b083231205ef6d7d8726629a0c9340d34f5d';
+        localStorage.setItem('token', testToken);
+        console.log('设置测试token:', testToken);
+        
+        // 配置axios
+        axios.defaults.baseURL = 'http://127.0.0.1:8000';
+        axios.defaults.withCredentials = true;
+        
+        // 设置Authorization头
+        if (testToken) {
+            axios.defaults.headers.common['Authorization'] = `Token ${testToken}`;
+        }
+        
+        console.log('axios默认headers:', axios.defaults.headers.common);
+        
+        async function testAPI() {
+            try {
+                console.log('开始测试API...');
+                
+                // 计算日期范围
+                const today = new Date();
+                const weekLater = new Date(today);
+                weekLater.setDate(today.getDate() + 7);
+                
+                const dateFrom = today.toISOString().split('T')[0];
+                const dateTo = weekLater.toISOString().split('T')[0];
+                
+                console.log('日期范围:', dateFrom, '到', dateTo);
+                
+                // 测试API调用
+                const response = await axios.get('/api/reservations/bookings/my_schedule/', {
+                    params: {
+                        date_from: dateFrom,
+                        date_to: dateTo
+                    }
+                });
+                
+                console.log('API响应:', response);
+                console.log('响应数据:', response.data);
+                
+                const bookings = response.data.bookings || [];
+                
+                resultDiv.innerHTML = `
+                    <h2>✅ API调用成功</h2>
+                    <p>Token: ${testToken}</p>
+                    <p>状态码: ${response.status}</p>
+                    <p>预约数量: ${bookings.length}</p>
+                    <h3>预约列表:</h3>
+                    <ul>
+                        ${bookings.slice(0, 5).map(booking => 
+                            `<li>${booking.start_time} - ${booking.status} - ${booking.relation?.coach?.real_name || 'N/A'}</li>`
+                        ).join('')}
+                    </ul>
+                `;
+                
+            } catch (error) {
+                console.error('API调用失败:', error);
+                console.error('错误详情:', error.response);
+                
+                resultDiv.innerHTML = `
+                    <h2>❌ API调用失败</h2>
+                    <p>Token: ${testToken}</p>
+                    <p>错误信息: ${error.message}</p>
+                    <p>状态码: ${error.response?.status}</p>
+                    <p>错误详情: ${JSON.stringify(error.response?.data)}</p>
+                `;
+            }
+        }
+        
+        // 页面加载后执行测试
+        window.onload = function() {
+            console.log('页面加载完成，开始测试...');
+            testAPI();
+        };
+    </script>
+</body>
+</html>

@@ -16,6 +16,7 @@ urlpatterns = [
     
     # 预约管理
     path('bookings/', views.BookingListCreateView.as_view(), name='booking-list'),
+    path('bookings/my_schedule/', views.BookingListCreateView.as_view(), name='my-schedule'),
     path('bookings/<int:pk>/', views.BookingDetailView.as_view(), name='booking-detail'),
     path('bookings/<int:pk>/cancel/', views.BookingDetailView.as_view(), name='booking-cancel'),
     path('bookings/<int:booking_id>/confirm/', views.confirm_booking, name='booking-confirm'),

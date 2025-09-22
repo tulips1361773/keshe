@@ -233,7 +233,8 @@ class BookingListCreateView(generics.ListCreateAPIView):
     
     def get_my_schedule(self, request):
         """获取我的课表"""
-        from datetime import datetime
+        from datetime import datetime, time
+        from django.utils import timezone
         
         # 获取日期参数
         date_from = request.GET.get('date_from')
@@ -241,18 +242,26 @@ class BookingListCreateView(generics.ListCreateAPIView):
         
         queryset = self.get_queryset()
         
-        # 应用日期过滤
+        # 应用日期过滤 - 使用时间范围而不是日期过滤
         if date_from:
             try:
                 date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
-                queryset = queryset.filter(start_time__date__gte=date_from_obj)
+                # 转换为当天开始时间
+                start_datetime = timezone.make_aware(
+                    datetime.combine(date_from_obj, time.min)
+                )
+                queryset = queryset.filter(start_time__gte=start_datetime)
             except ValueError:
                 return Response({'error': '日期格式错误'}, status=400)
         
         if date_to:
             try:
                 date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
-                queryset = queryset.filter(start_time__date__lte=date_to_obj)
+                # 转换为当天结束时间
+                end_datetime = timezone.make_aware(
+                    datetime.combine(date_to_obj, time.max)
+                )
+                queryset = queryset.filter(start_time__lte=end_datetime)
             except ValueError:
                 return Response({'error': '日期格式错误'}, status=400)
         
