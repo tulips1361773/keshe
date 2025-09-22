@@ -102,10 +102,13 @@
         <div class="form-tip" v-if="!form.start_time || !form.end_time || !form.campus_id">
           请先选择校区和预约时间
         </div>
+        <div class="form-tip" v-else-if="form.start_time && form.end_time && !durationText.includes('小时')">
+          {{ durationText }}
+        </div>
         <div class="form-tip" v-else-if="tablesLoading">
           正在加载可用球台...
         </div>
-        <div class="form-tip" v-else-if="!availableTables.length">
+        <div class="form-tip" v-else-if="!availableTables.length && durationText.includes('小时')">
           该时间段暂无可用球台，请调整时间
         </div>
         <div class="form-tip success" v-else>
@@ -174,6 +177,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { handleError, handleApiError, logger, performance } from '@/utils/errorHandler'
+import axios from '@/utils/axios'
 
 const userStore = useUserStore()
 const emit = defineEmits(['success', 'cancel'])
@@ -317,21 +321,10 @@ const loadRelations = async () => {
     performance.start('loadRelations')
     logger.debug('开始加载师生关系')
     
-    const response = await fetch('/api/reservations/relations/', {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
+    const response = await axios.get('/api/reservations/relations/')
     
-    if (response.ok) {
-      const data = await response.json()
-      relations.value = data.results?.filter(r => r.status === 'approved') || []
-      logger.info(`加载师生关系成功，共${relations.value.length}条记录`)
-    } else {
-      await handleApiError(response, '加载师生关系')
-    }
+    relations.value = response.data.results?.filter(r => r.status === 'approved') || []
+    logger.info(`加载师生关系成功，共${relations.value.length}条记录`)
   } catch (error) {
     await handleError(error, '加载师生关系')
   } finally {
@@ -344,21 +337,10 @@ const loadCampuses = async () => {
     performance.start('loadCampuses')
     logger.debug('开始加载校区列表')
     
-    const response = await fetch('/api/campus/api/list/', {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
+    const response = await axios.get('/api/campus/api/list/')
     
-    if (response.ok) {
-      const data = await response.json()
-      campuses.value = data.data || []
-      logger.info(`加载校区成功，共${campuses.value.length}个校区`)
-    } else {
-      await handleApiError(response, '加载校区列表')
-    }
+    campuses.value = response.data.data || []
+    logger.info(`加载校区成功，共${campuses.value.length}个校区`)
   } catch (error) {
     await handleError(error, '加载校区列表')
   } finally {
@@ -367,7 +349,32 @@ const loadCampuses = async () => {
 }
 
 const loadAvailableTables = async () => {
+  // 检查必要参数
   if (!form.start_time || !form.end_time || !form.campus_id) {
+    availableTables.value = []
+    return
+  }
+  
+  // 验证时间有效性
+  const startTime = new Date(form.start_time)
+  const endTime = new Date(form.end_time)
+  const duration = (endTime - startTime) / (1000 * 60 * 60)
+  
+  // 如果时间无效，不发送请求
+  if (duration <= 0) {
+    logger.warn('时间无效，结束时间必须晚于开始时间', {
+      start_time: form.start_time,
+      end_time: form.end_time,
+      duration
+    })
+    availableTables.value = []
+    return
+  }
+  
+  if (duration < 0.5 || duration > 8) {
+    logger.warn('时间长度无效，必须在30分钟到8小时之间', {
+      duration
+    })
     availableTables.value = []
     return
   }
@@ -378,36 +385,25 @@ const loadAvailableTables = async () => {
     logger.debug('开始加载可用球台', {
       start_time: form.start_time,
       end_time: form.end_time,
-      campus_id: form.campus_id
+      campus_id: form.campus_id,
+      duration: `${duration.toFixed(1)}小时`
     })
     
-    const params = new URLSearchParams({
+    const params = {
       start_time: form.start_time,
       end_time: form.end_time,
       campus_id: form.campus_id
-    })
+    }
     
-    const response = await fetch(`/api/reservations/tables/available/?${params}`, {
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
+    const response = await axios.get('/api/reservations/tables/available/', { params })
     
-    if (response.ok) {
-      const data = await response.json()
-      availableTables.value = data
-      logger.info(`加载可用球台成功，共${data.length}个可用球台`)
-      
-      // 如果当前选择的球台不在可用列表中，清空选择
-      if (form.table_id && !data.find(t => t.id === form.table_id)) {
-        form.table_id = ''
-        logger.warn('当前选择的球台不可用，已清空选择')
-      }
-    } else {
-      availableTables.value = []
-      await handleApiError(response, '加载可用球台')
+    availableTables.value = response.data
+    logger.info(`加载可用球台成功，共${response.data.length}个可用球台`)
+    
+    // 如果当前选择的球台不在可用列表中，清空选择
+    if (form.table_id && !response.data.find(t => t.id === form.table_id)) {
+      form.table_id = ''
+      logger.warn('当前选择的球台不可用，已清空选择')
     }
   } catch (error) {
     availableTables.value = []
@@ -533,46 +529,33 @@ const submitForm = async () => {
     
     logger.debug('提交预约数据', submitData)
     
-    const response = await fetch('/api/reservations/bookings/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${userStore.token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify(submitData)
+    const response = await axios.post('/api/reservations/bookings/', submitData)
+    
+    logger.info('预约创建成功', response.data)
+    
+    ElMessage.success({
+      message: '预约创建成功！',
+      duration: 3000,
+      showClose: true
     })
     
-    if (response.ok) {
-      const result = await response.json()
-      logger.info('预约创建成功', result)
-      
-      ElMessage.success({
-        message: '预约创建成功！',
-        duration: 3000,
-        showClose: true
-      })
-      
-      // 重置表单
-      formRef.value.resetFields()
-      Object.assign(form, {
-        relation_id: '',
-        campus_id: '',
-        table_id: '',
-        start_time: '',
-        end_time: '',
-        duration_hours: 0,
-        total_fee: 0,
-        notes: ''
-      })
-      
-      // 清空可用球台列表
-      availableTables.value = []
-      
-      emit('success', result)
-    } else {
-      await handleApiError(response, '创建预约')
-    }
+    // 重置表单
+    formRef.value.resetFields()
+    Object.assign(form, {
+      relation_id: '',
+      campus_id: '',
+      table_id: '',
+      start_time: '',
+      end_time: '',
+      duration_hours: 0,
+      total_fee: 0,
+      notes: ''
+    })
+    
+    // 清空可用球台列表
+    availableTables.value = []
+    
+    emit('success', response.data)
   } catch (error) {
     await handleError(error, '创建预约')
   } finally {
@@ -581,10 +564,13 @@ const submitForm = async () => {
   }
 }
 
-// 监听时间变化
+// 监听时间变化，但只在时间有效时才加载球台
 watch([() => form.start_time, () => form.end_time, () => form.campus_id], () => {
-  loadAvailableTables()
-})
+  // 延迟执行，避免频繁调用
+  setTimeout(() => {
+    loadAvailableTables()
+  }, 300)
+}, { deep: true })
 
 // 生命周期
 onMounted(() => {
