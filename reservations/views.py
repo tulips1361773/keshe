@@ -7,6 +7,7 @@ from django.db import transaction, models
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from datetime import datetime
 
 from .models import CoachStudentRelation, Table, Booking
 from .coach_change_models import CoachChangeRequest
@@ -95,6 +96,71 @@ class TableListView(generics.ListAPIView):
     queryset = Table.objects.filter(is_active=True)
     serializer_class = TableSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def available_tables(request):
+    """获取可用球台"""
+    try:
+        # 获取查询参数
+        start_time_str = request.GET.get('start_time')
+        end_time_str = request.GET.get('end_time')
+        campus_id = request.GET.get('campus_id')
+        
+        # 验证必需参数
+        if not all([start_time_str, end_time_str, campus_id]):
+            return Response({
+                'error': '缺少必需参数: start_time, end_time, campus_id'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 解析时间参数
+        try:
+            # 处理URL编码的时间格式
+            start_time_str = start_time_str.replace(' ', '+')
+            end_time_str = end_time_str.replace(' ', '+')
+            
+            # 解析时间
+            start_time = datetime.strptime(start_time_str, '%Y-%m-%d+%H:%M:%S')
+            end_time = datetime.strptime(end_time_str, '%Y-%m-%d+%H:%M:%S')
+        except ValueError:
+            return Response({
+                'error': '时间格式错误，请使用 YYYY-MM-DD+HH:MM:SS 格式'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 验证时间逻辑
+        if start_time >= end_time:
+            return Response({
+                'error': '开始时间必须早于结束时间'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 获取指定校区的所有可用球台
+        all_tables = Table.objects.filter(
+            campus_id=campus_id,
+            is_active=True,
+            status='available'
+        )
+        
+        # 查找在指定时间段内有预约的球台
+        occupied_table_ids = Booking.objects.filter(
+            table__campus_id=campus_id,
+            status__in=['pending', 'confirmed'],
+            start_time__lt=end_time,
+            end_time__gt=start_time
+        ).values_list('table_id', flat=True)
+        
+        # 过滤出可用的球台
+        available_tables_queryset = all_tables.exclude(id__in=occupied_table_ids)
+        
+        # 序列化数据
+        serializer = TableSerializer(available_tables_queryset, many=True)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'error': f'服务器内部错误: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class BookingListCreateView(generics.ListCreateAPIView):

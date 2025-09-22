@@ -12,6 +12,7 @@ urlpatterns = [
     
     # 球台管理
     path('tables/', views.TableListView.as_view(), name='table-list'),
+    path('tables/available/', views.available_tables, name='available-tables'),
     
     # 预约管理
     path('bookings/', views.BookingListCreateView.as_view(), name='booking-list-create'),
