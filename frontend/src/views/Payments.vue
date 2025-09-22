@@ -355,9 +355,9 @@ const loadTransactions = async () => {
     
     const response = await axios.get('/api/payments/api/account/transactions/', { params })
     
-    if (response.data) {
-      transactions.value = response.data.results || []
-      total.value = response.data.count || 0
+    if (response.data && response.data.data) {
+      transactions.value = response.data.data.results || []
+      total.value = response.data.data.count || 0
     }
   } catch (error) {
     console.error('加载交易记录错误:', error)
