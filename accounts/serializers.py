@@ -23,12 +23,16 @@ class UserSerializer(serializers.ModelSerializer):
     
     def get_avatar(self, obj):
         """获取头像URL"""
-        if obj.avatar:
-            # 如果头像字段有值，返回完整的URL
-            if obj.avatar.name.startswith('http'):
-                return obj.avatar.name
-            else:
-                return f"/media/{obj.avatar.name}"
+        try:
+            if obj.avatar and obj.avatar.name:
+                # 如果头像字段有值，返回完整的URL
+                if obj.avatar.name.startswith('http'):
+                    return obj.avatar.name
+                else:
+                    return f"/media/{obj.avatar.name}"
+        except (ValueError, AttributeError) as e:
+            # 处理头像字段访问异常
+            print(f"头像字段访问异常: {e}, 用户: {obj.username}")
         return None
     
     def create(self, validated_data):

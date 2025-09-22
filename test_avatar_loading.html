@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>头像加载测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-item { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        img { max-width: 200px; max-height: 200px; border: 1px solid #ddd; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>头像加载测试页面</h1>
+    
+    <div class="test-item">
+        <h3>测试1: 127.0.0.1:8000</h3>
+        <img src="http://127.0.0.1:8000/media/avatars/avatar_4_8f901e9d.jpg" 
+             onload="document.getElementById('result1').innerHTML='✅ 加载成功'; document.getElementById('result1').className='success';"
+             onerror="document.getElementById('result1').innerHTML='❌ 加载失败'; document.getElementById('result1').className='error';">
+        <p id="result1">加载中...</p>
+    </div>
+    
+    <div class="test-item">
+        <h3>测试2: localhost:8000</h3>
+        <img src="http://localhost:8000/media/avatars/avatar_4_8f901e9d.jpg" 
+             onload="document.getElementById('result2').innerHTML='✅ 加载成功'; document.getElementById('result2').className='success';"
+             onerror="document.getElementById('result2').innerHTML='❌ 加载失败'; document.getElementById('result2').className='error';">
+        <p id="result2">加载中...</p>
+    </div>
+    
+    <div class="test-item">
+        <h3>测试3: 相对路径</h3>
+        <img src="/media/avatars/avatar_4_8f901e9d.jpg" 
+             onload="document.getElementById('result3').innerHTML='✅ 加载成功'; document.getElementById('result3').className='success';"
+             onerror="document.getElementById('result3').innerHTML='❌ 加载失败'; document.getElementById('result3').className='error';">
+        <p id="result3">加载中...</p>
+    </div>
+    
+    <script>
+        console.log('页面加载完成，开始测试头像加载');
+        
+        // 监听所有图片加载事件
+        document.querySelectorAll('img').forEach((img, index) => {
+            img.addEventListener('load', () => {
+                console.log(`图片${index + 1}加载成功:`, img.src);
+            });
+            
+            img.addEventListener('error', (e) => {
+                console.error(`图片${index + 1}加载失败:`, img.src, e);
+            });
+        });
+    </script>
+</body>
+</html>

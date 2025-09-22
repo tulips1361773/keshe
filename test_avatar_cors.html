@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>头像跨域测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .avatar-test {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ccc;
+            margin: 10px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>头像跨域访问测试</h1>
+    
+    <div class="test-section">
+        <h3>测试1: 直接访问Django媒体文件</h3>
+        <img id="avatar1" class="avatar-test" src="http://127.0.0.1:8000/media/avatars/avatar_4_8f901e9d.jpg" alt="头像1">
+        <p id="result1">加载中...</p>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试2: 通过localhost访问</h3>
+        <img id="avatar2" class="avatar-test" src="http://localhost:8000/media/avatars/avatar_4_8f901e9d.jpg" alt="头像2">
+        <p id="result2">加载中...</p>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试3: 使用fetch API测试</h3>
+        <button onclick="testFetch()">测试Fetch请求</button>
+        <p id="result3">点击按钮测试</p>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试4: 检查网络请求</h3>
+        <p>请打开浏览器开发者工具的Network标签页查看请求详情</p>
+    </div>
+
+    <script>
+        // 测试图片加载
+        document.getElementById('avatar1').onload = function() {
+            document.getElementById('result1').innerHTML = '<span class="success">✓ 图片加载成功</span>';
+        };
+        
+        document.getElementById('avatar1').onerror = function() {
+            document.getElementById('result1').innerHTML = '<span class="error">✗ 图片加载失败</span>';
+        };
+        
+        document.getElementById('avatar2').onload = function() {
+            document.getElementById('result2').innerHTML = '<span class="success">✓ 图片加载成功</span>';
+        };
+        
+        document.getElementById('avatar2').onerror = function() {
+            document.getElementById('result2').innerHTML = '<span class="error">✗ 图片加载失败</span>';
+        };
+        
+        // 测试fetch请求
+        function testFetch() {
+            const resultElement = document.getElementById('result3');
+            resultElement.innerHTML = '测试中...';
+            
+            fetch('http://127.0.0.1:8000/media/avatars/avatar_4_8f901e9d.jpg', {
+                method: 'GET',
+                mode: 'cors'
+            })
+            .then(response => {
+                if (response.ok) {
+                    resultElement.innerHTML = `<span class="success">✓ Fetch请求成功 (状态码: ${response.status})</span>`;
+                } else {
+                    resultElement.innerHTML = `<span class="error">✗ Fetch请求失败 (状态码: ${response.status})</span>`;
+                }
+            })
+            .catch(error => {
+                resultElement.innerHTML = `<span class="error">✗ Fetch请求异常: ${error.message}</span>`;
+            });
+        }
+        
+        // 页面加载完成后的信息
+        window.onload = function() {
+            console.log('页面加载完成，开始测试头像访问');
+            console.log('当前页面URL:', window.location.href);
+        };
+    </script>
+</body>
+</html>

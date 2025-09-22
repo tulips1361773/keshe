@@ -27,7 +27,7 @@
         <!-- 头像区域 -->
         <div class="avatar-section custom-card">
           <div class="avatar-content">
-            <el-avatar :size="120" :src="getAvatarUrl(profileForm.avatar)">
+            <el-avatar :size="120" :src="getAvatarUrl(profileForm.avatar)" @error="handleAvatarError">
               <el-icon><User /></el-icon>
             </el-avatar>
             <div class="avatar-actions">
@@ -416,40 +416,66 @@ export default {
       return new Date(dateString).toLocaleDateString('zh-CN')
     }
 
+    const handleAvatarError = (error) => {
+      console.error('头像加载失败:', error)
+      console.log('当前头像URL:', getAvatarUrl(profileForm.avatar))
+      console.log('profileForm.avatar值:', profileForm.avatar)
+      ElMessage.error('头像加载失败，请检查网络连接')
+    }
+
     const getAvatarUrl = (avatar) => {
-      if (!avatar) return ''
+      console.log('getAvatarUrl输入参数:', avatar, '类型:', typeof avatar) // 调试日志
+      
+      if (!avatar) {
+        console.log('头像为空，返回空字符串') // 调试日志
+        return ''
+      }
+      
       // 如果已经是完整URL，直接返回
-      if (avatar.startsWith('http')) return avatar
-      // 如果是相对路径，添加服务器地址
-      return `http://localhost:8000${avatar}`
+      if (avatar.startsWith('http')) {
+        console.log('头像是完整URL，直接返回:', avatar) // 调试日志
+        return avatar
+      }
+      
+      // 如果是相对路径，添加服务器地址（使用与axios相同的baseURL）
+      const fullUrl = `http://127.0.0.1:8000${avatar}`
+      console.log('头像是相对路径，拼接完整URL:', fullUrl) // 调试日志
+      return fullUrl
     }
 
     const loadProfile = async () => {
       try {
         const response = await axios.get('/api/accounts/profile/')
         const data = response.data
-        if (data && data.success) {
-          const user = data.user
-          const profile = data.profile
-          
-          Object.assign(profileForm, {
-            username: user.username || '',
-            real_name: user.real_name || '',
-            phone: user.phone || '',
-            email: user.email || '',
-            gender: user.gender || 'unknown',
-            address: user.address || '',
-            emergency_contact: user.emergency_contact || '',
-            emergency_phone: user.emergency_phone || '',
-            skills: profile.skills || '',
-            experience_years: profile.experience_years || 0,
-            user_type: user.user_type || 'student',
-            is_active: user.is_active !== false,
-            date_joined: user.registration_date || '',
-            bio: profile.bio || '',
-            avatar: user.avatar || ''
-          })
-        }
+        console.log('API响应数据:', data) // 调试日志
+        
+        // 修复：直接使用response.data，不检查success字段
+        const user = data.user
+        const profile = data.profile
+        
+        console.log('用户头像字段:', user.avatar) // 调试日志
+        console.log('头像URL处理结果:', getAvatarUrl(user.avatar)) // 调试日志
+        
+        Object.assign(profileForm, {
+          username: user.username || '',
+          real_name: user.real_name || '',
+          phone: user.phone || '',
+          email: user.email || '',
+          gender: user.gender || 'unknown',
+          address: user.address || '',
+          emergency_contact: user.emergency_contact || '',
+          emergency_phone: user.emergency_phone || '',
+          skills: profile.skills || '',
+          experience_years: profile.experience_years || 0,
+          user_type: user.user_type || 'student',
+          is_active: user.is_active !== false,
+          date_joined: user.registration_date || '',
+          bio: profile.bio || '',
+          avatar: user.avatar || ''
+        })
+        
+        console.log('最终profileForm.avatar:', profileForm.avatar) // 调试日志
+        console.log('最终头像URL:', getAvatarUrl(profileForm.avatar)) // 调试日志
       } catch (error) {
         console.error('加载个人资料失败:', error)
         ElMessage.error('加载个人资料失败')
@@ -621,6 +647,7 @@ export default {
       getUserTypeText,
       formatDate,
       getAvatarUrl,
+      handleAvatarError,  // 添加头像错误处理函数
       handleSave,
       handleAvatarUpload,
       handleChangePassword,

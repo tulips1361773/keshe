@@ -11,7 +11,7 @@
         <div class="user-section">
           <el-dropdown @command="handleCommand">
             <div class="user-info">
-              <el-avatar :size="40" :src="userStore.user?.avatar">
+              <el-avatar :size="40" :src="getAvatarUrl(userStore.user?.avatar)">
                 <el-icon><User /></el-icon>
               </el-avatar>
               <div class="user-details">
@@ -362,6 +362,20 @@ export default {
       return typeMap[userType] || '用户'
     }
 
+    const getAvatarUrl = (avatar) => {
+      if (!avatar) {
+        return ''
+      }
+      
+      // 如果已经是完整URL，直接返回
+      if (avatar.startsWith('http')) {
+        return avatar
+      }
+      
+      // 如果是相对路径，添加服务器地址
+      return `http://127.0.0.1:8000${avatar}`
+    }
+
     const getWelcomeMessage = () => {
       const hour = new Date().getHours()
       const userType = userStore.user?.user_type
@@ -674,6 +688,7 @@ export default {
       loading,
       userStore,
       getUserTypeText,
+      getAvatarUrl,
       getWelcomeMessage,
       getPageTitle,
       handleCommand,
