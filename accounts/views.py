@@ -733,7 +733,7 @@ def coach_detail(request, coach_id):
             {
                 'id': 1,
                 'student_name': '张同学',
-                'student_avatar': '/default-avatar.png',
+                'student_avatar': '/static/default-avatar.svg',
                 'rating': 5,
                 'content': '教练非常专业，教学方法很好，进步很快！',
                 'created_at': '2024-01-15T10:30:00Z'
@@ -741,7 +741,7 @@ def coach_detail(request, coach_id):
             {
                 'id': 2,
                 'student_name': '李同学',
-                'student_avatar': '/default-avatar.png',
+                'student_avatar': '/static/default-avatar.svg',
                 'rating': 4,
                 'content': '教练很耐心，技术指导很到位。',
                 'created_at': '2024-01-10T14:20:00Z'

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>头像和按钮调试工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .avatar-test {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .avatar-test img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+            border: 2px solid #ddd;
+        }
+        .avatar-info {
+            flex: 1;
+        }
+        .log-area {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        .status-warning { background-color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>头像显示和按钮状态调试工具</h1>
+        
+        <div class="section">
+            <h3>🔍 问题诊断</h3>
+            <button onclick="runFullDiagnosis()">开始完整诊断</button>
+            <button onclick="clearLogs()">清空日志</button>
+            <div id="diagnosis-log" class="log-area"></div>
+        </div>
+
+        <div class="section">
+            <h3>🖼️ 头像URL测试</h3>
+            <div id="avatar-tests"></div>
+        </div>
+
+        <div class="section">
+            <h3>🔘 按钮状态测试</h3>
+            <div id="button-tests"></div>
+        </div>
+
+        <div class="section">
+            <h3>📡 API响应测试</h3>
+            <button onclick="testCoachesAPI()">测试教练列表API</button>
+            <button onclick="testRelationsAPI()">测试师生关系API</button>
+            <div id="api-results"></div>
+        </div>
+
+        <div class="section">
+            <h3>🌐 网络请求监控</h3>
+            <button onclick="startNetworkMonitoring()">开始监控</button>
+            <button onclick="stopNetworkMonitoring()">停止监控</button>
+            <div id="network-log" class="log-area"></div>
+        </div>
+    </div>
+
+    <script>
+        let logArea = null;
+        let networkMonitoring = false;
+        let originalFetch = null;
+
+        function log(message, type = 'info') {
+            if (!logArea) logArea = document.getElementById('diagnosis-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const statusIcon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            logArea.textContent += `[${timestamp}] ${statusIcon} ${message}\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(`[DEBUG] ${message}`);
+        }
+
+        function clearLogs() {
+            document.getElementById('diagnosis-log').textContent = '';
+            document.getElementById('network-log').textContent = '';
+        }
+
+        async function runFullDiagnosis() {
+            log('开始完整诊断...', 'info');
+            
+            // 1. 检查基础环境
+            await checkEnvironment();
+            
+            // 2. 测试头像URL
+            await testAvatarUrls();
+            
+            // 3. 测试API响应
+            await testAPIs();
+            
+            // 4. 检查前端状态
+            await checkFrontendState();
+            
+            log('诊断完成！', 'success');
+        }
+
+        async function checkEnvironment() {
+            log('检查基础环境...', 'info');
+            
+            // 检查当前页面URL
+            log(`当前页面: ${window.location.href}`);
+            
+            // 检查localStorage中的token
+            const token = localStorage.getItem('token');
+            log(`认证Token: ${token ? '已设置' : '未设置'}`);
+            
+            // 检查网络连接
+            try {
+                const response = await fetch('http://localhost:8000/api/accounts/profile/', {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+                log(`后端连接: ${response.ok ? '正常' : '异常'} (状态码: ${response.status})`);
+            } catch (error) {
+                log(`后端连接失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAvatarUrls() {
+            log('测试头像URL...', 'info');
+            
+            const testUrls = [
+                '/media/avatars/avatar_4_8f901e9d.jpg',
+                'http://127.0.0.1:8000/media/avatars/avatar_4_8f901e9d.jpg',
+                'http://localhost:3001/media/avatars/avatar_4_8f901e9d.jpg',
+                '/default-avatar.svg'
+            ];
+
+            const avatarContainer = document.getElementById('avatar-tests');
+            avatarContainer.innerHTML = '';
+
+            for (const url of testUrls) {
+                const testDiv = document.createElement('div');
+                testDiv.className = 'avatar-test';
+                
+                const img = document.createElement('img');
+                img.src = url;
+                
+                const info = document.createElement('div');
+                info.className = 'avatar-info';
+                info.innerHTML = `<strong>URL:</strong> ${url}<br><span id="status-${testUrls.indexOf(url)}">测试中...</span>`;
+                
+                testDiv.appendChild(img);
+                testDiv.appendChild(info);
+                avatarContainer.appendChild(testDiv);
+
+                // 测试图片加载
+                img.onload = () => {
+                    document.getElementById(`status-${testUrls.indexOf(url)}`).innerHTML = 
+                        '<span class="status-indicator status-success"></span>加载成功';
+                    log(`头像加载成功: ${url}`, 'success');
+                };
+                
+                img.onerror = () => {
+                    document.getElementById(`status-${testUrls.indexOf(url)}`).innerHTML = 
+                        '<span class="status-indicator status-error"></span>加载失败';
+                    log(`头像加载失败: ${url}`, 'error');
+                };
+            }
+        }
+
+        async function testCoachesAPI() {
+            log('测试教练列表API...', 'info');
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:8000/api/accounts/coaches/', {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+                
+                const data = await response.json();
+                log(`教练列表API响应: ${response.status}`);
+                log(`响应数据: ${JSON.stringify(data, null, 2)}`);
+                
+                if (data.results && data.results.length > 0) {
+                    const firstCoach = data.results[0];
+                    log(`第一个教练数据: ${JSON.stringify(firstCoach, null, 2)}`);
+                    
+                    if (firstCoach.user && firstCoach.user.avatar) {
+                        log(`教练头像字段: ${firstCoach.user.avatar}`, 'success');
+                    } else {
+                        log('教练数据中没有头像字段', 'error');
+                    }
+                }
+                
+                document.getElementById('api-results').innerHTML = 
+                    `<div class="test-result success">教练列表API测试完成，详见日志</div>`;
+                    
+            } catch (error) {
+                log(`教练列表API测试失败: ${error.message}`, 'error');
+                document.getElementById('api-results').innerHTML = 
+                    `<div class="test-result error">教练列表API测试失败: ${error.message}</div>`;
+            }
+        }
+
+        async function testRelationsAPI() {
+            log('测试师生关系API...', 'info');
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:8000/api/reservations/relations/', {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+                
+                const data = await response.json();
+                log(`师生关系API响应: ${response.status}`);
+                log(`关系数据: ${JSON.stringify(data, null, 2)}`);
+                
+                document.getElementById('api-results').innerHTML += 
+                    `<div class="test-result success">师生关系API测试完成，详见日志</div>`;
+                    
+            } catch (error) {
+                log(`师生关系API测试失败: ${error.message}`, 'error');
+                document.getElementById('api-results').innerHTML += 
+                    `<div class="test-result error">师生关系API测试失败: ${error.message}</div>`;
+            }
+        }
+
+        async function testAPIs() {
+            await testCoachesAPI();
+            await testRelationsAPI();
+        }
+
+        async function checkFrontendState() {
+            log('检查前端状态...', 'info');
+            
+            // 检查Vue应用状态（如果可访问）
+            if (window.Vue) {
+                log('Vue框架已加载', 'success');
+            } else {
+                log('Vue框架未检测到', 'warning');
+            }
+            
+            // 检查Element Plus
+            if (window.ElementPlus) {
+                log('Element Plus已加载', 'success');
+            } else {
+                log('Element Plus未检测到', 'warning');
+            }
+        }
+
+        function startNetworkMonitoring() {
+            if (networkMonitoring) return;
+            
+            networkMonitoring = true;
+            const networkLog = document.getElementById('network-log');
+            
+            // 监控fetch请求
+            originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                const url = args[0];
+                const options = args[1] || {};
+                
+                networkLog.textContent += `[${new Date().toLocaleTimeString()}] 🌐 Fetch: ${url}\n`;
+                networkLog.scrollTop = networkLog.scrollHeight;
+                
+                return originalFetch.apply(this, args)
+                    .then(response => {
+                        networkLog.textContent += `[${new Date().toLocaleTimeString()}] ✅ Response: ${response.status} ${url}\n`;
+                        networkLog.scrollTop = networkLog.scrollHeight;
+                        return response;
+                    })
+                    .catch(error => {
+                        networkLog.textContent += `[${new Date().toLocaleTimeString()}] ❌ Error: ${error.message} ${url}\n`;
+                        networkLog.scrollTop = networkLog.scrollHeight;
+                        throw error;
+                    });
+            };
+            
+            log('网络监控已启动', 'success');
+        }
+
+        function stopNetworkMonitoring() {
+            if (!networkMonitoring) return;
+            
+            networkMonitoring = false;
+            if (originalFetch) {
+                window.fetch = originalFetch;
+            }
+            
+            log('网络监控已停止', 'info');
+        }
+
+        // 页面加载完成后自动开始诊断
+        window.addEventListener('load', () => {
+            log('调试工具已加载', 'success');
+        });
+    </script>
+</body>
+</html>

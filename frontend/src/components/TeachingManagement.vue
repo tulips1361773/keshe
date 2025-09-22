@@ -221,7 +221,9 @@ const approveApplication = async (application) => {
       }
     )
     
-    const response = await api.post(`/api/reservations/relations/${application.id}/approve/`)
+    const response = await api.post(`/api/reservations/relations/${application.id}/approve/`, {
+      action: 'approve'
+    })
     
     if (response.status === 200) {
       ElMessage.success('申请已同意')
@@ -230,7 +232,7 @@ const approveApplication = async (application) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('同意申请失败:', error)
-      ElMessage.error('同意申请失败')
+      ElMessage.error(error.response?.data?.error || '同意申请失败')
     }
   }
 }
@@ -248,7 +250,9 @@ const rejectApplication = async (application) => {
       }
     )
     
-    const response = await api.post(`/api/reservations/relations/${application.id}/reject/`)
+    const response = await api.post(`/api/reservations/relations/${application.id}/approve/`, {
+      action: 'reject'
+    })
     
     if (response.status === 200) {
       ElMessage.success('申请已拒绝')
@@ -257,7 +261,7 @@ const rejectApplication = async (application) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('拒绝申请失败:', error)
-      ElMessage.error('拒绝申请失败')
+      ElMessage.error(error.response?.data?.error || '拒绝申请失败')
     }
   }
 }

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片显示调试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .test-image { max-width: 100px; height: 100px; border: 1px solid #ddd; margin: 10px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>图片显示调试页面</h1>
+    
+    <div class="test-section">
+        <h2>1. 测试前端默认头像</h2>
+        <img src="/default-avatar.svg" alt="前端默认头像" class="test-image" onload="console.log('前端默认头像加载成功')" onerror="console.error('前端默认头像加载失败')">
+        <p>路径: /default-avatar.svg</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 测试后端静态文件</h2>
+        <img src="http://127.0.0.1:8000/static/default-avatar.svg" alt="后端静态头像" class="test-image" onload="console.log('后端静态头像加载成功')" onerror="console.error('后端静态头像加载失败')">
+        <p>路径: http://127.0.0.1:8000/static/default-avatar.svg</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 测试后端媒体文件</h2>
+        <img src="http://127.0.0.1:8000/media/avatars/default.svg" alt="后端媒体头像" class="test-image" onload="console.log('后端媒体头像加载成功')" onerror="console.error('后端媒体头像加载失败')">
+        <p>路径: http://127.0.0.1:8000/media/avatars/default.svg</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 网络请求测试</h2>
+        <button onclick="testApiCall()">测试教练API</button>
+        <div id="api-result"></div>
+    </div>
+    
+    <script>
+        // 监听所有图片加载事件
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img');
+            images.forEach((img, index) => {
+                img.addEventListener('load', function() {
+                    console.log(`图片 ${index + 1} 加载成功:`, this.src);
+                });
+                img.addEventListener('error', function() {
+                    console.error(`图片 ${index + 1} 加载失败:`, this.src);
+                    this.style.backgroundColor = '#ffebee';
+                    this.style.border = '2px solid red';
+                });
+            });
+        });
+        
+        async function testApiCall() {
+            const resultDiv = document.getElementById('api-result');
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/accounts/coaches/');
+                const data = await response.json();
+                console.log('教练API响应:', data);
+                
+                if (data.results && data.results.length > 0) {
+                    const coach = data.results[0];
+                    console.log('第一个教练数据:', coach);
+                    console.log('头像字段:', coach.user_info?.avatar);
+                    
+                    resultDiv.innerHTML = `
+                        <p class="success">API调用成功</p>
+                        <p>教练数量: ${data.results.length}</p>
+                        <p>第一个教练: ${coach.real_name}</p>
+                        <p>头像字段: ${coach.user_info?.avatar || '无'}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p class="error">没有找到教练数据</p>';
+                }
+            } catch (error) {
+                console.error('API调用失败:', error);
+                resultDiv.innerHTML = `<p class="error">API调用失败: ${error.message}</p>`;
+            }
+        }
+        
+        // 检查控制台错误
+        window.addEventListener('error', function(e) {
+            console.error('页面错误:', e.error);
+        });
+    </script>
+</body>
+</html>

@@ -100,7 +100,7 @@
             <!-- 教练头像和基本信息 -->
             <div class="coach-header">
               <div class="coach-avatar">
-                <el-avatar :size="80" :src="coach.avatar">
+                <el-avatar :size="80" :src="getAvatarUrl(coach.user_info?.avatar)">
                   <el-icon><User /></el-icon>
                 </el-avatar>
                 <div class="coach-status" :class="getStatusClass(coach.status)">
@@ -175,13 +175,14 @@
                 查看详情
               </el-button>
               <el-button 
-                type="primary" 
+                :type="getCoachButtonType(coach.id)"
                 @click="selectCoach(coach)"
                 :loading="selectingCoach === coach.id"
-                :disabled="coach.status !== 'approved' || isCoachSelected(coach.id)"
+                :disabled="isCoachDisabled(coach.id)"
+                class="coach-select-btn"
               >
                 <el-icon><Check /></el-icon>
-                {{ isCoachSelected(coach.id) ? '已选择' : '选择教练' }}
+                <span>{{ getCoachButtonText(coach.id) }}</span>
               </el-button>
             </div>
           </el-card>
@@ -218,7 +219,7 @@
             :key="coach.id" 
             class="selected-coach-item"
           >
-            <el-avatar :size="40" :src="coach.avatar">
+            <el-avatar :size="40" :src="getAvatarUrl(coach.avatar)">
               <el-icon><User /></el-icon>
             </el-avatar>
             <div class="coach-info">
@@ -297,10 +298,12 @@ export default {
         })
         
         const response = await axios.get('/api/accounts/coaches/', { params })
+        console.log('教练列表API响应:', response.data)
         
         if (response.data.success) {
           coaches.value = response.data.results || []
           total.value = response.data.count || coaches.value.length
+          console.log('获取到的教练列表:', coaches.value)
         } else {
           throw new Error(response.data.message || '获取教练员列表失败')
         }
@@ -317,15 +320,22 @@ export default {
     const fetchSelectedCoaches = async () => {
       try {
         const response = await axios.get('/api/reservations/relations/')
+        console.log('师生关系API响应:', response.data)
+        
         if (response.data && response.data.length > 0) {
-          // 过滤出已通过的师生关系，并提取教练信息
-          const approvedRelations = response.data.filter(relation => relation.status === 'approved')
-          selectedCoaches.value = approvedRelations.map(relation => ({
-            id: relation.coach_id,
-            real_name: relation.coach?.real_name || '未知教练',
-            level: relation.coach?.coach_level || 'junior',
-            avatar: relation.coach?.avatar || '/default-avatar.svg'
-          }))
+          // 获取所有师生关系，包括待审核的
+          selectedCoaches.value = response.data.map(relation => {
+            console.log('处理师生关系:', relation)
+            return {
+              id: relation.coach_id,
+              real_name: relation.coach?.real_name || '未知教练',
+              level: relation.coach?.coach_level || 'junior',
+              avatar: relation.coach?.user?.avatar || relation.coach?.avatar || '/default-avatar.svg',
+              status: relation.status,
+              applied_at: relation.applied_at
+            }
+          })
+          console.log('处理后的selectedCoaches:', selectedCoaches.value)
         } else {
           selectedCoaches.value = []
         }
@@ -410,7 +420,7 @@ export default {
         const response = await axios.post('/api/reservations/relations/', requestData)
         
         if (response.status === 201 || response.status === 200) {
-          ElMessage.success('选择教练成功！')
+          ElMessage.success('申请已提交，请等待教练审核！')
           selectedCoaches.value.push(coach)
           // 刷新教练列表和已选择教练列表
           fetchCoaches()
@@ -520,7 +530,61 @@ export default {
       const coach = coaches.value.find(c => c.id === coachId)
       if (!coach) return false
       
+      // 使用coach.user而不是coach.user_info.id，因为user字段直接存储用户ID
       return selectedCoaches.value.some(selectedCoach => selectedCoach.id === coach.user)
+    }
+    
+    const getCoachButtonText = (coachId) => {
+      const coach = coaches.value.find(c => c.id === coachId)
+      if (!coach) return '选择教练'
+      
+      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coach.user)
+      if (!selectedCoach) return '选择教练'
+      
+      console.log('getCoachButtonText - coachId:', coachId, 'selectedCoach:', selectedCoach)
+      
+      switch (selectedCoach.status) {
+        case 'approved':
+          return '已选择'
+        case 'pending':
+          return '正在审核'
+        case 'rejected':
+          return '已拒绝'
+        default:
+          return '选择教练'
+      }
+    }
+    
+    const getCoachButtonType = (coachId) => {
+      const coach = coaches.value.find(c => c.id === coachId)
+      if (!coach) return 'primary'
+      
+      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coach.user)
+      if (!selectedCoach) return 'primary'
+      
+      console.log('getCoachButtonType - coachId:', coachId, 'selectedCoach:', selectedCoach)
+      
+      switch (selectedCoach.status) {
+        case 'approved':
+          return 'success'
+        case 'pending':
+          return 'warning'
+        case 'rejected':
+          return 'danger'
+        default:
+          return 'primary'
+      }
+    }
+    
+    const isCoachDisabled = (coachId) => {
+      const coach = coaches.value.find(c => c.id === coachId)
+      if (!coach) return false
+      
+      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coach.user)
+      if (!selectedCoach) return false
+      
+      // 已选择、正在审核、已拒绝的都不能再点击
+      return ['approved', 'pending', 'rejected'].includes(selectedCoach.status)
     }
     
     // 辅助方法
@@ -561,6 +625,25 @@ export default {
       }
       return levelMap[level] || '未知等级'
     }
+
+    const getAvatarUrl = (avatar) => {
+      if (!avatar) {
+        return '/default-avatar.svg'
+      }
+      
+      // 如果已经是完整URL，直接返回
+      if (avatar.startsWith('http')) {
+        return avatar
+      }
+      
+      // 如果是静态文件路径，使用后端服务器
+      if (avatar.startsWith('/static/')) {
+        return `http://127.0.0.1:8000${avatar}`
+      }
+      
+      // 如果是相对路径，添加服务器地址
+      return `http://127.0.0.1:8000${avatar}`
+    }
     
     // 生命周期
     onMounted(() => {
@@ -588,10 +671,14 @@ export default {
       unselectCoach,
       viewCoachDetail,
       isCoachSelected,
+      getCoachButtonText,
+      getCoachButtonType,
+      isCoachDisabled,
       getStatusClass,
       getStatusText,
       getLevelTagType,
-      getLevelText
+      getLevelText,
+      getAvatarUrl
     }
   }
 }

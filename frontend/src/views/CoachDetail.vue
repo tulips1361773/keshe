@@ -28,7 +28,13 @@
         <div class="coach-info-card custom-card">
           <div class="coach-avatar-section">
             <div class="avatar-container">
-              <img :src="coach.avatar || '/default-avatar.svg'" :alt="coach.real_name" class="coach-avatar" />
+              <img 
+                :src="getAvatarUrl(coach.user_info?.avatar)" 
+                :alt="coach.real_name" 
+                class="coach-avatar" 
+                @load="console.log('头像加载成功:', getAvatarUrl(coach.user_info?.avatar))"
+                @error="console.error('头像加载失败:', getAvatarUrl(coach.user_info?.avatar))"
+              />
               <div class="status-badge">
                 <el-tag :type="getStatusTagType(coach.status)" size="large">
                   {{ getStatusText(coach.status) }}
@@ -163,7 +169,7 @@
             >
               <div class="review-header">
                 <div class="reviewer-info">
-                  <img :src="review.student_avatar || '/default-avatar.svg'" :alt="review.student_name" class="reviewer-avatar" />
+                  <img :src="getAvatarUrl(review.student_avatar)" :alt="review.student_name" class="reviewer-avatar" />
                   <div class="reviewer-details">
                     <span class="reviewer-name">{{ review.student_name }}</span>
                     <el-rate v-model="review.rating" disabled size="small" />
@@ -235,16 +241,21 @@ export default {
         if (response.data) {
           // 处理API返回的数据
           const data = response.data
+          console.log('教练详情API响应:', data)
+          console.log('用户信息:', data.user)
+          console.log('头像字段:', data.user?.avatar)
+          
           coach.value = {
             id: data.id,
             real_name: data.user?.real_name || data.user?.username || '未知教练',
-            avatar: data.user?.avatar || '/default-avatar.svg',
+            avatar: data.user?.avatar || '/static/default-avatar.svg',
             coach_level: data.coach_level || 'junior',
             status: data.status || 'pending',
             phone: data.user?.phone || '未提供',
             user_info: {
               email: data.user?.email || '未提供',
-              username: data.user?.username || '未提供'
+              username: data.user?.username || '未提供',
+              avatar: data.user?.avatar || '/static/default-avatar.svg'
             },
             created_at: data.created_at,
             rating: data.rating || 0,
@@ -375,6 +386,34 @@ export default {
       if (!dateString) return '未知时间'
       return new Date(dateString).toLocaleDateString('zh-CN')
     }
+
+    // 获取头像URL
+    const getAvatarUrl = (avatar) => {
+      console.log('getAvatarUrl 输入参数:', avatar)
+      
+      if (!avatar) {
+        console.log('头像为空，返回默认头像')
+        return 'http://127.0.0.1:8000/static/default-avatar.svg'
+      }
+      
+      // 如果已经是完整URL，直接返回
+      if (avatar.startsWith('http')) {
+        console.log('完整URL，直接返回:', avatar)
+        return avatar
+      }
+      
+      // 如果是静态文件路径，使用后端服务器
+      if (avatar.startsWith('/static/')) {
+        const url = `http://127.0.0.1:8000${avatar}`
+        console.log('静态文件路径，返回:', url)
+        return url
+      }
+      
+      // 如果是相对路径，添加服务器地址
+      const url = `http://127.0.0.1:8000${avatar}`
+      console.log('相对路径，返回:', url)
+      return url
+    }
     
     onMounted(() => {
       fetchCoachDetail()
@@ -388,7 +427,8 @@ export default {
       getStatusTagType,
       getStatusText,
       getLevelText,
-      formatDate
+      formatDate,
+      getAvatarUrl
     }
   }
 }
