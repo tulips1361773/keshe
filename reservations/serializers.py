@@ -35,6 +35,15 @@ class CoachStudentRelationSerializer(serializers.ModelSerializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("指定的教练或学员不存在")
         
+        # 检查学员已选择的教练数量（包括已通过和待审核的）
+        existing_relations_count = CoachStudentRelation.objects.filter(
+            student=student,
+            status__in=['approved', 'pending']
+        ).count()
+        
+        if existing_relations_count >= 2:
+            raise serializers.ValidationError("最多只能选择两个教练员，请更换教练员")
+        
         # 检查是否已存在关系
         existing_relation = CoachStudentRelation.objects.filter(
             coach=coach,

@@ -443,6 +443,16 @@ export default {
           }
         }
         
+        // 检查已选择的教练数量（包括已通过和待审核的）
+        const approvedCount = selectedCoaches.value.length
+        const pendingCount = Object.values(allRelationStatuses.value).filter(status => status === 'pending').length
+        const totalCount = approvedCount + pendingCount
+        
+        if (totalCount >= 2) {
+          ElMessage.error('最多只能选择两个教练员，请更换教练员')
+          return
+        }
+        
         await ElMessageBox.confirm(
           `确定要选择 ${coach.real_name} 作为您的教练吗？`,
           '确认选择教练',
