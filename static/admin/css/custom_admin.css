@@ -772,12 +772,16 @@ h1::after {
 .form-row select,
 .form-row textarea {
     width: 100% !important;
-    padding: 8px 12px !important;
+    padding: 12px 16px !important;
     border: 1px solid var(--input-border) !important;
     border-radius: var(--border-radius) !important;
-    font-size: 14px !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    min-height: 44px !important;
     transition: var(--transition-fast) !important;
     box-sizing: border-box !important;
+    background: var(--input-bg) !important;
+    color: var(--text-color) !important;
 }
 
 .form-row input:focus,
@@ -786,6 +790,75 @@ h1::after {
     border-color: var(--primary-color) !important;
     box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1) !important;
     outline: none !important;
+}
+
+/* Select选择框和Option选项优化 - 最终版本 */
+select,
+.form-row select,
+fieldset select,
+.field-box select,
+.change-form select,
+.add-form select {
+    background: var(--input-bg) !important;
+    color: var(--text-color) !important;
+    font-family: inherit !important;
+    min-height: 56px !important;
+    height: 56px !important;
+    padding: 18px 20px !important;
+    font-size: 14px !important;
+    line-height: 1.0 !important;
+    border: 2px solid var(--input-border) !important;
+    border-radius: var(--border-radius) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    font-weight: 500 !important;
+    vertical-align: top !important;
+    display: block !important;
+    text-align: left !important;
+    overflow: visible !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+select option,
+.form-row select option,
+fieldset select option,
+.field-box select option,
+.change-form select option,
+.add-form select option {
+    background: var(--input-bg) !important;
+    color: var(--text-color) !important;
+    padding: 18px 20px !important;
+    font-size: 14px !important;
+    line-height: 1.0 !important;
+    min-height: 52px !important;
+    height: auto !important;
+    font-family: inherit !important;
+    font-weight: 500 !important;
+    border: none !important;
+    display: block !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-wrap: break-word !important;
+}
+
+select option:hover,
+select option:focus,
+.form-row select option:hover,
+.form-row select option:focus {
+    background: var(--hover-color) !important;
+    color: var(--text-color) !important;
+}
+
+select option:checked,
+select option:selected,
+.form-row select option:checked,
+.form-row select option:selected {
+    background: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+    font-weight: 600 !important;
 }
 
 /* 操作按钮优化 */

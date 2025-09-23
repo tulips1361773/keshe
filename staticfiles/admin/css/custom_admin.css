@@ -24,7 +24,7 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: all 0.15s ease;
     --primary-gradient: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    --max-width: 1200px;
+    --max-width: none;
     --header-height: 60px;
     --sidebar-width: 280px;
 }
@@ -38,6 +38,49 @@ body {
     margin: 0 !important;
     padding: 0 !important;
     min-height: 100vh !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+}
+
+/* Django admin 容器优化 */
+#container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* 头部优化 */
+#header {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 1rem 2rem !important;
+    box-sizing: border-box !important;
+}
+
+/* 主要内容区域 */
+#main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+/* 内容主体 */
+#content-main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 1rem 2rem !important;
+    flex: 1 !important;
+    box-sizing: border-box !important;
 }
 
 /* 页面加载动画 */
@@ -72,13 +115,105 @@ body {
     }
 }
 
-/* 主体内容居中 */
+/* 主体内容弹性布局 */
 #content {
-    max-width: var(--max-width) !important;
-    margin: 0 auto !important;
-    padding: 2rem 1rem !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 1rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* 仅针对Django admin主页的容器宽度设置 */
+body.dashboard #content {
+    width: 50% !important;
+    margin: 0 auto !important;
+}
+
+/* 确保其他页面（包括登录页面和其他管理页面）保持100%宽度 */
+body:not(.dashboard) #content {
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* 弹性容器 */
+.results {
+    width: 100% !important;
+    overflow-x: auto !important;
+    background: var(--input-bg) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: var(--shadow) !important;
+    margin: 1rem 0 !important;
+    flex: 1 !important;
+}
+
+/* 表格响应式优化 */
+#result_list {
+    width: 100% !important;
+    min-width: 100% !important;
+    border-collapse: collapse !important;
+    background: white !important;
+    table-layout: auto !important;
+}
+
+#result_list th,
+#result_list td {
+    padding: 12px 8px !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    text-align: left !important;
+    vertical-align: middle !important;
+    word-wrap: break-word !important;
+    max-width: 200px !important;
+}
+
+#result_list th {
+    background: var(--secondary-color) !important;
+    font-weight: 600 !important;
+    color: var(--text-color) !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+}
+
+#result_list tr:hover {
+    background: var(--hover-color) !important;
+    transition: var(--transition-fast) !important;
+}
+
+/* 筛选器区域优化 */
+#changelist-filter {
+    width: 100% !important;
+    max-width: 300px !important;
+    background: var(--input-bg) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: var(--shadow) !important;
+    padding: 1rem !important;
+    margin: 1rem 0 !important;
+}
+
+/* 搜索区域优化 */
+#changelist-search {
+    background: var(--input-bg) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: var(--shadow) !important;
+    padding: 1rem !important;
+    margin: 1rem 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+}
+
+#changelist-search input[type="text"] {
+    flex: 1 !important;
+    min-width: 200px !important;
+    padding: 8px 12px !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: var(--border-radius) !important;
+    font-size: 14px !important;
 }
 
 /* 知乎风格的标题 */
@@ -89,7 +224,7 @@ h1 {
     text-align: center !important;
     margin: 2rem auto !important;
     padding: 1.5rem 0 !important;
-    max-width: var(--max-width) !important;
+    max-width: 100% !important;
     letter-spacing: -0.025em !important;
     position: relative !important;
     animation: fadeInUp 0.6s ease-out !important;
@@ -98,7 +233,7 @@ h1 {
 h1::after {
     content: '' !important;
     position: absolute !important;
-    bottom: 0.5rem !important;
+    bottom: 0 !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: 60px !important;
@@ -107,109 +242,87 @@ h1::after {
     border-radius: 2px !important;
 }
 
-/* 现代化头部样式 */
+/* 知乎风格的头部导航 */
 #header {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
-    border-bottom: none !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-    padding: 0 !important;
-    height: 70px !important;
-    display: flex !important;
-    align-items: center !important;
+    background: var(--primary-gradient) !important;
+    color: white !important;
+    box-shadow: var(--shadow-lg) !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 1000 !important;
-    backdrop-filter: blur(10px) !important;
+    height: var(--header-height) !important;
+    display: flex !important;
+    align-items: center !important;
+    animation: slideInRight 0.6s ease-out !important;
 }
 
 #header .container {
-    max-width: var(--max-width) !important;
+    max-width: 100% !important;
     margin: 0 auto !important;
     padding: 0 2rem !important;
-    width: 100% !important;
     display: flex !important;
-    align-items: center !important;
     justify-content: space-between !important;
-}
-
-#branding {
-    display: flex !important;
     align-items: center !important;
-    gap: 1rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .admin-branding {
     display: flex !important;
     align-items: center !important;
-    gap: 15px !important;
+    gap: 12px !important;
+    flex: 1 !important;
 }
 
 #site-name {
-    margin: 0 !important;
     font-size: 1.6rem !important;
-    font-weight: 600 !important;
-    animation: none !important;
-}
-
-#site-name a {
-    color: #ffffff !important;
+    font-weight: 700 !important;
+    color: white !important;
     text-decoration: none !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
+    letter-spacing: -0.025em !important;
     transition: var(--transition-fast) !important;
 }
 
-#site-name a:hover {
-    color: #3498db !important;
-    transform: translateY(-1px) !important;
-}
-
-#site-name i {
-    font-size: 1.8rem !important;
-    color: #3498db !important;
-    transition: var(--transition-fast) !important;
-}
-
-#site-name a:hover i {
-    color: #2980b9 !important;
-    transform: rotate(15deg) !important;
+#site-name:hover {
+    color: var(--primary-light) !important;
+    transform: scale(1.02) !important;
 }
 
 .admin-subtitle {
-    color: rgba(255,255,255,0.7) !important;
-    font-size: 0.85rem !important;
-    margin-left: 45px !important;
+    font-size: 0.9rem !important;
+    color: rgba(255,255,255,0.8) !important;
+    margin-left: 8px !important;
     font-weight: 400 !important;
-}
-
-#branding h1::after {
-    display: none !important;
 }
 
 /* 用户工具栏 */
 #user-tools {
     display: flex !important;
     align-items: center !important;
-    gap: 0.5rem !important;
-    font-size: 0.875rem !important;
+    gap: 8px !important;
+    padding: 8px 16px !important;
     background: rgba(255,255,255,0.1) !important;
-    border-radius: 25px !important;
-    padding: 8px 15px !important;
+    border-radius: 20px !important;
     backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
+    transition: var(--transition) !important;
+}
+
+#user-tools:hover {
+    background: rgba(255,255,255,0.15) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
 }
 
 #user-tools a {
-    color: #ffffff !important;
+    color: white !important;
     text-decoration: none !important;
-    padding: 6px 12px !important;
-    border-radius: 18px !important;
-    transition: var(--transition-fast) !important;
+    font-size: 0.9rem !important;
     font-weight: 500 !important;
+    padding: 6px 12px !important;
+    border-radius: 12px !important;
+    transition: var(--transition-fast) !important;
     position: relative !important;
     overflow: hidden !important;
-    font-size: 0.85rem !important;
 }
 
 #user-tools a::before {
@@ -243,7 +356,7 @@ h1::after {
     padding: 2rem !important;
     box-shadow: var(--shadow) !important;
     transition: var(--transition) !important;
-    max-width: 800px !important;
+    max-width: 100% !important;
     position: relative !important;
     animation: fadeInUp 0.6s ease-out !important;
     overflow: hidden !important;
@@ -277,183 +390,625 @@ h1::after {
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
     gap: 2rem !important;
     margin: 0 auto !important;
-    max-width: var(--max-width) !important;
-    padding: 0 1rem !important;
-    animation: fadeInUp 0.8s ease-out 0.2s both !important;
+    max-width: 100% !important;
+    padding: 0 !important;
 }
 
-.app-list .app h2 {
-    background: var(--primary-gradient) !important;
-    color: white !important;
-    margin: -2rem -2rem 1.5rem -2rem !important;
-    padding: 1.5rem 2rem !important;
-    font-size: 1.25rem !important;
-    font-weight: 600 !important;
-    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0 !important;
-    letter-spacing: 0.025em !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-
-.app-list .app h2::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: -100% !important;
-    width: 100% !important;
-    height: 100% !important;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
-    transition: var(--transition) !important;
-}
-
-.app-list .app:hover h2::before {
-    left: 100% !important;
-}
-
-.app-list .app .model-link {
-    display: flex !important;
-    align-items: center !important;
-    padding: 1rem 1.25rem !important;
-    color: var(--text-color) !important;
-    text-decoration: none !important;
-    border-radius: var(--border-radius) !important;
-    margin-bottom: 0.75rem !important;
-    transition: var(--transition) !important;
-    font-weight: 500 !important;
-    border: 1px solid transparent !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-
-.app-list .app .model-link::before {
-    content: '' !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    height: 100% !important;
-    width: 3px !important;
-    background: var(--primary-color) !important;
-    transform: scaleY(0) !important;
-    transition: var(--transition) !important;
-    transform-origin: bottom !important;
-}
-
-.app-list .app .model-link::after {
-    content: '→' !important;
-    margin-left: auto !important;
-    opacity: 0 !important;
-    transform: translateX(-10px) !important;
-    transition: var(--transition) !important;
-    color: var(--primary-color) !important;
-    font-weight: bold !important;
-}
-
-.app-list .app .model-link:hover {
-    background: var(--hover-color) !important;
-    border-color: var(--primary-light) !important;
-    color: var(--primary-color) !important;
-    transform: translateX(8px) !important;
-    box-shadow: var(--shadow) !important;
-}
-
-.app-list .app .model-link:hover::before {
-    transform: scaleY(1) !important;
-}
-
-.app-list .app .model-link:hover::after {
-    opacity: 1 !important;
-    transform: translateX(0) !important;
-}
-
-/* 面包屑导航 */
-.breadcrumbs {
+/* 分页器优化 */
+.paginator {
     background: var(--input-bg) !important;
-    padding: 0.75rem 1.5rem !important;
     border-radius: var(--border-radius) !important;
-    margin: 0 auto 1.5rem auto !important;
-    border: 1px solid var(--border-color) !important;
     box-shadow: var(--shadow) !important;
-    max-width: var(--max-width) !important;
-    font-size: 0.875rem !important;
+    padding: 1rem !important;
+    margin: 1rem 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
+.paginator a,
+.paginator .this-page {
+    padding: 8px 12px !important;
+    border-radius: var(--border-radius) !important;
+    text-decoration: none !important;
+    transition: var(--transition-fast) !important;
+    min-width: 40px !important;
+    text-align: center !important;
+}
+
+.paginator a {
+    color: var(--primary-color) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.paginator a:hover {
+    background: var(--primary-color) !important;
+    color: white !important;
+    transform: translateY(-1px) !important;
+}
+
+.paginator .this-page {
+    background: var(--primary-color) !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+/* 大屏幕设备优化 */
+@media (min-width: 1200px) {
     :root {
-        --max-width: 100% !important;
+        --max-width: none !important;
     }
     
     #content {
-        padding: 1rem 0.5rem !important;
+        padding: 2rem !important;
     }
     
-    .module {
-        padding: 1.5rem 1rem !important;
-        margin-bottom: 1rem !important;
-        border-radius: var(--border-radius) !important;
+    #result_list {
+        font-size: 15px !important;
     }
     
-    .app-list {
-        grid-template-columns: 1fr !important;
-        gap: 1rem !important;
-        padding: 0 0.5rem !important;
-    }
-    
-    h1 {
-        font-size: 1.75rem !important;
-        padding: 1rem 0 !important;
-    }
-    
-    #header {
-        position: relative !important;
-        height: auto !important;
-        padding: 1rem 0 !important;
-    }
-    
-    #header .container {
-        flex-direction: column !important;
-        gap: 1rem !important;
-        padding: 0 1rem !important;
-    }
-    
-    .admin-branding {
-        flex-direction: column !important;
-        text-align: center !important;
-        gap: 8px !important;
-    }
-    
-    #site-name {
-        font-size: 1.4rem !important;
-    }
-    
-    .admin-subtitle {
-        margin-left: 0 !important;
-        font-size: 0.8rem !important;
-    }
-    
-    #user-tools {
-        justify-content: center !important;
-        flex-wrap: wrap !important;
-        padding: 6px 12px !important;
-    }
-    
-    #user-tools a {
-        font-size: 0.8rem !important;
-        padding: 5px 10px !important;
+    #result_list th,
+    #result_list td {
+        padding: 15px 12px !important;
     }
 }
 
-/* 平板设备适配 */
-@media (max-width: 1024px) and (min-width: 769px) {
-    :root {
-        --max-width: 95% !important;
+/* 中等屏幕设备优化 */
+@media (max-width: 1199px) {
+    #header .container {
+        padding: 0 1rem !important;
+    }
+    
+    #content {
+        padding: 0.5rem !important;
     }
     
     .app-list {
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+        gap: 1.5rem !important;
+    }
+}
+
+/* 移动设备专用优化 (小于768px) */
+@media (max-width: 767px) {
+    /* 隐藏不必要的元素 */
+    .breadcrumbs {
+        display: none !important;
     }
     
-    #header .container {
-        padding: 0 1.5rem !important;
+    /* 头部导航优化 */
+    #header {
+        padding: 0.5rem !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+        background: var(--primary-color) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
     }
+    
+    #branding h1 {
+        font-size: 1.2rem !important;
+        margin: 0 !important;
+    }
+    
+    #user-tools {
+        font-size: 0.8rem !important;
+        margin-top: 0.25rem !important;
+    }
+    
+    /* 主内容区域 */
+    #content {
+        padding: 0.5rem !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    /* 页面标题 */
+    .content h1 {
+        font-size: 1.5rem !important;
+        margin: 0.5rem 0 1rem 0 !important;
+        text-align: center !important;
+    }
+    
+    /* 表格完全重新设计为卡片式 */
+    #result_list {
+        display: block !important;
+        width: 100% !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    #result_list thead {
+        display: none !important;
+    }
+    
+    #result_list tbody {
+        display: block !important;
+    }
+    
+    #result_list tr {
+        display: block !important;
+        background: var(--input-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: var(--border-radius) !important;
+        margin-bottom: 1rem !important;
+        padding: 1rem !important;
+        box-shadow: var(--shadow) !important;
+        position: relative !important;
+    }
+    
+    #result_list tr:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    #result_list td {
+        display: block !important;
+        border: none !important;
+        padding: 0.25rem 0 !important;
+        text-align: left !important;
+        position: relative !important;
+        padding-left: 40% !important;
+        word-wrap: break-word !important;
+    }
+    
+    #result_list td::before {
+        content: attr(data-label) !important;
+        position: absolute !important;
+        left: 0 !important;
+        width: 35% !important;
+        font-weight: 600 !important;
+        color: var(--text-secondary) !important;
+        font-size: 0.8rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    /* 操作列特殊处理 */
+    #result_list .action-column {
+        padding-left: 0 !important;
+        text-align: center !important;
+        margin-top: 1rem !important;
+        padding-top: 1rem !important;
+        border-top: 1px solid var(--border-color) !important;
+    }
+    
+    #result_list .action-column::before {
+        display: none !important;
+    }
+    
+    /* 筛选器移动端优化 */
+    #changelist-filter {
+        position: fixed !important;
+        top: 0 !important;
+        right: -100% !important;
+        width: 80% !important;
+        max-width: 300px !important;
+        height: 100vh !important;
+        z-index: 2000 !important;
+        transition: right 0.3s ease !important;
+        overflow-y: auto !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    #changelist-filter.show {
+        right: 0 !important;
+    }
+    
+    /* 添加筛选器切换按钮 */
+    .filter-toggle {
+        position: fixed !important;
+        top: 60px !important;
+        right: 1rem !important;
+        z-index: 1500 !important;
+        background: var(--primary-color) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 1.2rem !important;
+        cursor: pointer !important;
+        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3) !important;
+        transition: var(--transition-fast) !important;
+    }
+    
+    .filter-toggle:hover {
+        transform: scale(1.1) !important;
+        box-shadow: 0 6px 16px rgba(0, 102, 204, 0.4) !important;
+    }
+    
+    /* 表单字段移动端优化 */
+    .form-row {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+    
+    .form-row .field-box {
+        min-width: 100% !important;
+    }
+    
+    /* 操作按钮移动端优化 */
+    .submit-row {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+    
+    .submit-row input[type="submit"],
+    .submit-row .button,
+    .submit-row button {
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 1rem !important;
+        text-align: center !important;
+    }
+    
+    /* 分页器移动端优化 */
+    .paginator {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 0.25rem !important;
+        padding: 1rem 0 !important;
+    }
+    
+    .paginator a,
+    .paginator span {
+        min-width: 40px !important;
+        height: 40px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* 搜索框移动端优化 */
+    #toolbar {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        padding: 1rem 0 !important;
+    }
+    
+    #toolbar form {
+        width: 100% !important;
+    }
+    
+    #toolbar input[type="text"] {
+        width: 100% !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    #toolbar input[type="submit"] {
+        width: 100% !important;
+        padding: 10px !important;
+    }
+    
+    /* 消息提示移动端优化 */
+    .messagelist li {
+        margin: 0.5rem !important;
+        padding: 0.75rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* 面包屑导航移动端显示 */
+    .breadcrumbs {
+        display: block !important;
+        background: var(--secondary-color) !important;
+        padding: 0.5rem !important;
+        font-size: 0.8rem !important;
+        white-space: nowrap !important;
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+    
+    .breadcrumbs::-webkit-scrollbar {
+        display: none !important;
+    }
+}
+
+/* 超小屏幕设备优化 (小于480px) */
+@media (max-width: 479px) {
+    #content {
+        padding: 0.25rem !important;
+    }
+    
+    .content h1 {
+        font-size: 1.3rem !important;
+    }
+    
+    #result_list tr {
+        padding: 0.75rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    
+    #result_list td {
+        padding-left: 45% !important;
+        font-size: 0.9rem !important;
+    }
+    
+    #result_list td::before {
+        width: 40% !important;
+        font-size: 0.75rem !important;
+    }
+    
+    #changelist-filter {
+        width: 90% !important;
+    }
+    
+    .filter-toggle {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 1.1rem !important;
+    }
+}
+
+/* 表单字段优化 */
+.form-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    margin-bottom: 1rem !important;
+    align-items: flex-start !important;
+}
+
+.form-row .field-box {
+    flex: 1 !important;
+    min-width: 200px !important;
+}
+
+.form-row label {
+    display: block !important;
+    font-weight: 600 !important;
+    color: var(--text-color) !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: var(--border-radius) !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    min-height: 44px !important;
+    transition: var(--transition-fast) !important;
+    box-sizing: border-box !important;
+    background: var(--input-bg) !important;
+    color: var(--text-color) !important;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1) !important;
+    outline: none !important;
+}
+
+/* Select选择框和Option选项优化 - 最终版本 */
+select,
+.form-row select,
+fieldset select,
+.field-box select,
+.change-form select,
+.add-form select {
+    background: var(--input-bg) !important;
+    color: var(--text-color) !important;
+    font-family: inherit !important;
+    min-height: 56px !important;
+    height: 56px !important;
+    padding: 18px 20px !important;
+    font-size: 14px !important;
+    line-height: 1.0 !important;
+    border: 2px solid var(--input-border) !important;
+    border-radius: var(--border-radius) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    font-weight: 500 !important;
+    vertical-align: top !important;
+    display: block !important;
+    text-align: left !important;
+    overflow: visible !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+select option,
+.form-row select option,
+fieldset select option,
+.field-box select option,
+.change-form select option,
+.add-form select option {
+    background: var(--input-bg) !important;
+    color: var(--text-color) !important;
+    padding: 18px 20px !important;
+    font-size: 14px !important;
+    line-height: 1.0 !important;
+    min-height: 52px !important;
+    height: auto !important;
+    font-family: inherit !important;
+    font-weight: 500 !important;
+    border: none !important;
+    display: block !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-wrap: break-word !important;
+}
+
+select option:hover,
+select option:focus,
+.form-row select option:hover,
+.form-row select option:focus {
+    background: var(--hover-color) !important;
+    color: var(--text-color) !important;
+}
+
+select option:checked,
+select option:selected,
+.form-row select option:checked,
+.form-row select option:selected {
+    background: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+    font-weight: 600 !important;
+}
+
+/* 操作按钮优化 */
+.submit-row {
+    background: var(--input-bg) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: var(--shadow) !important;
+    padding: 1rem !important;
+    margin: 1rem 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    justify-content: flex-end !important;
+}
+
+.submit-row input[type="submit"],
+.submit-row .button,
+.submit-row button {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: var(--border-radius) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: var(--transition-fast) !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+}
+
+.submit-row input[type="submit"]:hover,
+.submit-row .button:hover,
+.submit-row button:hover {
+    background: var(--primary-dark) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3) !important;
+}
+
+/* 删除按钮特殊样式 */
+.submit-row .deletelink {
+    background: var(--danger-color) !important;
+}
+
+.submit-row .deletelink:hover {
+    background: #c82333 !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
+}
+
+/* 筛选器侧边栏优化 */
+#changelist-filter {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: var(--shadow) !important;
+}
+
+#changelist-filter h2 {
+    background: var(--primary-color) !important;
+    color: white !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+}
+
+#changelist-filter h3 {
+    background: var(--secondary-color) !important;
+    color: var(--text-color) !important;
+    margin: 0 !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+#changelist-filter ul {
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+#changelist-filter li {
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+#changelist-filter li:last-child {
+    border-bottom: none !important;
+}
+
+#changelist-filter a {
+    display: block !important;
+    padding: 0.75rem 1rem !important;
+    color: var(--text-color) !important;
+    text-decoration: none !important;
+    transition: var(--transition-fast) !important;
+}
+
+#changelist-filter a:hover {
+    background: var(--hover-color) !important;
+    color: var(--primary-color) !important;
+}
+
+#changelist-filter .selected {
+    background: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+    font-weight: 600 !important;
+}
+
+/* 错误和成功消息优化 */
+.messagelist {
+    margin: 1rem 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+.messagelist li {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius) !important;
+    padding: 1rem !important;
+    margin-bottom: 0.5rem !important;
+    box-shadow: var(--shadow) !important;
+    position: relative !important;
+    padding-left: 3rem !important;
+}
+
+.messagelist li::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 4px !important;
+    border-radius: var(--border-radius) 0 0 var(--border-radius) !important;
+}
+
+.messagelist .success::before {
+    background: var(--success-color) !important;
+}
+
+.messagelist .warning::before {
+    background: var(--warning-color) !important;
+}
+
+.messagelist .error::before {
+    background: var(--danger-color) !important;
+}
+
+.messagelist .info::before {
+    background: var(--primary-color) !important;
 }
