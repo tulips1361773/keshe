@@ -199,6 +199,12 @@ taskkill /PID <PID> /F
 - `error.log`: 错误日志
 - `performance.log`: 性能日志
 
+**注意**: 如果首次运行项目时logs目录不存在，可以运行以下命令创建：
+```bash
+python create_logs_directory.py
+```
+或者Django会在启动时自动创建logs目录。
+
 ### 数据库管理
 ```bash
 # 进入Django shell

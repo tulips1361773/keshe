@@ -216,6 +216,11 @@ LOGOUT_REDIRECT_URL = '/'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 
+# 确保logs目录存在
+import os
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(exist_ok=True)
+
 # 日志配置
 LOGGING = {
     'version': 1,
