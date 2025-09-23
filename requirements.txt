@@ -1,36 +1,36 @@
-# Django核心框架
+# Django core framework
 Django==4.2.24
 djangorestframework==3.14.0
 django-cors-headers==4.3.1
 
-# 数据库相关
+# Database related
 mysqlclient==2.2.0
 
-# 认证和权限
+# Authentication and permissions
 django-allauth==0.57.0
 PyJWT==2.8.0
 
-# 图片处理
+# Image processing
 Pillow==10.1.0
 
-# 工具库
+# Utility libraries
 python-dateutil==2.8.2
 requests==2.31.0
 
-# 开发工具
+# Development tools
 django-debug-toolbar==4.2.0
 
-# 生产环境
+# Production environment
 gunicorn==21.2.0
 
-# 缓存
+# Cache
 redis==5.0.1
 django-redis==5.4.0
 
-# 测试
+# Testing
 pytest==7.4.3
 pytest-django==4.7.0
 
-# 代码质量
+# Code quality
 flake8==6.1.0
 black==23.11.0
