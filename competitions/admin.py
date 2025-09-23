@@ -1,4 +1,5 @@
 from django.contrib import admin
+from logs.utils import log_user_action
 from .models import (
     Competition, 
     CompetitionRegistration, 
@@ -34,6 +35,38 @@ class CompetitionAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         })
     )
+    
+    def save_model(self, request, obj, form, change):
+        """保存比赛模型时记录日志"""
+        action_type = 'update' if change else 'create'
+        super().save_model(request, obj, form, change)
+        
+        # 记录操作日志
+        description = f'{"更新" if change else "创建"}比赛: {obj.title} ({obj.campus.name})'
+        log_user_action(
+            user=request.user,
+            action_type=action_type,
+            resource_type='competition',
+            resource_id=obj.id,
+            description=description,
+            request=request
+        )
+    
+    def delete_model(self, request, obj):
+        """删除比赛时记录日志"""
+        competition_info = f'{obj.title} ({obj.campus.name})'
+        competition_id = obj.id
+        super().delete_model(request, obj)
+        
+        # 记录删除日志
+        log_user_action(
+            user=request.user,
+            action_type='delete',
+            resource_type='competition',
+            resource_id=competition_id,
+            description=f'删除比赛: {competition_info}',
+            request=request
+        )
     
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('campus', 'created_by')

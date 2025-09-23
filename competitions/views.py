@@ -7,6 +7,8 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
 import random
+from logs.utils import log_user_action
+from logs.decorators import log_user_operation
 
 from .models import (
     Competition, CompetitionRegistration, CompetitionGroup, 
@@ -28,6 +30,56 @@ class CompetitionViewSet(viewsets.ModelViewSet):
     queryset = Competition.objects.all()
     serializer_class = CompetitionSerializer
     permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        """创建比赛"""
+        response = super().create(request, *args, **kwargs)
+        if response.status_code == 201:
+            # 记录创建比赛的日志
+            competition = Competition.objects.get(id=response.data['id'])
+            log_user_action(
+                user=request.user,
+                action_type='create',
+                resource_type='competition',
+                resource_id=competition.id,
+                description=f'创建比赛: {competition.title}',
+                request=request
+            )
+        return response
+
+    def update(self, request, *args, **kwargs):
+        """更新比赛"""
+        competition = self.get_object()
+        response = super().update(request, *args, **kwargs)
+        if response.status_code == 200:
+            # 记录更新比赛的日志
+            log_user_action(
+                user=request.user,
+                action_type='update',
+                resource_type='competition',
+                resource_id=competition.id,
+                description=f'更新比赛: {competition.title}',
+                request=request
+            )
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        """删除比赛"""
+        competition = self.get_object()
+        competition_title = competition.title
+        competition_id = competition.id
+        response = super().destroy(request, *args, **kwargs)
+        if response.status_code == 204:
+            # 记录删除比赛的日志
+            log_user_action(
+                user=request.user,
+                action_type='delete',
+                resource_type='competition',
+                resource_id=competition_id,
+                description=f'删除比赛: {competition_title}',
+                request=request
+            )
+        return response
 
     def get_queryset(self):
         """根据用户角色返回不同的比赛列表"""

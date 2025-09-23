@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Table, Booking, CoachStudentRelation
+from logs.utils import log_user_action
 
 
 @admin.register(Table)
@@ -23,6 +24,38 @@ class TableAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         })
     )
+    
+    def save_model(self, request, obj, form, change):
+        """保存球台模型时记录日志"""
+        action_type = 'update' if change else 'create'
+        super().save_model(request, obj, form, change)
+        
+        # 记录操作日志
+        description = f'{"更新" if change else "创建"}球台: {obj.campus.name} - {obj.name} (编号: {obj.number})'
+        log_user_action(
+            user=request.user,
+            action_type=action_type,
+            resource_type='table',
+            resource_id=obj.id,
+            description=description,
+            request=request
+        )
+    
+    def delete_model(self, request, obj):
+        """删除球台时记录日志"""
+        table_info = f'{obj.campus.name} - {obj.name} (编号: {obj.number})'
+        table_id = obj.id
+        super().delete_model(request, obj)
+        
+        # 记录删除日志
+        log_user_action(
+            user=request.user,
+            action_type='delete',
+            resource_type='table',
+            resource_id=table_id,
+            description=f'删除球台: {table_info}',
+            request=request
+        )
     
     def get_queryset(self, request):
         """根据用户权限过滤球台"""
