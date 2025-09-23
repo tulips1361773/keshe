@@ -103,17 +103,17 @@ axios.interceptors.request.use(
       config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json'
     }
     
-    // 调试信息 - 可以在生产环境中移除
-    if (process.env.NODE_ENV === 'development') {
-      console.log('请求配置:', {
-        method: config.method,
-        url: config.url,
-        headers: {
-          'Authorization': config.headers['Authorization'] ? 'Token ***' : 'None',
-          'X-CSRFToken': config.headers['X-CSRFToken'] ? config.headers['X-CSRFToken'].substring(0, 10) + '...' : 'None'
-        }
-      })
-    }
+    // 调试信息 - 仅在需要时启用
+    // if (process.env.NODE_ENV === 'development' && process.env.VITE_DEBUG_AXIOS === 'true') {
+    //   console.log('请求配置:', {
+    //     method: config.method,
+    //     url: config.url,
+    //     headers: {
+    //       'Authorization': config.headers['Authorization'] ? 'Token ***' : 'None',
+    //       'X-CSRFToken': config.headers['X-CSRFToken'] ? config.headers['X-CSRFToken'].substring(0, 10) + '...' : 'None'
+    //     }
+    //   })
+    // }
     
     return config
   },
