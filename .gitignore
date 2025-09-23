@@ -22,19 +22,14 @@ wheels/
 MANIFEST
 
 # Django
-*.log
+
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media/
 staticfiles/
 
-# 日志文件
-logs/
-*.log
-*.log.*
-log/
-log.*
+
 
 # 环境变量
 .env
@@ -83,7 +78,7 @@ check_*.py
 *.bak
 *.backup
 *_backup.*
-*.sql
+
 
 # 临时文件
 *.tmp

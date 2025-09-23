@@ -62,7 +62,32 @@ class CoachStudentRelationSerializer(serializers.ModelSerializer):
         validated_data['student'] = student
         validated_data['applied_by'] = 'student'
         
-        return super().create(validated_data)
+        # 创建师生关系
+        relation = super().create(validated_data)
+        
+        # 发送通知给教练
+        from notifications.models import Notification
+        try:
+            Notification.create_notification(
+                recipient=coach,
+                sender=student,
+                title="新的学员申请",
+                message=f"学员 {student.real_name or student.username} 申请选择您作为教练，请及时审核。",
+                message_type="system",
+                data={
+                    'relation_id': relation.id,
+                    'student_id': student.id,
+                    'student_name': student.real_name or student.username,
+                    'action': 'student_application'
+                }
+            )
+        except Exception as e:
+            # 通知发送失败不应影响主要业务逻辑
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send notification to coach {coach.id}: {str(e)}")
+        
+        return relation
 
 
 class TableSerializer(serializers.ModelSerializer):
@@ -141,7 +166,35 @@ class BookingSerializer(serializers.ModelSerializer):
         if 'table_id' in validated_data:
             validated_data['table_id'] = validated_data.pop('table_id')
         
-        return super().create(validated_data)
+        # 创建预约
+        booking = super().create(validated_data)
+        
+        # 发送通知给教练
+        from notifications.models import Notification
+        try:
+            Notification.create_notification(
+                recipient=booking.relation.coach,
+                sender=booking.relation.student,
+                title="新的预约申请",
+                message=f"学员 {booking.relation.student.real_name or booking.relation.student.username} 申请预约课程，时间：{booking.start_time.strftime('%Y-%m-%d %H:%M')}-{booking.end_time.strftime('%H:%M')}，请及时处理。",
+                message_type="booking",
+                data={
+                    'booking_id': booking.id,
+                    'student_id': booking.relation.student.id,
+                    'student_name': booking.relation.student.real_name or booking.relation.student.username,
+                    'start_time': booking.start_time.isoformat(),
+                    'end_time': booking.end_time.isoformat(),
+                    'total_fee': float(booking.total_fee),
+                    'action': 'booking_created'
+                }
+            )
+        except Exception as e:
+            # 通知发送失败不应影响主要业务逻辑
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send booking creation notification to coach {booking.relation.coach.id}: {str(e)}")
+        
+        return booking
     
     class Meta:
         model = Booking
