@@ -229,6 +229,7 @@ def user_profile(request):
 def update_profile(request):
     """更新用户资料API"""
     import logging
+    from logs.utils import log_user_action
     logger = logging.getLogger(__name__)
     
     try:
@@ -555,10 +556,43 @@ def approve_coach(request, coach_id):
                 updated_coach.user.is_active = True
                 updated_coach.user.is_active_member = True  # 关键修复：设置会员激活状态
                 updated_coach.user.save()
+                
+                # 记录操作日志
+                log_user_action(
+                    user=request.user,
+                    action_type='approve',
+                    resource_type='coach',
+                    resource_id=coach.id,
+                    resource_name=f"教练员 {coach.user.real_name}",
+                    description=f"审核通过了教练员 {coach.user.real_name} 的申请",
+                    request=request,
+                    extra_data={
+                        'coach_user_id': coach.user.id,
+                        'coach_level': coach.level,
+                        'campus': coach.user.campus.name if coach.user.campus else None
+                    }
+                )
+                
             elif updated_coach.status == 'rejected':
                 # 如果审核拒绝，确保用户无法登录
                 updated_coach.user.is_active_member = False
                 updated_coach.user.save()
+                
+                # 记录操作日志
+                log_user_action(
+                    user=request.user,
+                    action_type='reject',
+                    resource_type='coach',
+                    resource_id=coach.id,
+                    resource_name=f"教练员 {coach.user.real_name}",
+                    description=f"拒绝了教练员 {coach.user.real_name} 的申请",
+                    request=request,
+                    extra_data={
+                        'coach_user_id': coach.user.id,
+                        'rejection_reason': data.get('rejection_reason', ''),
+                        'campus': coach.user.campus.name if coach.user.campus else None
+                    }
+                )
             
             return Response({
                 'success': True,

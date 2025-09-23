@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
+from logs.utils import log_user_action
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from django.utils.decorators import method_decorator
@@ -331,6 +332,25 @@ def confirm_booking(request, booking_id):
             booking.payment_status = 'paid'
             booking.save()
             
+            # 记录操作日志
+            log_user_action(
+                user=request.user,
+                action_type='confirm',
+                resource_type='booking',
+                resource_id=booking.id,
+                resource_name=f"预约 {booking.id}",
+                description=f"确认了与学员 {student.real_name} 的预约，扣除费用 ¥{booking.total_fee}",
+                request=request,
+                extra_data={
+                    'student_id': student.id,
+                    'student_name': student.real_name,
+                    'amount': float(booking.total_fee),
+                    'student_balance_after': float(student_account.balance),
+                    'start_time': booking.start_time.isoformat(),
+                    'end_time': booking.end_time.isoformat()
+                }
+            )
+            
             # 返回成功响应
             serializer = BookingSerializer(booking)
             return Response({
@@ -381,6 +401,24 @@ def reject_booking(request, booking_id):
             booking.cancelled_by = request.user
             booking.cancel_reason = reason
             booking.save()
+            
+            # 记录操作日志
+            log_user_action(
+                user=request.user,
+                action_type='reject',
+                resource_type='booking',
+                resource_id=booking.id,
+                resource_name=f"预约 {booking.id}",
+                description=f"拒绝了学员 {booking.relation.student.real_name} 的预约申请",
+                request=request,
+                extra_data={
+                    'student_id': booking.relation.student.id,
+                    'student_name': booking.relation.student.real_name,
+                    'reason': reason,
+                    'start_time': booking.start_time.isoformat(),
+                    'end_time': booking.end_time.isoformat()
+                }
+            )
             
             return Response({
                 'message': '预约已拒绝',
@@ -627,6 +665,22 @@ def approve_cancellation(request, cancellation_id):
                 booking.cancelled_by = request.user
                 booking.save()
                 
+                # 记录操作日志
+                log_user_action(
+                    user=request.user,
+                    action_type='approve',
+                    resource_type='booking',
+                    resource_id=booking.id,
+                    resource_name=f"预约取消申请",
+                    description=f"批准了{cancellation.requested_by.real_name}的预约取消申请，预约ID: {booking.id}",
+                    request=request,
+                    extra_data={
+                        'cancellation_id': cancellation.id,
+                        'refund_processed': refund_processed,
+                        'refund_amount': float(booking.total_fee) if refund_processed else 0.0
+                    }
+                )
+                
                 return Response({
                     'message': '取消申请已批准，预约已取消',
                     'refund_processed': refund_processed,
@@ -642,6 +696,21 @@ def approve_cancellation(request, cancellation_id):
                 cancellation.processed_at = timezone.now()
                 cancellation.response_message = response_message
                 cancellation.save()
+                
+                # 记录操作日志
+                log_user_action(
+                    user=request.user,
+                    action_type='reject',
+                    resource_type='booking',
+                    resource_id=booking.id,
+                    resource_name=f"预约取消申请",
+                    description=f"拒绝了{cancellation.requested_by.real_name}的预约取消申请，预约ID: {booking.id}",
+                    request=request,
+                    extra_data={
+                        'cancellation_id': cancellation.id,
+                        'reason': response_message
+                    }
+                )
                 
                 return Response({
                     'message': '取消申请已拒绝'

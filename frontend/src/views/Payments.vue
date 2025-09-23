@@ -67,6 +67,14 @@
     <el-card class="list-card">
       <el-table :data="transactions" v-loading="loading" stripe>
         <el-table-column prop="id" label="交易ID" width="80" />
+        <el-table-column label="用户" width="120" v-if="isAdmin">
+          <template #default="{ row }">
+            <div class="user-info">
+              <div class="user-name">{{ getUserDisplayName(row) }}</div>
+              <div class="username">{{ getUserName(row) }}</div>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="交易类型" width="100">
           <template #default="{ row }">
             <el-tag :type="getTransactionTypeTag(row.transaction_type)">
@@ -543,6 +551,24 @@ const getStatusText = (status) => {
   return texts[status] || status
 }
 
+// 用户信息处理方法
+const getUserDisplayName = (transaction) => {
+  if (transaction.account && transaction.account.real_name) {
+    return transaction.account.real_name
+  }
+  if (transaction.account && transaction.account.username) {
+    return transaction.account.username
+  }
+  return '未知用户'
+}
+
+const getUserName = (transaction) => {
+  if (transaction.account && transaction.account.username) {
+    return `@${transaction.account.username}`
+  }
+  return ''
+}
+
 // 生命周期
 onMounted(async () => {
   // 初始化用户认证状态
@@ -654,6 +680,23 @@ onMounted(async () => {
 .amount-negative {
   color: #F56C6C;
   font-weight: bold;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-info .user-name {
+  font-weight: 500;
+  color: #303133;
+  font-size: 14px;
+}
+
+.user-info .username {
+  font-size: 12px;
+  color: #909399;
 }
 
 .el-table {

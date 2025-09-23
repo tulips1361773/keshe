@@ -16,6 +16,7 @@ from .models import Payment, PaymentMethod, UserAccount, AccountTransaction, Ref
 from .serializers import PaymentSerializer, PaymentMethodSerializer, UserAccountSerializer, AccountTransactionSerializer, RefundSerializer, InvoiceSerializer
 from courses.models import CourseEnrollment
 from accounts.models import User
+from logs.utils import log_user_action
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -45,6 +46,29 @@ def payment_create(request):
             payment_method=payment_method,
             description=data.get('description', '')
         )
+        
+        # 手动记录正确的日志 - 记录实际用户而非操作者
+        from logs.utils import log_user_action
+        user_name = request.user.real_name or request.user.username
+        description = f"{user_name} 创建了支付（ID: {payment.payment_id}）"
+        
+        log_user_action(
+            user=request.user,  # 这里记录的是实际用户
+            action_type='create',
+            resource_type='payment',
+            resource_id=str(payment.id),
+            description=description,
+            request=request,
+            extra_data={
+                'payment_id': payment.payment_id,
+                'amount': str(payment.amount),
+                'payment_type': payment.payment_type,
+                'payment_method': payment_method.name
+            }
+        )
+        
+        # 标记请求，避免中间件重复记录
+        request._skip_logging = True
         
         serializer = PaymentSerializer(payment)
         return Response({
@@ -377,8 +401,19 @@ def account_recharge(request):
 def account_transactions(request):
     """账户交易记录API"""
     try:
-        account, created = UserAccount.objects.get_or_create(user=request.user)
-        transactions = AccountTransaction.objects.filter(account=account).order_by('-created_at')
+        # 检查是否为管理员
+        if request.user.user_type in ['super_admin', 'campus_admin']:
+            # 管理员可以查看所有用户的交易记录
+            transactions = AccountTransaction.objects.all().order_by('-created_at')
+            
+            # 用户筛选（管理员专用）
+            user_id = request.GET.get('user_id')
+            if user_id:
+                transactions = transactions.filter(account__user_id=user_id)
+        else:
+            # 普通用户只能查看自己的交易记录
+            account, created = UserAccount.objects.get_or_create(user=request.user)
+            transactions = AccountTransaction.objects.filter(account=account).order_by('-created_at')
         
         # 筛选条件
         transaction_type = request.GET.get('transaction_type')
@@ -587,6 +622,29 @@ def admin_offline_payment(request):
                 paid_at=timezone.now()
             )
             
+            # 手动记录正确的日志 - 记录实际用户而非操作者
+            from logs.utils import log_user_action
+            student_name = student.real_name or student.username
+            admin_name = request.user.real_name or request.user.username
+            log_description = f"{student_name} 创建了支付（ID: {payment.payment_id}）- 由管理员 {admin_name} 线下录入"
+            
+            log_user_action(
+                user=student,  # 记录实际用户（学员）而非操作者（管理员）
+                action_type='create',
+                resource_type='payment',
+                resource_id=str(payment.id),
+                description=log_description,
+                request=request,
+                extra_data={
+                    'payment_id': payment.payment_id,
+                    'amount': str(payment.amount),
+                    'payment_type': payment.payment_type,
+                    'payment_method': cash_method.name,
+                    'admin_operator': admin_name,
+                    'offline_entry': True
+                }
+            )
+            
             # 更新学员账户余额
             account, created = UserAccount.objects.get_or_create(
                 user=student,
@@ -608,6 +666,9 @@ def admin_offline_payment(request):
             account.balance += amount
             account.total_paid += amount
             account.save()
+        
+        # 标记请求，避免中间件重复记录
+        request._skip_logging = True
         
         serializer = PaymentSerializer(payment)
         return Response({
@@ -893,6 +954,23 @@ def approve_payment(request, payment_id):
                 account.total_paid += payment.amount
                 account.save()
                 
+                # 记录操作日志
+                log_user_action(
+                    user=request.user,
+                    action_type='approve',
+                    resource_type='payment',
+                    resource_id=payment.id,
+                    resource_name=f"充值订单 {payment.payment_id}",
+                    description=f"审核通过了用户 {payment.user.real_name} 的充值订单，金额: ¥{payment.amount}",
+                    request=request,
+                    extra_data={
+                        'payment_id': payment.payment_id,
+                        'amount': float(payment.amount),
+                        'user_id': payment.user.id,
+                        'balance_after': float(account.balance)
+                    }
+                )
+                
                 messages.success(request, f'充值订单 {payment.payment_id} 审核通过，用户余额已更新')
                 return JsonResponse({'success': True, 'message': '审核通过，用户余额已更新'})
                 
@@ -901,6 +979,22 @@ def approve_payment(request, payment_id):
                 payment.status = 'failed'
                 payment.paid_at = timezone.now()
                 payment.save()
+                
+                # 记录操作日志
+                log_user_action(
+                    user=request.user,
+                    action_type='reject',
+                    resource_type='payment',
+                    resource_id=payment.id,
+                    resource_name=f"充值订单 {payment.payment_id}",
+                    description=f"拒绝了用户 {payment.user.real_name} 的充值订单，金额: ¥{payment.amount}",
+                    request=request,
+                    extra_data={
+                        'payment_id': payment.payment_id,
+                        'amount': float(payment.amount),
+                        'user_id': payment.user.id
+                    }
+                )
                 
                 messages.success(request, f'充值订单 {payment.payment_id} 已拒绝')
                 return JsonResponse({'success': True, 'message': '订单已拒绝'})

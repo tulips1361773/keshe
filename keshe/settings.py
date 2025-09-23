@@ -65,6 +65,7 @@ MIDDLEWARE = [
     "keshe.middleware.RequestLoggingMiddleware",
     "keshe.middleware.PerformanceMonitoringMiddleware",
     "keshe.middleware.ErrorHandlingMiddleware",
+    "logs.middleware.UserActionLoggingMiddleware",  # 用户操作日志中间件
 ]
 
 ROOT_URLCONF = "keshe.urls"
