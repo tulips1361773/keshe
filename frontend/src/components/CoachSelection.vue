@@ -175,14 +175,14 @@
                 查看详情
               </el-button>
               <el-button 
-                :type="getCoachButtonType(coach.id)"
+                :type="getCoachButtonType(coach)"
                 @click="selectCoach(coach)"
                 :loading="selectingCoach === coach.id"
-                :disabled="isCoachDisabled(coach.id)"
+                :disabled="isCoachDisabled(coach)"
                 class="coach-select-btn"
               >
                 <el-icon><Check /></el-icon>
-                <span>{{ getCoachButtonText(coach.id) }}</span>
+                <span>{{ getCoachButtonText(coach) }}</span>
               </el-button>
             </div>
           </el-card>
@@ -317,6 +317,9 @@ export default {
       }
     }
     
+    // 存储所有师生关系状态，用于按钮状态判断
+    const allRelationStatuses = ref(new Map())
+    
     const fetchSelectedCoaches = async () => {
       try {
         console.log('开始获取师生关系数据...')
@@ -326,37 +329,59 @@ export default {
         const relations = response.data.results || response.data || []
         console.log('解析出的师生关系数据:', relations)
         
+        // 清空并重新构建关系状态映射
+        allRelationStatuses.value.clear()
+        
         if (relations.length > 0) {
-          // 获取所有师生关系，包括待审核的
-          // 需要通过教练的用户ID找到对应的Coach模型ID
-          console.log('获取教练列表以进行ID映射...')
-          const coachesResponse = await axios.get('/api/accounts/coaches/')
-          const allCoaches = coachesResponse.data.results || []
-          console.log('所有教练数据:', allCoaches)
-          
-          selectedCoaches.value = relations.map(relation => {
-            console.log('处理师生关系:', relation)
-            
-            // 通过用户ID找到对应的Coach记录
-            const coachRecord = allCoaches.find(coach => coach.user === relation.coach?.id)
-            const coachId = coachRecord ? coachRecord.id : relation.coach?.id
-            
-            console.log('用户ID:', relation.coach?.id, '对应的Coach ID:', coachId)
-            console.log('找到的Coach记录:', coachRecord)
-            
-            const mappedCoach = {
-              id: coachId, // 使用Coach模型的ID
-              real_name: relation.coach?.real_name || coachRecord?.real_name || '未知教练',
-              coach_level: coachRecord?.coach_level || 'junior', // 从Coach记录获取等级
-              avatar: relation.coach?.avatar || coachRecord?.user_info?.avatar || '/default-avatar.svg',
-              status: relation.status,
-              applied_at: relation.applied_at
+          // 构建所有师生关系的状态映射，用于按钮状态判断
+          relations.forEach(relation => {
+            if (relation.coach?.id) {
+              allRelationStatuses.value.set(relation.coach.id, {
+                status: relation.status,
+                applied_at: relation.applied_at
+              })
             }
-            
-            console.log('映射后的教练数据:', mappedCoach)
-            return mappedCoach
           })
-          console.log('处理后的selectedCoaches:', selectedCoaches.value)
+          console.log('所有师生关系状态映射:', allRelationStatuses.value)
+          
+          // 只获取审核通过的师生关系用于"我的教练员"列表
+          const approvedRelations = relations.filter(relation => relation.status === 'approved')
+          console.log('审核通过的师生关系:', approvedRelations)
+          
+          if (approvedRelations.length > 0) {
+            // 需要通过教练的用户ID找到对应的Coach模型ID
+            console.log('获取教练列表以进行ID映射...')
+            const coachesResponse = await axios.get('/api/accounts/coaches/')
+            const allCoaches = coachesResponse.data.results || []
+            console.log('所有教练数据:', allCoaches)
+            
+            selectedCoaches.value = approvedRelations.map(relation => {
+              console.log('处理师生关系:', relation)
+              
+              // 通过用户ID找到对应的Coach记录
+              const coachRecord = allCoaches.find(coach => coach.user === relation.coach?.id)
+              const coachId = coachRecord ? coachRecord.id : relation.coach?.id
+              
+              console.log('用户ID:', relation.coach?.id, '对应的Coach ID:', coachId)
+              console.log('找到的Coach记录:', coachRecord)
+              
+              const mappedCoach = {
+                id: coachId, // 使用Coach模型的ID
+                real_name: relation.coach?.real_name || coachRecord?.real_name || '未知教练',
+                coach_level: coachRecord?.coach_level || 'junior', // 从Coach记录获取等级
+                avatar: relation.coach?.avatar || coachRecord?.user_info?.avatar || '/default-avatar.svg',
+                status: relation.status,
+                applied_at: relation.applied_at
+              }
+              
+              console.log('映射后的教练数据:', mappedCoach)
+              return mappedCoach
+            })
+            console.log('处理后的selectedCoaches:', selectedCoaches.value)
+          } else {
+            console.log('当前用户没有审核通过的师生关系记录')
+            selectedCoaches.value = []
+          }
         } else {
           console.log('当前用户没有师生关系记录')
           selectedCoaches.value = []
@@ -364,6 +389,7 @@ export default {
       } catch (error) {
         console.error('获取已选择教练员失败:', error)
         selectedCoaches.value = []
+        allRelationStatuses.value.clear()
       }
     }
     
@@ -415,6 +441,16 @@ export default {
             ElMessage.error('无法获取用户信息，请重新登录')
             return
           }
+        }
+        
+        // 检查已选择的教练数量（包括已通过和待审核的）
+        const approvedCount = selectedCoaches.value.length
+        const pendingCount = Object.values(allRelationStatuses.value).filter(status => status === 'pending').length
+        const totalCount = approvedCount + pendingCount
+        
+        if (totalCount >= 2) {
+          ElMessage.error('最多只能选择两个教练员，请更换教练员')
+          return
         }
         
         await ElMessageBox.confirm(
@@ -545,18 +581,22 @@ export default {
       router.push({ name: 'CoachDetail', params: { id: coach.id } })
     }
     
-    const isCoachSelected = (coachId) => {
-      // coachId是Coach模型ID，需要与selectedCoaches中存储的教练ID进行比较
-      return selectedCoaches.value.some(selectedCoach => selectedCoach.id === coachId)
+    const isCoachSelected = (coach) => {
+      // 检查是否在"我的教练员"列表中（只包含审核通过的）
+      return selectedCoaches.value.some(selectedCoach => selectedCoach.id === coach.id)
     }
     
-    const getCoachButtonText = (coachId) => {
-      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coachId)
-      if (!selectedCoach) return '选择教练'
+    const getCoachButtonText = (coach) => {
+      // 通过教练的用户ID查找师生关系状态
+      const relationStatus = allRelationStatuses.value.get(coach.user)
       
-      console.log('getCoachButtonText - coachId:', coachId, 'selectedCoach:', selectedCoach)
+      if (!relationStatus) {
+        return '选择教练'
+      }
       
-      switch (selectedCoach.status) {
+      console.log('getCoachButtonText - coach:', coach, 'relationStatus:', relationStatus)
+      
+      switch (relationStatus.status) {
         case 'approved':
           return '已选择'
         case 'pending':
@@ -568,13 +608,17 @@ export default {
       }
     }
     
-    const getCoachButtonType = (coachId) => {
-      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coachId)
-      if (!selectedCoach) return 'primary'
+    const getCoachButtonType = (coach) => {
+      // 通过教练的用户ID查找师生关系状态
+      const relationStatus = allRelationStatuses.value.get(coach.user)
       
-      console.log('getCoachButtonType - coachId:', coachId, 'selectedCoach:', selectedCoach)
+      if (!relationStatus) {
+        return 'primary'
+      }
       
-      switch (selectedCoach.status) {
+      console.log('getCoachButtonType - coach:', coach, 'relationStatus:', relationStatus)
+      
+      switch (relationStatus.status) {
         case 'approved':
           return 'success'
         case 'pending':
@@ -586,12 +630,16 @@ export default {
       }
     }
     
-    const isCoachDisabled = (coachId) => {
-      const selectedCoach = selectedCoaches.value.find(selectedCoach => selectedCoach.id === coachId)
-      if (!selectedCoach) return false
+    const isCoachDisabled = (coach) => {
+      // 通过教练的用户ID查找师生关系状态
+      const relationStatus = allRelationStatuses.value.get(coach.user)
+      
+      if (!relationStatus) {
+        return false
+      }
       
       // 已选择、正在审核、已拒绝的都不能再点击
-      return ['approved', 'pending', 'rejected'].includes(selectedCoach.status)
+      return ['approved', 'pending', 'rejected'].includes(relationStatus.status)
     }
     
     // 辅助方法

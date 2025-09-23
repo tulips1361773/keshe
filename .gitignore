@@ -83,7 +83,7 @@ check_*.py
 *.bak
 *.backup
 *_backup.*
-*.sql
+
 
 # 临时文件
 *.tmp

@@ -275,7 +275,8 @@ def update_profile(request):
             
             return Response({
                 'success': False,
-                'message': error_messages[0] if error_messages else '数据验证失败'
+                'error': error_messages[0] if error_messages else '数据验证失败',
+                'errors': serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
             
     except Exception as e:
@@ -283,7 +284,7 @@ def update_profile(request):
         logger.error(f"异常详情: {str(e)}")
         return Response({
             'success': False,
-            'message': f'更新资料失败: {str(e)}'
+            'error': f'更新资料失败: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

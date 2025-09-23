@@ -75,14 +75,41 @@ def approve_relation(request, relation_id):
         relation.status = 'approved'
         relation.processed_at = timezone.now()
         message = '师生关系已通过审核'
+        notification_title = "师生关系申请通过"
+        notification_message = f"恭喜！教练 {relation.coach.real_name or relation.coach.username} 已同意您的申请。"
     elif action == 'reject':
         relation.status = 'rejected'
         relation.processed_at = timezone.now()
         message = '师生关系已拒绝'
+        notification_title = "师生关系申请被拒绝"
+        notification_message = f"很抱歉，教练 {relation.coach.real_name or relation.coach.username} 拒绝了您的申请。"
     else:
         return Response({'error': '无效的操作'}, status=status.HTTP_400_BAD_REQUEST)
     
     relation.save()
+    
+    # 发送通知给学员
+    from notifications.models import Notification
+    try:
+        Notification.create_notification(
+            recipient=relation.student,
+            sender=relation.coach,
+            title=notification_title,
+            message=notification_message,
+            message_type="system",
+            data={
+                'relation_id': relation.id,
+                'coach_id': relation.coach.id,
+                'coach_name': relation.coach.real_name or relation.coach.username,
+                'action': 'relation_' + action,
+                'status': relation.status
+            }
+        )
+    except Exception as e:
+        # 通知发送失败不应影响主要业务逻辑
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to send notification to student {relation.student.id}: {str(e)}")
     
     return Response({
         'message': message,
@@ -332,6 +359,31 @@ def confirm_booking(request, booking_id):
             booking.payment_status = 'paid'
             booking.save()
             
+            # 发送通知给学员
+            from notifications.models import Notification
+            try:
+                Notification.create_notification(
+                    recipient=student,
+                    sender=request.user,
+                    title="预约已确认",
+                    message=f"您的预约已被教练 {request.user.real_name or request.user.username} 确认，费用 ¥{booking.total_fee:.2f} 已扣除。",
+                    message_type="booking",
+                    data={
+                        'booking_id': booking.id,
+                        'coach_id': request.user.id,
+                        'coach_name': request.user.real_name or request.user.username,
+                        'amount': float(booking.total_fee),
+                        'start_time': booking.start_time.isoformat(),
+                        'end_time': booking.end_time.isoformat(),
+                        'action': 'booking_confirmed'
+                    }
+                )
+            except Exception as e:
+                # 通知发送失败不应影响主要业务逻辑
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Failed to send booking confirmation notification to student {student.id}: {str(e)}")
+            
             # 记录操作日志
             log_user_action(
                 user=request.user,
@@ -401,6 +453,31 @@ def reject_booking(request, booking_id):
             booking.cancelled_by = request.user
             booking.cancel_reason = reason
             booking.save()
+            
+            # 发送通知给学员
+            from notifications.models import Notification
+            try:
+                Notification.create_notification(
+                    recipient=booking.relation.student,
+                    sender=request.user,
+                    title="预约被拒绝",
+                    message=f"很抱歉，教练 {request.user.real_name or request.user.username} 拒绝了您的预约申请。原因：{reason}",
+                    message_type="booking",
+                    data={
+                        'booking_id': booking.id,
+                        'coach_id': request.user.id,
+                        'coach_name': request.user.real_name or request.user.username,
+                        'reason': reason,
+                        'start_time': booking.start_time.isoformat(),
+                        'end_time': booking.end_time.isoformat(),
+                        'action': 'booking_rejected'
+                    }
+                )
+            except Exception as e:
+                # 通知发送失败不应影响主要业务逻辑
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Failed to send booking rejection notification to student {booking.relation.student.id}: {str(e)}")
             
             # 记录操作日志
             log_user_action(
@@ -681,6 +758,29 @@ def approve_cancellation(request, cancellation_id):
                     }
                 )
                 
+                # 发送通知给申请人
+                from notifications.models import Notification
+                try:
+                    Notification.create_notification(
+                        recipient=cancellation.requested_by,
+                        sender=request.user,
+                        title="取消申请已批准",
+                        message=f"您的预约取消申请已被批准。{f'退款 ¥{booking.total_fee:.2f} 已到账。' if refund_processed else ''}",
+                        message_type="booking",
+                        data={
+                            'booking_id': booking.id,
+                            'cancellation_id': cancellation.id,
+                            'refund_processed': refund_processed,
+                            'refund_amount': float(booking.total_fee) if refund_processed else 0.0,
+                            'action': 'cancellation_approved'
+                        }
+                    )
+                except Exception as e:
+                    # 通知发送失败不应影响主要业务逻辑
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Failed to send cancellation approval notification to user {cancellation.requested_by.id}: {str(e)}")
+                
                 return Response({
                     'message': '取消申请已批准，预约已取消',
                     'refund_processed': refund_processed,
@@ -711,6 +811,28 @@ def approve_cancellation(request, cancellation_id):
                         'reason': response_message
                     }
                 )
+                
+                # 发送通知给申请人
+                from notifications.models import Notification
+                try:
+                    Notification.create_notification(
+                        recipient=cancellation.requested_by,
+                        sender=request.user,
+                        title="取消申请被拒绝",
+                        message=f"很抱歉，您的预约取消申请被拒绝。{f'原因：{response_message}' if response_message else ''}",
+                        message_type="booking",
+                        data={
+                            'booking_id': booking.id,
+                            'cancellation_id': cancellation.id,
+                            'reason': response_message,
+                            'action': 'cancellation_rejected'
+                        }
+                    )
+                except Exception as e:
+                    # 通知发送失败不应影响主要业务逻辑
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Failed to send cancellation rejection notification to user {cancellation.requested_by.id}: {str(e)}")
                 
                 return Response({
                     'message': '取消申请已拒绝'
