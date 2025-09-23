@@ -511,7 +511,38 @@ export default {
         await loadProfile()
       } catch (error) {
         console.error('保存个人资料失败:', error)
-        ElMessage.error('保存过程中发生错误')
+        
+        // 提取并显示具体的错误信息
+        let errorMessage = '保存过程中发生错误'
+        
+        if (error.response && error.response.data) {
+          if (error.response.data.error) {
+            // 后端返回的具体错误信息
+            errorMessage = error.response.data.error
+          } else if (error.response.data.message) {
+            errorMessage = error.response.data.message
+          } else if (typeof error.response.data === 'string') {
+            errorMessage = error.response.data
+          } else if (error.response.data.non_field_errors) {
+            // 处理非字段错误
+            errorMessage = error.response.data.non_field_errors[0]
+          } else {
+            // 处理字段验证错误
+            const fieldErrors = []
+            for (const [field, errors] of Object.entries(error.response.data)) {
+              if (Array.isArray(errors)) {
+                fieldErrors.push(`${field}: ${errors[0]}`)
+              } else {
+                fieldErrors.push(`${field}: ${errors}`)
+              }
+            }
+            if (fieldErrors.length > 0) {
+              errorMessage = fieldErrors.join('; ')
+            }
+          }
+        }
+        
+        ElMessage.error(errorMessage)
       } finally {
         saving.value = false
       }
