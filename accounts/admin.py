@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
+from logs.utils import log_user_action
 from .models import User, UserProfile, Coach
 
 
@@ -35,6 +36,54 @@ class UserAdmin(BaseUserAdmin):
     )
     
     readonly_fields = ('registration_date', 'last_login_ip')
+    
+    def save_model(self, request, obj, form, change):
+        """保存用户模型时记录日志"""
+        if change:  # 如果是更新操作
+            # 获取修改的字段
+            changed_fields = []
+            if hasattr(form, 'changed_data'):
+                changed_fields = form.changed_data
+            
+            # 记录用户信息修改日志
+            user_name = obj.real_name or obj.username
+            description = f'管理员 {request.user.real_name or request.user.username} 修改了用户 {user_name} 的信息'
+            if changed_fields:
+                description += f'，修改字段：{", ".join(changed_fields)}'
+            
+            log_user_action(
+                user=request.user,  # 记录操作者（管理员）
+                action_type='update',
+                resource_type='user',
+                resource_id=obj.id,
+                resource_name=user_name,
+                description=description,
+                request=request,
+                extra_data={
+                    'target_user_id': obj.id,
+                    'target_username': obj.username,
+                    'changed_fields': changed_fields,
+                    'admin_operation': True
+                }
+            )
+        else:  # 如果是创建操作
+            user_name = obj.real_name or obj.username
+            log_user_action(
+                user=request.user,
+                action_type='create',
+                resource_type='user',
+                resource_id=obj.id,
+                resource_name=user_name,
+                description=f'管理员 {request.user.real_name or request.user.username} 创建了用户 {user_name}',
+                request=request,
+                extra_data={
+                    'target_user_id': obj.id,
+                    'target_username': obj.username,
+                    'admin_operation': True
+                }
+            )
+        
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(UserProfile)
@@ -43,6 +92,54 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ('experience_years', 'created_at')
     search_fields = ('user__username', 'user__real_name', 'bio', 'skills')
     readonly_fields = ('created_at', 'updated_at')
+    
+    def save_model(self, request, obj, form, change):
+        """保存用户资料时记录日志"""
+        if change:  # 如果是更新操作
+            # 获取修改的字段
+            changed_fields = []
+            if hasattr(form, 'changed_data'):
+                changed_fields = form.changed_data
+            
+            # 记录用户资料修改日志
+            user_name = obj.user.real_name or obj.user.username
+            description = f'管理员 {request.user.real_name or request.user.username} 修改了用户 {user_name} 的资料'
+            if changed_fields:
+                description += f'，修改字段：{", ".join(changed_fields)}'
+            
+            log_user_action(
+                user=request.user,  # 记录操作者（管理员）
+                action_type='update',
+                resource_type='user_profile',
+                resource_id=obj.id,
+                resource_name=f'{user_name}的资料',
+                description=description,
+                request=request,
+                extra_data={
+                    'target_user_id': obj.user.id,
+                    'target_username': obj.user.username,
+                    'changed_fields': changed_fields,
+                    'admin_operation': True
+                }
+            )
+        else:  # 如果是创建操作
+            user_name = obj.user.real_name or obj.user.username
+            log_user_action(
+                user=request.user,
+                action_type='create',
+                resource_type='user_profile',
+                resource_id=obj.id,
+                resource_name=f'{user_name}的资料',
+                description=f'管理员 {request.user.real_name or request.user.username} 创建了用户 {user_name} 的资料',
+                request=request,
+                extra_data={
+                    'target_user_id': obj.user.id,
+                    'target_username': obj.user.username,
+                    'admin_operation': True
+                }
+            )
+        
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(Coach)
