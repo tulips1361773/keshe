@@ -79,6 +79,10 @@ class CoachStudentRelation(models.Model):
     
     def __str__(self):
         return f"{self.coach.real_name} - {self.student.real_name}"
+    
+    def get_applied_by_display(self):
+        """获取申请方显示文本"""
+        return dict(self.APPLIED_BY_CHOICES).get(self.applied_by, self.applied_by)
 
 
 class Table(models.Model):

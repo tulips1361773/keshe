@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.contrib import messages
-from django.db import transaction
+from django.db import transaction, models
 from .models import Table, Booking, CoachStudentRelation
 from .coach_change_models import CoachChangeRequest
 from logs.utils import log_user_action
@@ -353,17 +353,113 @@ class BookingAdmin(admin.ModelAdmin):
 @admin.register(CoachStudentRelation)
 class CoachStudentRelationAdmin(admin.ModelAdmin):
     """师生关系管理"""
-    list_display = ('coach', 'student', 'status', 'applied_by', 'applied_at', 'processed_at')
+    list_display = ('id', 'coach_display', 'student_display', 'status_display', 'applied_by_display', 'applied_at', 'processed_at')
     list_filter = ('status', 'applied_by', 'applied_at', 'processed_at')
     search_fields = ('coach__username', 'student__username', 'coach__real_name', 'student__real_name')
     ordering = ('-applied_at',)
-    readonly_fields = ('applied_at', 'processed_at')
+    readonly_fields = ('applied_at', 'processed_at', 'terminated_at', 'created_at')
     
     fieldsets = (
         ('关系信息', {
             'fields': ('coach', 'student', 'status')
         }),
         ('申请信息', {
-            'fields': ('applied_by', 'applied_at', 'processed_at')
+            'fields': ('applied_by', 'applied_at', 'processed_at', 'terminated_at')
+        }),
+        ('其他信息', {
+            'fields': ('notes', 'created_at'),
+            'classes': ('collapse',)
         })
     )
+    
+    def coach_display(self, obj):
+        """显示教练信息"""
+        if obj.coach:
+            # 获取教练所属校区
+            coach_campus = None
+            if hasattr(obj.coach, 'campus_assignments') and obj.coach.campus_assignments.exists():
+                coach_campus = obj.coach.campus_assignments.first().campus.name
+            campus_info = f" ({coach_campus})" if coach_campus else " (未分配校区)"
+            return f"{obj.coach.real_name or obj.coach.username}{campus_info}"
+        return "无"
+    coach_display.short_description = "教练"
+    
+    def student_display(self, obj):
+        """显示学员信息"""
+        if obj.student:
+            # 获取学员所属校区
+            student_campus = None
+            if hasattr(obj.student, 'campus_memberships') and obj.student.campus_memberships.exists():
+                student_campus = obj.student.campus_memberships.first().campus.name
+            campus_info = f" ({student_campus})" if student_campus else " (未分配校区)"
+            return f"{obj.student.real_name or obj.student.username}{campus_info}"
+        return "无"
+    student_display.short_description = "学员"
+    
+    def status_display(self, obj):
+        """显示状态"""
+        status_colors = {
+            'pending': '#ffc107',  # 黄色
+            'approved': '#28a745',  # 绿色
+            'rejected': '#dc3545',  # 红色
+            'terminated': '#6c757d'  # 灰色
+        }
+        color = status_colors.get(obj.status, '#000')
+        return format_html(
+            '<span style="color: {}; font-weight: bold;">{}</span>',
+            color,
+            obj.get_status_display()
+        )
+    status_display.short_description = "状态"
+    
+    def applied_by_display(self, obj):
+        """显示申请方"""
+        return obj.get_applied_by_display()
+    applied_by_display.short_description = "申请方"
+    
+    def save_model(self, request, obj, form, change):
+        """保存师生关系时记录日志"""
+        action_type = 'update' if change else 'create'
+        super().save_model(request, obj, form, change)
+        
+        # 记录操作日志
+        description = f'{"更新" if change else "创建"}师生关系: {obj.coach.real_name or obj.coach.username} - {obj.student.real_name or obj.student.username} (状态: {obj.get_status_display()})'
+        log_user_action(
+            user=request.user,
+            action_type=action_type,
+            resource_type='coach_student_relation',
+            resource_id=obj.id,
+            description=description,
+            request=request
+        )
+    
+    def delete_model(self, request, obj):
+        """删除师生关系时记录日志"""
+        relation_info = f'{obj.coach.real_name or obj.coach.username} - {obj.student.real_name or obj.student.username}'
+        relation_id = obj.id
+        super().delete_model(request, obj)
+        
+        # 记录删除日志
+        log_user_action(
+            user=request.user,
+            action_type='delete',
+            resource_type='coach_student_relation',
+            resource_id=relation_id,
+            description=f'删除师生关系: {relation_info}',
+            request=request
+        )
+    
+    def get_queryset(self, request):
+        """根据用户权限过滤师生关系"""
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        # 校区管理员只能看到自己校区的师生关系
+        if hasattr(request.user, 'managed_campus') and request.user.user_type == 'campus_admin':
+            managed_campus = request.user.managed_campus.first()
+            if managed_campus:
+                return qs.filter(
+                    models.Q(coach__campus_assignments__campus=managed_campus) |
+                    models.Q(student__campus_memberships__campus=managed_campus)
+                )
+        return qs.none()
