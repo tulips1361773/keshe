@@ -631,12 +631,15 @@ const loadData = async () => {
 const loadCoaches = async () => {
   try {
     const response = await api.get('/api/reservations/coaches/')
-    availableCoaches.value = response.data
+    // coaches API 返回数组
+    availableCoaches.value = Array.isArray(response.data) ? response.data : []
     
     // 如果是学员，获取我的教练
     if (userStore.user?.user_type === 'student') {
       const relationsResponse = await api.get('/api/reservations/relations/')
-      const approvedRelations = (relationsResponse.data.results || []).filter(r => r.status === 'approved')
+      // relations API 可能返回分页对象
+      const relations = relationsResponse.data.results || relationsResponse.data || []
+      const approvedRelations = relations.filter(r => r.status === 'approved')
       myCoaches.value = approvedRelations.map(r => ({
         id: r.coach.id,
         username: r.coach.username,
@@ -653,7 +656,8 @@ const loadMyRequests = async () => {
   
   try {
     const response = await api.get('/api/reservations/my-coach-change-requests/')
-    myRequests.value = response.data
+    // my-coach-change-requests 可能返回数组或分页对象
+    myRequests.value = response.data.results || response.data || []
   } catch (error) {
     console.error('加载我的请求失败:', error)
   }
@@ -664,16 +668,19 @@ const loadPendingApprovals = async () => {
   
   try {
     const response = await api.get('/api/reservations/pending-coach-change-approvals/')
-    pendingApprovals.value = response.data
+    // pending-coach-change-approvals 返回数组
+    pendingApprovals.value = Array.isArray(response.data) ? response.data : []
     
     if (userStore.user?.user_type === 'coach') {
       // 教练还需要加载相关的请求
       const allResponse = await api.get('/api/reservations/coach-change-requests/')
-      relatedRequests.value = allResponse.data
+      // coach-change-requests 返回分页对象
+      relatedRequests.value = allResponse.data.results || allResponse.data || []
     } else if (userStore.user?.user_type === 'campus_admin') {
       // 管理员加载所有请求
       const allResponse = await api.get('/api/reservations/coach-change-requests/')
-      allRequests.value = allResponse.data
+      // coach-change-requests 返回分页对象
+      allRequests.value = allResponse.data.results || allResponse.data || []
     }
   } catch (error) {
     console.error('加载待审批请求失败:', error)

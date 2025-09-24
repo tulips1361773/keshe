@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from logs.utils import log_user_action
-from django.db import transaction
+from django.db import transaction, models
 from django.contrib.auth import get_user_model
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -15,9 +15,11 @@ from .serializers import (
     CoachStudentRelationSerializer, 
     TableSerializer, 
     BookingSerializer, 
-    CoachChangeRequestSerializer
+    CoachChangeRequestSerializer,
+    CoachChangeApprovalSerializer
 )
 from payments.models import UserAccount, AccountTransaction
+from notifications.models import Notification
 
 User = get_user_model()
 
@@ -1021,7 +1023,62 @@ class CoachChangeRequestListCreateView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         """创建教练更换请求"""
-        serializer.save()
+        coach_change_request = serializer.save()
+        
+        # 发送通知给相关人员
+        try:
+            # 通知当前教练
+            Notification.create_notification(
+                recipient=coach_change_request.current_coach,
+                sender=coach_change_request.student,
+                title="教练更换申请",
+                message=f"学员 {coach_change_request.student.real_name or coach_change_request.student.username} 申请更换教练，目标教练：{coach_change_request.target_coach.real_name or coach_change_request.target_coach.username}",
+                message_type="system",
+                data={
+                    'request_id': coach_change_request.id,
+                    'student_name': coach_change_request.student.real_name or coach_change_request.student.username,
+                    'target_coach_name': coach_change_request.target_coach.real_name or coach_change_request.target_coach.username,
+                    'reason': coach_change_request.reason
+                }
+            )
+            
+            # 通知目标教练
+            Notification.create_notification(
+                recipient=coach_change_request.target_coach,
+                sender=coach_change_request.student,
+                title="教练更换申请",
+                message=f"学员 {coach_change_request.student.real_name or coach_change_request.student.username} 申请将您设为新教练，当前教练：{coach_change_request.current_coach.real_name or coach_change_request.current_coach.username}",
+                message_type="system",
+                data={
+                    'request_id': coach_change_request.id,
+                    'student_name': coach_change_request.student.real_name or coach_change_request.student.username,
+                    'current_coach_name': coach_change_request.current_coach.real_name or coach_change_request.current_coach.username,
+                    'reason': coach_change_request.reason
+                }
+            )
+            
+            # 通知校区管理员
+            campus_admins = User.objects.filter(user_type='campus_admin')
+            for admin in campus_admins:
+                Notification.create_notification(
+                    recipient=admin,
+                    sender=coach_change_request.student,
+                    title="教练更换申请待审核",
+                    message=f"学员 {coach_change_request.student.real_name or coach_change_request.student.username} 申请更换教练，从 {coach_change_request.current_coach.real_name or coach_change_request.current_coach.username} 更换到 {coach_change_request.target_coach.real_name or coach_change_request.target_coach.username}",
+                    message_type="system",
+                    data={
+                        'request_id': coach_change_request.id,
+                        'student_name': coach_change_request.student.real_name or coach_change_request.student.username,
+                        'current_coach_name': coach_change_request.current_coach.real_name or coach_change_request.current_coach.username,
+                        'target_coach_name': coach_change_request.target_coach.real_name or coach_change_request.target_coach.username,
+                        'reason': coach_change_request.reason
+                    }
+                )
+        except Exception as e:
+            # 通知发送失败不影响主流程
+            print(f"发送教练更换申请通知失败: {e}")
+        
+        return coach_change_request
 
 
 class CoachChangeRequestDetailView(generics.RetrieveAPIView):
@@ -1053,6 +1110,54 @@ def approve_coach_change(request, request_id):
     except CoachChangeRequest.DoesNotExist:
         return Response({'error': '教练更换请求不存在'}, status=status.HTTP_404_NOT_FOUND)
     
+    user = request.user
+    
+    # 严格的权限验证
+    has_permission = False
+    approval_type = None
+    
+    # 检查用户是否有权限审批此请求
+    if user == coach_change_request.current_coach and user.user_type == 'coach':
+        # 当前教练审批 - 验证是否真的是当前教练
+        if coach_change_request.current_coach_approval == 'pending':
+            has_permission = True
+            approval_type = 'current_coach'
+        else:
+            return Response({'error': '您已经审批过此请求'}, status=status.HTTP_400_BAD_REQUEST)
+            
+    elif user == coach_change_request.target_coach and user.user_type == 'coach':
+        # 目标教练审批 - 验证是否真的是目标教练
+        if coach_change_request.target_coach_approval == 'pending':
+            has_permission = True
+            approval_type = 'target_coach'
+        else:
+            return Response({'error': '您已经审批过此请求'}, status=status.HTTP_400_BAD_REQUEST)
+            
+    elif user.user_type == 'campus_admin' or user.is_superuser:
+        # 校区管理员或超级管理员审批
+        from campus.models import CampusStudent
+        try:
+            student_campus = CampusStudent.objects.get(student=coach_change_request.student).campus
+            # 超级管理员可以审批所有申请，校区管理员只能审批本校区的申请
+            if user.is_superuser or user == student_campus.manager:
+                if coach_change_request.campus_admin_approval == 'pending':
+                    has_permission = True
+                    approval_type = 'campus_admin'
+                else:
+                    return Response({'error': '您已经审批过此请求'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': '您只能审批本校区学员的请求'}, status=status.HTTP_403_FORBIDDEN)
+        except CampusStudent.DoesNotExist:
+            return Response({'error': '学员校区信息不存在'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # 如果没有权限，拒绝访问
+    if not has_permission:
+        return Response({'error': '您没有权限审批此请求'}, status=status.HTTP_403_FORBIDDEN)
+    
+    # 检查请求状态
+    if coach_change_request.status != 'pending':
+        return Response({'error': '该请求已处理，无法再次审批'}, status=status.HTTP_400_BAD_REQUEST)
+    
     # 创建审批序列化器
     serializer = CoachChangeApprovalSerializer(
         data=request.data,
@@ -1067,60 +1172,96 @@ def approve_coach_change(request, request_id):
     
     action = serializer.validated_data['action']
     notes = serializer.validated_data.get('notes', '')
-    user = request.user
     
     with transaction.atomic():
-        # 根据用户身份进行审批
-        if user == coach_change_request.current_coach:
-            # 当前教练审批
-            if action == 'approve':
-                coach_change_request.current_coach_approval = 'approved'
-            else:
-                coach_change_request.current_coach_approval = 'rejected'
-            
-            coach_change_request.current_coach_approved_by = user
-            coach_change_request.current_coach_approved_at = timezone.now()
-            coach_change_request.current_coach_notes = notes
-            
-        elif user == coach_change_request.target_coach:
-            # 目标教练审批
-            if action == 'approve':
-                coach_change_request.target_coach_approval = 'approved'
-            else:
-                coach_change_request.target_coach_approval = 'rejected'
-            
-            coach_change_request.target_coach_approved_by = user
-            coach_change_request.target_coach_approved_at = timezone.now()
-            coach_change_request.target_coach_notes = notes
-            
-        elif user.user_type == 'campus_admin':
-            # 校区管理员审批
-            if action == 'approve':
-                coach_change_request.campus_admin_approval = 'approved'
-            else:
-                coach_change_request.campus_admin_approval = 'rejected'
-            
-            coach_change_request.campus_admin_approved_by = user
-            coach_change_request.campus_admin_approved_at = timezone.now()
-            coach_change_request.campus_admin_notes = notes
+        # 根据审批类型进行审批，使用模型的专用方法
+        try:
+            if approval_type == 'current_coach':
+                # 当前教练审批
+                if action == 'approve':
+                    coach_change_request.approve_by_current_coach(user, notes)
+                else:
+                    coach_change_request.reject_by_current_coach(user, notes)
+                
+            elif approval_type == 'target_coach':
+                # 目标教练审批
+                if action == 'approve':
+                    coach_change_request.approve_by_target_coach(user, notes)
+                else:
+                    coach_change_request.reject_by_target_coach(user, notes)
+                
+            elif approval_type == 'campus_admin':
+                # 校区管理员审批
+                if action == 'approve':
+                    coach_change_request.approve_by_campus_admin(user, notes)
+                else:
+                    coach_change_request.reject_by_campus_admin(user, notes)
         
-        # 检查是否所有审批都完成
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 发送通知
         if coach_change_request.has_rejection:
-            # 有拒绝，直接设为拒绝状态
-            coach_change_request.status = 'rejected'
-            coach_change_request.processed_at = timezone.now()
-            coach_change_request.processed_by = user
+            # 发送拒绝通知
+            try:
+                Notification.create_notification(
+                    recipient=coach_change_request.student,
+                    sender=user,
+                    title="教练更换申请被拒绝",
+                    message=f"您的教练更换申请已被 {user.real_name or user.username} 拒绝。拒绝原因：{notes or '无'}",
+                    message_type="system",
+                    data={
+                        'request_id': coach_change_request.id,
+                        'rejected_by': user.real_name or user.username,
+                        'rejection_reason': notes or '无'
+                    }
+                )
+            except Exception as e:
+                print(f"发送教练更换拒绝通知失败: {e}")
             
         elif coach_change_request.is_all_approved:
-            # 所有审批都通过，执行教练更换
-            coach_change_request.status = 'approved'
-            coach_change_request.processed_at = timezone.now()
-            coach_change_request.processed_by = user
-            
             # 执行教练更换逻辑
-            coach_change_request.execute_coach_change()
-        
-        coach_change_request.save()
+            try:
+                coach_change_request.execute_change()
+            except ValueError as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 发送成功通知
+            try:
+                Notification.create_notification(
+                    recipient=coach_change_request.student,
+                    sender=user,
+                    title="教练更换申请已通过",
+                    message=f"您的教练更换申请已通过所有审批，教练已从 {coach_change_request.current_coach.real_name or coach_change_request.current_coach.username} 更换为 {coach_change_request.target_coach.real_name or coach_change_request.target_coach.username}",
+                    message_type="system",
+                    data={
+                        'request_id': coach_change_request.id,
+                        'old_coach': coach_change_request.current_coach.real_name or coach_change_request.current_coach.username,
+                        'new_coach': coach_change_request.target_coach.real_name or coach_change_request.target_coach.username
+                    }
+                )
+            except Exception as e:
+                print(f"发送教练更换成功通知失败: {e}")
+        else:
+            # 还有待审批的，发送进度通知
+            try:
+                # 通知学员审批进度
+                approver_name = user.real_name or user.username
+                Notification.create_notification(
+                    recipient=coach_change_request.student,
+                    sender=user,
+                    title="教练更换申请审批进度",
+                    message=f"{approver_name} 已{('同意' if action == 'approve' else '拒绝')}您的教练更换申请，请等待其他审批人员处理。",
+                    message_type="system",
+                    data={
+                        'request_id': coach_change_request.id,
+                        'approver': approver_name,
+                        'action': action,
+                        'notes': notes
+                    }
+                )
+            except Exception as e:
+                print(f"发送教练更换进度通知失败: {e}")
     
     # 返回更新后的请求信息
     response_serializer = CoachChangeRequestSerializer(coach_change_request)
@@ -1160,12 +1301,21 @@ def pending_coach_change_approvals(request):
             status='pending'
         ).order_by('-created_at')
         
-    elif user.user_type == 'campus_admin':
-        # 校区管理员查看待审批的请求
+    elif user.user_type == 'campus_admin' or user.is_superuser:
+        # 校区管理员或超级管理员查看待审批的请求
         requests = CoachChangeRequest.objects.filter(
             campus_admin_approval='pending',
             status='pending'
         ).order_by('-created_at')
+        
+        # 校区管理员只能看到本校区的申请，超级管理员可以看到所有申请
+        if user.user_type == 'campus_admin' and not user.is_superuser:
+            from campus.models import CampusStudent
+            # 过滤出本校区学员的申请
+            campus_students = CampusStudent.objects.filter(
+                campus__manager=user, is_active=True
+            ).values_list('student_id', flat=True)
+            requests = requests.filter(student_id__in=campus_students)
         
     else:
         return Response({'error': '无权限查看审批列表'}, status=status.HTTP_403_FORBIDDEN)

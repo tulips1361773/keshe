@@ -184,6 +184,75 @@ class CoachChangeRequest(models.Model):
     def __str__(self):
         return f"{self.student.real_name} 申请从 {self.current_coach.real_name} 更换到 {self.target_coach.real_name}"
     
+    def save(self, *args, **kwargs):
+        """重写save方法，添加安全保护"""
+        allow_protected_update = kwargs.pop('allow_protected_update', False)
+        
+        # 如果是新创建的对象，进行输入验证
+        if not self.pk:
+            # 验证原因不能为空
+            if not self.reason or not self.reason.strip():
+                raise ValueError("更换原因不能为空")
+            
+            # 验证原因长度
+            if len(self.reason) > 500:
+                raise ValueError("更换原因不能超过500个字符")
+            
+            # 验证原因内容，防止恶意输入
+            import re
+            malicious_patterns = [
+                r'<script.*?>.*?</script>',  # XSS
+                r'javascript:',  # JavaScript协议
+                r'on\w+\s*=',  # 事件处理器
+                r'DROP\s+TABLE',  # SQL注入
+                r'DELETE\s+FROM',  # SQL注入
+                r'INSERT\s+INTO',  # SQL注入
+                r'UPDATE\s+.*SET',  # SQL注入
+                r'UNION\s+SELECT',  # SQL注入
+                r';\s*--',  # SQL注释
+                r'\/\*.*?\*\/',  # SQL注释
+                r'\.\.\/',  # 路径遍历
+            ]
+            
+            for pattern in malicious_patterns:
+                if re.search(pattern, self.reason, re.IGNORECASE):
+                    raise ValueError("更换原因包含不允许的内容")
+            
+            # 验证必需字段
+            if not self.current_coach:
+                raise ValueError("当前教练不能为空")
+            if not self.target_coach:
+                raise ValueError("目标教练不能为空")
+            if not self.student:
+                raise ValueError("学员不能为空")
+        
+        # 如果是更新现有对象，检查是否允许修改保护字段
+        if self.pk and not allow_protected_update:
+            # 获取数据库中的原始对象
+            try:
+                original = CoachChangeRequest.objects.get(pk=self.pk)
+                
+                # 定义受保护的字段
+                protected_fields = [
+                    'current_coach_approval', 'target_coach_approval', 'campus_admin_approval',
+                    'current_coach_approved_by', 'current_coach_approved_at',
+                    'target_coach_approved_by', 'target_coach_approved_at',
+                    'campus_admin_approved_by', 'campus_admin_approved_at',
+                    'current_coach_notes', 'target_coach_notes', 'campus_admin_notes',
+                    'processed_at', 'processed_by', 'status'
+                ]
+                
+                # 检查是否有保护字段被修改
+                for field in protected_fields:
+                    if getattr(self, field) != getattr(original, field):
+                        raise ValueError(f"不允许直接修改字段: {field}")
+                        
+            except CoachChangeRequest.DoesNotExist:
+                # 如果原始对象不存在，允许保存（可能是测试场景）
+                pass
+        
+        super().save(*args, **kwargs)
+    
     @property
     def is_all_approved(self):
         """检查是否三方都已同意"""
@@ -215,66 +284,112 @@ class CoachChangeRequest(models.Model):
         else:
             self.status = 'pending'
         
-        self.save()
+        self.save(allow_protected_update=True)
     
     def approve_by_current_coach(self, user, notes=None):
         """当前教练审批"""
+        # 验证用户权限
+        if user != self.current_coach:
+            raise ValueError("只有当前教练本人可以进行审批")
+        
         self.current_coach_approval = 'approved'
         self.current_coach_approved_by = user
         self.current_coach_approved_at = timezone.now()
         if notes:
             self.current_coach_notes = notes
-        self.save()
+        self.save(allow_protected_update=True)
         self.update_status()
     
     def reject_by_current_coach(self, user, notes=None):
         """当前教练拒绝"""
+        # 验证用户权限
+        if user != self.current_coach:
+            raise ValueError("只有当前教练本人可以进行拒绝")
+        
         self.current_coach_approval = 'rejected'
         self.current_coach_approved_by = user
         self.current_coach_approved_at = timezone.now()
         if notes:
             self.current_coach_notes = notes
-        self.save()
+        self.save(allow_protected_update=True)
         self.update_status()
     
     def approve_by_target_coach(self, user, notes=None):
         """目标教练审批"""
+        # 验证用户权限
+        if user != self.target_coach:
+            raise ValueError("只有目标教练本人可以进行审批")
+        
         self.target_coach_approval = 'approved'
         self.target_coach_approved_by = user
         self.target_coach_approved_at = timezone.now()
         if notes:
             self.target_coach_notes = notes
-        self.save()
+        self.save(allow_protected_update=True)
         self.update_status()
     
     def reject_by_target_coach(self, user, notes=None):
         """目标教练拒绝"""
+        # 验证用户权限
+        if user != self.target_coach:
+            raise ValueError("只有目标教练本人可以进行拒绝")
+        
         self.target_coach_approval = 'rejected'
         self.target_coach_approved_by = user
         self.target_coach_approved_at = timezone.now()
         if notes:
             self.target_coach_notes = notes
-        self.save()
+        self.save(allow_protected_update=True)
         self.update_status()
     
     def approve_by_campus_admin(self, user, notes=None):
         """校区管理员审批"""
+        # 验证用户权限：校区管理员或超级管理员
+        if not (user.user_type == 'campus_admin' or user.is_superuser):
+            raise ValueError("只有校区管理员或超级管理员可以进行审批")
+        
+        # 超级管理员可以审批所有申请，校区管理员只能审批本校区的申请
+        if not user.is_superuser:
+            # 检查管理员是否有权限审批此学员的申请
+            from campus.models import CampusStudent
+            try:
+                campus_student = CampusStudent.objects.get(student=self.student, is_active=True)
+                if campus_student.campus.manager != user:
+                    raise ValueError("您只能审批本校区学员的申请")
+            except CampusStudent.DoesNotExist:
+                raise ValueError("学员未关联到任何校区")
+        
         self.campus_admin_approval = 'approved'
         self.campus_admin_approved_by = user
         self.campus_admin_approved_at = timezone.now()
         if notes:
             self.campus_admin_notes = notes
-        self.save()
+        self.save(allow_protected_update=True)
         self.update_status()
     
     def reject_by_campus_admin(self, user, notes=None):
         """校区管理员拒绝"""
+        # 验证用户权限：校区管理员或超级管理员
+        if not (user.user_type == 'campus_admin' or user.is_superuser):
+            raise ValueError("只有校区管理员或超级管理员可以进行拒绝")
+        
+        # 超级管理员可以拒绝所有申请，校区管理员只能拒绝本校区的申请
+        if not user.is_superuser:
+            # 检查管理员是否有权限拒绝此学员的申请
+            from campus.models import CampusStudent
+            try:
+                campus_student = CampusStudent.objects.get(student=self.student, is_active=True)
+                if campus_student.campus.manager != user:
+                    raise ValueError("您只能拒绝本校区学员的申请")
+            except CampusStudent.DoesNotExist:
+                raise ValueError("学员未关联到任何校区")
+        
         self.campus_admin_approval = 'rejected'
         self.campus_admin_approved_by = user
         self.campus_admin_approved_at = timezone.now()
         if notes:
             self.campus_admin_notes = notes
-        self.save()
+        self.save(allow_protected_update=True)
         self.update_status()
     
     def execute_change(self):
@@ -316,6 +431,6 @@ class CoachChangeRequest(models.Model):
         
         # 标记更换请求为已处理
         self.processed_at = timezone.now()
-        self.save()
+        self.save(allow_protected_update=True)
         
         return new_relation

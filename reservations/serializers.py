@@ -266,13 +266,16 @@ class CoachChangeRequestSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = [
-            'id', 'student', 'status', 'request_date',
+            'id', 'student', 'current_coach', 'target_coach', 'status', 'request_date',
             'current_coach_approval', 'target_coach_approval', 'campus_admin_approval',
             'current_coach_approved_by', 'current_coach_approved_at',
             'target_coach_approved_by', 'target_coach_approved_at',
             'campus_admin_approved_by', 'campus_admin_approved_at',
             'current_coach_notes', 'target_coach_notes', 'campus_admin_notes',
-            'processed_at', 'processed_by', 'created_at', 'updated_at'
+            'processed_at', 'processed_by', 'created_at', 'updated_at',
+            'is_all_approved', 'has_rejection', 'status_display',
+            'current_coach_approval_display', 'target_coach_approval_display',
+            'campus_admin_approval_display'
         ]
     
     def validate(self, data):
@@ -284,6 +287,36 @@ class CoachChangeRequestSerializer(serializers.ModelSerializer):
         # 验证用户类型
         if request.user.user_type != 'student':
             raise serializers.ValidationError("只有学员可以申请更换教练")
+        
+        # 验证原因不能为空
+        reason = data.get('reason', '').strip()
+        if not reason:
+            raise serializers.ValidationError("更换原因不能为空")
+        
+        # 验证原因长度
+        if len(reason) > 500:
+            raise serializers.ValidationError("更换原因不能超过500个字符")
+        
+        # 验证原因内容，防止恶意输入
+        import re
+        # 检查是否包含潜在的恶意内容
+        malicious_patterns = [
+            r'<script.*?>.*?</script>',  # XSS
+            r'javascript:',  # JavaScript协议
+            r'on\w+\s*=',  # 事件处理器
+            r'DROP\s+TABLE',  # SQL注入
+            r'DELETE\s+FROM',  # SQL注入
+            r'INSERT\s+INTO',  # SQL注入
+            r'UPDATE\s+.*SET',  # SQL注入
+            r'UNION\s+SELECT',  # SQL注入
+            r';\s*--',  # SQL注释
+            r'\/\*.*?\*\/',  # SQL注释
+            r'\.\.\/',  # 路径遍历
+        ]
+        
+        for pattern in malicious_patterns:
+            if re.search(pattern, reason, re.IGNORECASE):
+                raise serializers.ValidationError("更换原因包含不允许的内容")
         
         # 获取目标教练
         target_coach_id = data.get('target_coach_id')
