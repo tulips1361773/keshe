@@ -29,7 +29,7 @@ def check_campus_permission(user, campus=None, action='view'):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([])  # 允许未认证用户访问，用于注册时选择校区
 def campus_list(request):
     """校区列表API"""
     try:
@@ -41,8 +41,8 @@ def campus_list(request):
         # 构建查询条件
         queryset = Campus.objects.all()
         
-        # 权限过滤
-        if request.user.user_type == 'campus_admin':
+        # 权限过滤 - 只有认证用户才进行权限过滤
+        if hasattr(request, 'user') and request.user.is_authenticated and hasattr(request.user, 'user_type') and request.user.user_type == 'campus_admin':
             # 校区管理员只能看到自己管理的校区及其分校区
             managed_campuses = request.user.managed_campus.all()
             campus_ids = []
@@ -72,11 +72,7 @@ def campus_list(request):
         return Response({
             'success': True,
             'data': serializer.data,
-            'count': queryset.count(),
-            'user_permissions': {
-                'can_create': check_campus_permission(request.user, action='create'),
-                'is_super_admin': request.user.user_type == 'super_admin'
-            }
+            'count': queryset.count()
         })
     except Exception as e:
         return Response({

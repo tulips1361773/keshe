@@ -76,12 +76,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     password_confirm = serializers.CharField(write_only=True)
     achievements = serializers.CharField(required=False, allow_blank=True, write_only=True, help_text='教练员比赛成绩描述')
     avatar = serializers.ImageField(required=False, allow_null=True, write_only=True, help_text='教练员头像照片')
+    campus_id = serializers.IntegerField(required=False, allow_null=True, write_only=True, help_text='教练员所属校区ID')
     
     class Meta:
         model = User
         fields = [
             'username', 'password', 'password_confirm', 'real_name',
-            'user_type', 'phone', 'email', 'gender', 'achievements', 'avatar'
+            'user_type', 'phone', 'email', 'gender', 'achievements', 'avatar', 'campus_id'
         ]
         extra_kwargs = {
             'password': {'write_only': True, 'min_length': 8, 'max_length': 16},
@@ -103,6 +104,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             avatar = attrs.get('avatar')
             if not avatar:
                 raise serializers.ValidationError("教练员必须上传头像照片")
+            
+            # 教练员必须选择校区
+            campus_id = attrs.get('campus_id')
+            if not campus_id:
+                raise serializers.ValidationError("教练员必须选择所属校区")
+            
+            # 验证校区是否存在
+            from campus.models import Campus
+            try:
+                Campus.objects.get(id=campus_id)
+            except Campus.DoesNotExist:
+                raise serializers.ValidationError("选择的校区不存在")
         
         return attrs
     
@@ -147,6 +160,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         achievements = validated_data.pop('achievements', '')  # 移除achievements字段
         avatar = validated_data.pop('avatar', None)  # 移除avatar字段
+        campus_id = validated_data.pop('campus_id', None)  # 移除campus_id字段
         
         # 手动验证密码复杂度（确保验证生效）
         self.validate_password(password)
@@ -163,14 +177,24 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # 创建用户资料
         UserProfile.objects.create(user=user)
         
-        # 如果是教练员，创建教练员记录
+        # 如果是教练员，创建教练员记录和校区关联
         if user.user_type == 'coach':
             from .models import Coach
-            Coach.objects.create(
+            coach = Coach.objects.create(
                 user=user,
                 achievements=achievements,
                 status='pending'  # 默认待审核状态
             )
+            
+            # 创建校区教练关联关系
+            if campus_id:
+                from campus.models import CampusCoach
+                CampusCoach.objects.create(
+                    campus_id=campus_id,
+                    coach=coach,
+                    is_active=True
+                )
+            
             # 教练员默认需要审核，设置为未激活会员
             user.is_active_member = False
             user.save()

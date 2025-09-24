@@ -137,6 +137,29 @@
             </div>
           </el-form-item>
 
+          <!-- 校区选择 (仅教练员) -->
+          <el-form-item 
+            v-if="registerForm.user_type === 'coach'" 
+            label="所属校区" 
+            prop="campus_id"
+            class="form-item"
+          >
+            <el-select 
+              v-model="registerForm.campus_id" 
+              placeholder="请选择所属校区"
+              style="width: 100%"
+              :loading="campusLoading"
+            >
+              <el-option
+                v-for="campus in campusList"
+                :key="campus.id"
+                :label="campus.name"
+                :value="campus.id"
+              />
+            </el-select>
+          </el-form-item>
+
+          <!-- 成绩描述 (仅教练员) -->
           <el-form-item 
             v-if="registerForm.user_type === 'coach'"
             prop="achievements"
@@ -215,6 +238,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
+import axios from 'axios'
 import {
   Basketball,
   User,
@@ -246,6 +270,10 @@ export default {
     const router = useRouter()
     const userStore = useUserStore()
     const registerFormRef = ref()
+    
+    // 校区相关数据
+    const campusList = ref([])
+    const campusLoading = ref(false)
 
     const registerForm = reactive({
       username: '',
@@ -255,8 +283,9 @@ export default {
       password: '',
       confirmPassword: '',
       user_type: 'student',
-      avatar: '',
+      avatar: null,
       achievements: '',
+      campus_id: null,
       agreement: false
     })
 
@@ -302,6 +331,9 @@ export default {
         { required: true, message: '请输入用户名', trigger: 'blur' },
         { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' },
         { pattern: /^[a-zA-Z0-9_]+$/, message: '用户名只能包含字母、数字和下划线', trigger: 'blur' }
+      ],
+      agreement: [
+        { validator: validateAgreement, trigger: 'change' }
       ],
       real_name: [
         { required: true, message: '请输入真实姓名', trigger: 'blur' },
@@ -358,9 +390,18 @@ export default {
           trigger: 'blur' 
         }
       ],
-      agreement: [
-        { validator: validateAgreement, trigger: 'change' }
-      ]
+      campus_id: [
+        { 
+          validator: (rule, value, callback) => {
+            if (registerForm.user_type === 'coach' && !value) {
+              callback(new Error('请选择所属校区'))
+            } else {
+              callback()
+            }
+          }, 
+          trigger: 'change' 
+        }
+      ],
     }
 
     // 头像上传相关方法
@@ -415,10 +456,11 @@ export default {
           user_type: registerForm.user_type
         }
 
-        // 如果是教练员，添加成绩描述和头像
+        // 如果是教练员，添加成绩描述、头像和校区
         if (registerForm.user_type === 'coach') {
           registerData.achievements = registerForm.achievements
           registerData.avatar = registerForm.avatar
+          registerData.campus_id = registerForm.campus_id
         }
 
         const result = await userStore.register(registerData)
@@ -440,11 +482,28 @@ export default {
       }
     }
 
-    // 初始化时检查是否已登录
+    // 获取校区列表
+    const fetchCampusList = async () => {
+      try {
+        campusLoading.value = true
+        const response = await axios.get('/api/campus/api/list/')
+        console.log('校区列表API响应:', response.data)
+        // API返回格式: {success: true, data: [...], count: 24}
+        campusList.value = response.data.data || []
+      } catch (error) {
+        console.error('获取校区列表失败:', error)
+        ElMessage.error('获取校区列表失败')
+      } finally {
+        campusLoading.value = false
+      }
+    }
+
+    // 初始化时检查是否已登录并获取校区列表
     onMounted(() => {
       if (userStore.isAuthenticated) {
         router.push('/dashboard')
       }
+      fetchCampusList()
     })
 
     return {
@@ -456,7 +515,9 @@ export default {
       beforeAvatarUpload,
       uploadAvatar,
       handleAvatarSuccess,
-      handleAvatarError
+      handleAvatarError,
+      campusList,
+      campusLoading
     }
   }
 }
