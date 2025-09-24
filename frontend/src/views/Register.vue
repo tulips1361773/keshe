@@ -160,29 +160,6 @@
           </el-form-item>
 
           <!-- 成绩描述 (仅教练员) -->
-          <!-- 校区选择 (仅教练员) -->
-          <el-form-item 
-            v-if="registerForm.user_type === 'coach'" 
-            label="所属校区" 
-            prop="campus_id"
-            class="form-item"
-          >
-            <el-select 
-              v-model="registerForm.campus_id" 
-              placeholder="请选择所属校区"
-              style="width: 100%"
-              :loading="campusLoading"
-            >
-              <el-option
-                v-for="campus in campusList"
-                :key="campus.id"
-                :label="campus.name"
-                :value="campus.id"
-              />
-            </el-select>
-          </el-form-item>
-
-          <!-- 成绩描述 (仅教练员) -->
           <el-form-item 
             v-if="registerForm.user_type === 'coach'"
             prop="achievements"
@@ -262,7 +239,6 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
-import axios from 'axios'
 import {
   Basketball,
   User,
@@ -298,10 +274,6 @@ export default {
     // 校区相关数据
     const campusList = ref([])
     const campusLoading = ref(false)
-    
-    // 校区相关数据
-    const campusList = ref([])
-    const campusLoading = ref(false)
 
     const registerForm = reactive({
       username: '',
@@ -312,9 +284,7 @@ export default {
       confirmPassword: '',
       user_type: 'student',
       avatar: null,
-      avatar: null,
       achievements: '',
-      campus_id: null,
       campus_id: null,
       agreement: false
     })
@@ -435,18 +405,6 @@ export default {
           trigger: 'change' 
         }
       ],
-      campus_id: [
-        { 
-          validator: (rule, value, callback) => {
-            if (registerForm.user_type === 'coach' && !value) {
-              callback(new Error('请选择所属校区'))
-            } else {
-              callback()
-            }
-          }, 
-          trigger: 'change' 
-        }
-      ],
     }
 
     // 头像上传相关方法
@@ -502,11 +460,9 @@ export default {
         }
 
         // 如果是教练员，添加成绩描述、头像和校区
-        // 如果是教练员，添加成绩描述、头像和校区
         if (registerForm.user_type === 'coach') {
           registerData.achievements = registerForm.achievements
           registerData.avatar = registerForm.avatar
-          registerData.campus_id = registerForm.campus_id
           registerData.campus_id = registerForm.campus_id
         }
 
@@ -551,7 +507,6 @@ export default {
         router.push('/dashboard')
       }
       fetchCampusList()
-      fetchCampusList()
     })
 
     return {
@@ -565,7 +520,7 @@ export default {
       handleAvatarSuccess,
       handleAvatarError,
       campusList,
-      campusLoading
+      campusLoading,
       handleAvatarError,
       campusList,
       campusLoading
