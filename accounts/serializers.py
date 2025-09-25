@@ -83,13 +83,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'username', 'password', 'password_confirm', 'real_name',
-            'user_type', 'phone', 'email', 'gender', 'achievements', 'avatar', 'campus_id'
+            'user_type', 'phone', 'email', 'gender','birth_date', 'achievements', 'avatar', 'campus_id'
         ]
         extra_kwargs = {
             'password': {'write_only': True, 'min_length': 8, 'max_length': 16},
             'user_type': {'required': True},
             'real_name': {'required': True},
             'phone': {'required': True},
+            'gender': {'required': False},  # 保持可选
+            'birth_date': {'required': False}  # 保持可选
         }
 
     def validate(self, attrs):
@@ -365,6 +367,26 @@ class CoachSerializer(serializers.ModelSerializer):
     avatar = serializers.CharField(source='user.avatar', read_only=True)
     real_name = serializers.CharField(source='user.real_name', read_only=True)
     phone = serializers.CharField(source='user.phone', read_only=True)
+    gender = serializers.CharField(source='user.gender', read_only=True)#新增性别字段
+    age = serializers.SerializerMethodField()  # 新增年龄字段
+
+    # 新增年龄计算方法
+    def get_age(self, obj):
+        """根据出生日期计算年龄，为空时返回None"""
+        birth_date = obj.user.birth_date
+        if not birth_date:
+            return None
+
+        from datetime import date
+        today = date.today()
+        age = today.year - birth_date.year
+
+        # 考虑生日是否已过
+        if (today.month, today.day) < (birth_date.month, birth_date.day):
+            age -= 1
+
+        return age
+
 
     class Meta:
         model = Coach
@@ -372,7 +394,7 @@ class CoachSerializer(serializers.ModelSerializer):
             'id', 'user', 'user_info', 'coach_level', 'coach_level_display',
             'hourly_rate', 'achievements', 'max_students', 'status', 'status_display',
             'approved_by', 'approved_by_name', 'approved_at', 'current_students_count',
-            'is_approved', 'avatar', 'real_name', 'phone', 'created_at', 'updated_at'
+            'is_approved', 'avatar', 'real_name', 'phone','gender', 'age','created_at', 'updated_at'
         ]
         read_only_fields = [
             'id', 'user', 'hourly_rate', 'approved_by', 'approved_at',

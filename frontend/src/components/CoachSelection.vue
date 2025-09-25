@@ -50,8 +50,8 @@
           <div class="filter-item">
             <label class="filter-label">性别：</label>
             <el-select v-model="filters.gender" placeholder="选择性别" clearable @change="handleFilterChange">
-              <el-option label="男" value="M" />
-              <el-option label="女" value="F" />
+              <el-option label="男" value="male" />
+              <el-option label="女" value="female" />
             </el-select>
           </div>
           
@@ -131,11 +131,11 @@
             <div class="coach-details">
               <div class="detail-row">
                 <span class="detail-label">性别：</span>
-                <span class="detail-value">{{ coach.gender === 'M' ? '男' : '女' }}</span>
+                <span class="detail-value">{{ coach.gender ? (coach.gender === 'male' ? '男' : '女') : '?' }}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">年龄：</span>
-                <span class="detail-value">{{ coach.age }}岁</span>
+                <span class="detail-value">{{ coach.age !== null ? `${coach.age}岁` : '?' }}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">教学经验：</span>
@@ -685,6 +685,7 @@ export default {
       if (!avatar) {
         return '/default-avatar.svg'
       }
+
       
       // 如果已经是完整URL，直接返回
       if (avatar.startsWith('http')) {
