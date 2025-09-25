@@ -111,8 +111,30 @@
             </el-select>
           </el-form-item>
 
+          <!-- 校区选择 (教练员和学生都可见) -->
+          <el-form-item
+            v-if="registerForm.user_type === 'coach'|| registerForm.user_type === 'student'"
+            label="所属校区"
+            prop="campus_id"
+            class="form-item"
+          >
+            <el-select
+              v-model="registerForm.campus_id"
+              placeholder="请选择所属校区"
+              style="width: 100%"
+              :loading="campusLoading"
+            >
+              <el-option
+                v-for="campus in campusList"
+                :key="campus.id"
+                :label="campus.name"
+                :value="campus.id"
+              />
+            </el-select>
+          </el-form-item>
+
           <!-- 教练员专用字段 -->
-          <el-form-item 
+          <el-form-item
             v-if="registerForm.user_type === 'coach'"
             prop="avatar"
             label="头像照片"
@@ -137,30 +159,10 @@
             </div>
           </el-form-item>
 
-          <!-- 校区选择 (仅教练员) -->
-          <el-form-item 
-            v-if="registerForm.user_type === 'coach'" 
-            label="所属校区" 
-            prop="campus_id"
-            class="form-item"
-          >
-            <el-select 
-              v-model="registerForm.campus_id" 
-              placeholder="请选择所属校区"
-              style="width: 100%"
-              :loading="campusLoading"
-            >
-              <el-option
-                v-for="campus in campusList"
-                :key="campus.id"
-                :label="campus.name"
-                :value="campus.id"
-              />
-            </el-select>
-          </el-form-item>
+
 
           <!-- 成绩描述 (仅教练员) -->
-          <el-form-item 
+          <el-form-item
             v-if="registerForm.user_type === 'coach'"
             prop="achievements"
           >
@@ -270,7 +272,7 @@ export default {
     const router = useRouter()
     const userStore = useUserStore()
     const registerFormRef = ref()
-    
+
     // 校区相关数据
     const campusList = ref([])
     const campusLoading = ref(false)
@@ -360,7 +362,7 @@ export default {
         { required: true, message: '请选择用户类型', trigger: 'change' }
       ],
       avatar: [
-        { 
+        {
           validator: (rule, value, callback) => {
             if (registerForm.user_type === 'coach') {
               if (!value || value.trim() === '') {
@@ -371,12 +373,12 @@ export default {
             } else {
               callback()
             }
-          }, 
-          trigger: 'change' 
+          },
+          trigger: 'change'
         }
       ],
       achievements: [
-        { 
+        {
           validator: (rule, value, callback) => {
             if (registerForm.user_type === 'coach') {
               if (!value || value.trim() === '') {
@@ -389,20 +391,21 @@ export default {
             } else {
               callback()
             }
-          }, 
-          trigger: 'blur' 
+          },
+          trigger: 'blur'
         }
       ],
       campus_id: [
-        { 
+        {
           validator: (rule, value, callback) => {
-            if (registerForm.user_type === 'coach' && !value) {
+          // 学生和教练都需要选择校区
+            if ((registerForm.user_type === 'coach' || registerForm.user_type === 'student') && !value) {
               callback(new Error('请选择所属校区'))
             } else {
               callback()
             }
-          }, 
-          trigger: 'change' 
+          },
+          trigger: 'change'
         }
       ],
     }
@@ -443,7 +446,7 @@ export default {
 
     const handleRegister = async () => {
       if (!registerFormRef.value) return
-      
+
       try {
         const valid = await registerFormRef.value.validate()
         if (!valid) return
@@ -453,17 +456,17 @@ export default {
           username: registerForm.username,
           real_name: registerForm.real_name,
           phone: registerForm.phone,
-          email: registerForm.email || undefined,
+          email: registerForm.email,
           password: registerForm.password,
           password_confirm: registerForm.confirmPassword,
-          user_type: registerForm.user_type
+          user_type: registerForm.user_type,
+          campus_id:registerForm.campus_id
         }
 
         // 如果是教练员，添加成绩描述、头像和校区
         if (registerForm.user_type === 'coach') {
           registerData.achievements = registerForm.achievements
           registerData.avatar = registerForm.avatar
-          registerData.campus_id = registerForm.campus_id
         }
 
         const result = await userStore.register(registerData)
