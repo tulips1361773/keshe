@@ -55,10 +55,7 @@
             <span>概览</span>
           </el-menu-item>
           
-          <el-menu-item v-if="userStore.user?.user_type === 'student'" index="courses">
-            <el-icon><Reading /></el-icon>
-            <span>我的课程</span>
-          </el-menu-item>
+
           
           <el-menu-item v-if="userStore.user?.user_type === 'student'" index="coach-selection">
             <el-icon><User /></el-icon>
