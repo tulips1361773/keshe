@@ -58,6 +58,34 @@
             />
           </el-form-item>
 
+          <!-- 性别选择 -->
+          <el-form-item  prop="gender">
+          <el-select
+            v-model="registerForm.gender"
+            placeholder="请选择性别（可选）"
+            size="large"
+            clearable
+           >
+    <el-option label="男" value="male"></el-option>
+    <el-option label="女" value="female"></el-option>
+  </el-select>
+</el-form-item>
+
+<el-form-item prop="birth_date">
+  <!-- 将 <el-input ... /> 改为 <el-input ...></el-input> -->
+  <el-input
+    v-model="registerForm.birth_date"
+    placeholder="请输入出生日期（格式：YYYY-MM-DD，可选）"
+    size="large"
+    clearable
+    maxlength="10"
+    style="width: 100%"
+  ></el-input> <!-- 这里改为完整闭合标签 -->
+  <div class="el-form-item__error" v-if="showBirthDateError">
+    {{ birthDateErrorMsg }}
+  </div>
+</el-form-item>
+
           <el-form-item prop="password">
             <el-input
               v-model="registerForm.password"
@@ -282,6 +310,8 @@ export default {
       real_name: '',
       phone: '',
       email: '',
+      gender: '',  // 新增性别字段
+      birth_date: '',     // 出生日期
       password: '',
       confirmPassword: '',
       user_type: 'student',
@@ -350,6 +380,13 @@ export default {
       email: [
         { validator: validateEmail, trigger: 'blur' }
       ],
+        gender: [
+    { type: 'string', required: false, trigger: 'change' }
+  ],
+  birth_date: [
+    { required: false, trigger: 'blur' } // 明确设置为非必填
+  ],
+
       password: [
         { required: true, message: '请输入密码', trigger: 'blur' },
         { min: 8, max: 16, message: '密码长度必须为8-16位', trigger: 'blur' },
@@ -410,6 +447,51 @@ export default {
       ],
     }
 
+
+// 错误提示状态
+const showBirthDateError = ref(false);
+const birthDateErrorMsg = ref('');
+
+// 日期格式验证函数
+const validateBirthDate = (value) => {
+  if (!value) return true; // 可选填，空值直接通过
+
+  // 正则匹配 YYYY-MM-DD 格式
+  const reg = /^\d{4}-\d{2}-\d{2}$/;
+  if (!reg.test(value)) {
+    birthDateErrorMsg.value = '日期格式错误，请使用YYYY-MM-DD';
+    return false;
+  }
+
+  // 验证日期有效性
+  const parts = value.split('-');
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // 月份从0开始
+  const day = parseInt(parts[2], 10);
+  const date = new Date(year, month, day);
+
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month ||
+    date.getDate() !== day
+  ) {
+    birthDateErrorMsg.value = '请输入有效的出生日期';
+    return false;
+  }
+
+  // 验证不能是未来日期
+  if (date > new Date()) {
+    birthDateErrorMsg.value = '出生日期不能是未来日期';
+    return false;
+  }
+
+  // 验证通过
+  showBirthDateError.value = false;
+  return true;
+};
+
+
+
     // 头像上传相关方法
     const beforeAvatarUpload = (file) => {
       const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
@@ -444,12 +526,20 @@ export default {
       ElMessage.error('头像上传失败，请重试!')
     }
 
+
     const handleRegister = async () => {
       if (!registerFormRef.value) return
 
       try {
         const valid = await registerFormRef.value.validate()
         if (!valid) return
+
+        // 新增：手动验证出生日期格式（空值时通过）
+    if (!validateBirthDate(registerForm.birth_date)) {
+      showBirthDateError.value = true
+      return // 格式错误时阻止提交
+    }
+    showBirthDateError.value = false // 验证通过则隐藏错误
 
         // 构建注册数据
         const registerData = {
@@ -458,10 +548,17 @@ export default {
           phone: registerForm.phone,
           email: registerForm.email,
           password: registerForm.password,
+          gender: registerForm.gender,
+          //birth_date: registerForm.birth_date,  // 直接传递出生日期
           password_confirm: registerForm.confirmPassword,
           user_type: registerForm.user_type,
           campus_id:registerForm.campus_id
         }
+
+         // 仅在出生日期有值时才添加该字段（避免传递空字符串）
+    if (registerForm.birth_date) {
+      registerData.birth_date = registerForm.birth_date
+    }
 
         // 如果是教练员，添加成绩描述、头像和校区
         if (registerForm.user_type === 'coach') {
