@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            --hover-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            --border-radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(20px);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .main-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+        
+        .main-container:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .header-section {
+            margin-bottom: 2.5rem;
+        }
+        
+        .main-title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .main-title i {
+            font-size: 3.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .main-description {
+            color: #718096;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+        
+        .status-card {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
+        }
+        
+        .status-text {
+            color: #155724;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+        
+        .api-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .api-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .api-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .api-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            border-color: #667eea;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .api-icon {
+            font-size: 2.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .api-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+        
+        .api-description {
+            font-size: 0.9rem;
+            color: #718096;
+            margin: 0;
+        }
+        
+        .footer-info {
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+        
+        .footer-text {
+            font-size: 1rem;
+            color: #4a5568;
+            margin: 0;
+        }
+        
+        .frontend-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .frontend-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .main-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .api-card {
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .api-card:nth-child(1) { animation-delay: 0.1s; }
+        .api-card:nth-child(2) { animation-delay: 0.2s; }
+        .api-card:nth-child(3) { animation-delay: 0.3s; }
+        .api-card:nth-child(4) { animation-delay: 0.4s; }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .main-title i {
+                font-size: 2.5rem;
+            }
+            
+            .api-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .api-card {
+                padding: 1.25rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 1.5rem 1rem;
+            }
+            
+            .main-title {
+                font-size: 1.75rem;
+            }
+            
+            .main-description {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-section">
+            <h1 class="main-title">
+                <i class="fas fa-credit-card"></i>
+                {{ title }}
+            </h1>
+            <p class="main-description">{{ description }}</p>
+        </div>
+        
+        <div class="status-card">
+            <p class="status-text">
+                <i class="fas fa-check-circle"></i>
+                <strong>系统状态：</strong> 正常运行
+            </p>
+        </div>
+        
+        <div class="api-grid">
+            <a href="/api/payments/api/account/" class="api-card">
+                <div class="api-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="api-title">账户信息 API</div>
+                <p class="api-description">查看和管理用户账户信息</p>
+            </a>
+            
+            <a href="/api/payments/api/account/transactions/" class="api-card">
+                <div class="api-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="api-title">交易记录 API</div>
+                <p class="api-description">获取详细的交易历史记录</p>
+            </a>
+            
+            <a href="/api/payments/api/methods/" class="api-card">
+                <div class="api-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="api-title">支付方式 API</div>
+                <p class="api-description">管理各种支付方式和配置</p>
+            </a>
+            
+            <a href="/admin/" class="api-card">
+                <div class="api-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="api-title">管理后台</div>
+                <p class="api-description">系统管理和配置界面</p>
+            </a>
+        </div>
+        
+        <div class="footer-info">
+            <p class="footer-text">
+                <i class="fas fa-desktop me-2"></i>
+                如需使用前端界面，请访问: 
+                <a href="http://localhost:3001/" class="frontend-link">http://localhost:3001/</a>
+            </p>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# Django core framework
+Django==4.2.24
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+
+# Database related
+mysqlclient==2.2.0
+
+# Authentication and permissions
+django-allauth==0.57.0
+PyJWT==2.8.0
+
+# Image processing
+Pillow==10.1.0
+
+# Utility libraries
+python-dateutil==2.8.2
+requests==2.31.0
+
+# Development tools
+django-debug-toolbar==4.2.0
+
+# Production environment
+gunicorn==21.2.0
+
+# Cache
+redis==5.0.1
+django-redis==5.4.0
+
+# Testing
+pytest==7.4.3
+pytest-django==4.7.0
+
+# Code quality
+flake8==6.1.0
+black==23.11.0

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - 支付管理系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 10px 25px rgba(0,0,0,0.1);
+            --border-radius: 15px;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin: 2rem;
+            padding: 2rem;
+            min-height: calc(100vh - 4rem);
+        }
+        
+        .navbar {
+            background: var(--primary-gradient) !important;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .info-card {
+            position: relative;
+        }
+        
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-gradient);
+        }
+        
+        .card-header {
+            background: var(--primary-gradient) !important;
+            border: none;
+            padding: 1.25rem;
+        }
+        
+        .card-header.bg-success {
+            background: var(--success-gradient) !important;
+        }
+        
+        .card-header.bg-warning {
+            background: var(--warning-gradient) !important;
+            color: #333 !important;
+        }
+        
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        
+        .badge.bg-info {
+            background: var(--success-gradient) !important;
+        }
+        
+        .badge.bg-warning {
+            background: var(--warning-gradient) !important;
+            color: #333 !important;
+        }
+        
+        .badge.bg-danger {
+            background: var(--danger-gradient) !important;
+        }
+        
+        .badge.bg-success {
+            background: var(--success-gradient) !important;
+        }
+        
+        .btn {
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: var(--transition);
+            border: none;
+        }
+        
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--success-gradient);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+        
+        .btn-danger {
+            background: var(--danger-gradient);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 154, 158, 0.3);
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table td {
+            padding: 0.75rem 0;
+            border: none;
+            vertical-align: middle;
+        }
+        
+        .text-success {
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        code {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .main-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .card {
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .navbar {
+                margin-bottom: 1rem;
+            }
+            
+            .btn {
+                padding: 0.6rem 1.25rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="/admin/">
+                    <i class="fas fa-credit-card"></i>
+                    支付管理系统
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="{% url 'payments:pending_payments' %}">返回待审核列表</a>
+                    <a class="nav-link" href="/admin/">管理后台</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">
+                            <i class="fas fa-receipt"></i>
+                            {{ title }}
+                        </h2>
+                        <a href="{% url 'payments:pending_payments' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left"></i> 返回列表
+                        </a>
+                    </div>
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card info-card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-info-circle"></i>
+                                    订单信息
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td class="fw-bold">订单号：</td>
+                                                <td><code>{{ payment.payment_id }}</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">支付类型：</td>
+                                                <td>
+                                                    {% if payment.payment_type == 'recharge' %}
+                                                        <span class="badge bg-info">充值</span>
+                                                    {% elif payment.payment_type == 'enrollment' %}
+                                                        <span class="badge bg-warning">报名</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">{{ payment.get_payment_type_display }}</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">支付金额：</td>
+                                                <td><span class="fs-5 fw-bold text-success">¥{{ payment.amount }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">支付方式：</td>
+                                                <td><span class="badge bg-info">{{ payment.payment_method.name }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">订单状态：</td>
+                                                <td>
+                                                    {% if payment.status == 'pending' %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock"></i> 待审核
+                                        </span>
+                                    {% elif payment.status == 'completed' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle"></i> 已完成
+                                        </span>
+                                    {% elif payment.status == 'failed' %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle"></i> 已拒绝
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ payment.get_status_display }}</span>
+                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td class="fw-bold">创建时间：</td>
+                                                <td>{{ payment.created_at|date:"Y-m-d H:i:s" }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">更新时间：</td>
+                                                <td>{{ payment.updated_at|date:"Y-m-d H:i:s" }}</td>
+                                            </tr>
+                                            {% if payment.paid_at %}
+                                            <tr>
+                                                <td class="fw-bold">完成时间：</td>
+                                                <td>{{ payment.paid_at|date:"Y-m-d H:i:s" }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if payment.transaction_id %}
+                                            <tr>
+                                                <td class="fw-bold">交易号：</td>
+                                                <td><code>{{ payment.transaction_id }}</code></td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if payment.description %}
+                                            <tr>
+                                                <td class="fw-bold">描述：</td>
+                                                <td>{{ payment.description }}</td>
+                                            </tr>
+                                            {% endif %}
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user"></i>
+                                    用户信息
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td class="fw-bold">用户名：</td>
+                                        <td>{{ payment.user.username }}</td>
+                                    </tr>
+                                    {% if payment.user.real_name %}
+                                    <tr>
+                                        <td class="fw-bold">真实姓名：</td>
+                                        <td>{{ payment.user.real_name }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if payment.user.email %}
+                                    <tr>
+                                        <td class="fw-bold">邮箱：</td>
+                                        <td>{{ payment.user.email }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if payment.user.phone %}
+                                    <tr>
+                                        <td class="fw-bold">手机号：</td>
+                                        <td>{{ payment.user.phone }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <td class="fw-bold">注册时间：</td>
+                                        <td>{{ payment.user.date_joined|date:"Y-m-d" }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        {% if payment.status == 'pending' and payment.payment_type == 'recharge' %}
+                        <div class="card mt-3">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-cog"></i>
+                                    审核操作
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success" onclick="approvePayment('{{ payment.payment_id }}', 'approve')">
+                                        <i class="fas fa-check-circle"></i> 审核通过
+                                    </button>
+                                    <button class="btn btn-danger" onclick="approvePayment('{{ payment.payment_id }}', 'reject')">
+                                        <i class="fas fa-times-circle"></i> 审核拒绝
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function approvePayment(paymentId, action) {
+            const actionText = action === 'approve' ? '通过' : '拒绝';
+            const confirmText = `确定要${actionText}这个充值订单吗？`;
+            
+            if (!confirm(confirmText)) {
+                return;
+            }
+            
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 处理中...';
+            
+            fetch(`/payments/approve/${paymentId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: `action=${action}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 显示成功消息并跳转
+                    alert(data.message);
+                    window.location.href = '{% url "payments:pending_payments" %}';
+                } else {
+                    alert(data.message);
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('操作失败，请重试');
+                button.disabled = false;
+                button.innerHTML = originalText;
+            });
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

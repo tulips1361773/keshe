@@ -1,0 +1,153 @@
+{
+  "summary": {
+    "total_tests": 9,
+    "passed_tests": 9,
+    "failed_tests": 0,
+    "pass_rate": "100.0%",
+    "test_time": "2025-09-12 22:01:54"
+  },
+  "detailed_results": [
+    {
+      "test_name": "教练员列表基本查询",
+      "success": true,
+      "message": "成功获取教练员列表，共 4 个教练员",
+      "timestamp": "2025-09-12 22:01:53",
+      "details": {
+        "状态码": 200,
+        "教练员数量": 4,
+        "响应字段": [
+          "success",
+          "results",
+          "count",
+          "num_pages",
+          "current_page",
+          "page_size",
+          "has_next",
+          "has_previous"
+        ]
+      }
+    },
+    {
+      "test_name": "按姓名搜索",
+      "success": true,
+      "message": "预期 1 个结果，实际 1 个",
+      "timestamp": "2025-09-12 22:01:53",
+      "details": {
+        "查询参数": {
+          "search": "张"
+        },
+        "状态码": 200,
+        "结果数量": 1
+      }
+    },
+    {
+      "test_name": "按性别筛选",
+      "success": true,
+      "message": "预期 3 个结果，实际 3 个",
+      "timestamp": "2025-09-12 22:01:53",
+      "details": {
+        "查询参数": {
+          "gender": "male"
+        },
+        "状态码": 200,
+        "结果数量": 3
+      }
+    },
+    {
+      "test_name": "按等级筛选",
+      "success": true,
+      "message": "预期 1 个结果，实际 1 个",
+      "timestamp": "2025-09-12 22:01:53",
+      "details": {
+        "查询参数": {
+          "level": "senior"
+        },
+        "状态码": 200,
+        "结果数量": 1
+      }
+    },
+    {
+      "test_name": "组合筛选",
+      "success": true,
+      "message": "预期 1 个结果，实际 1 个",
+      "timestamp": "2025-09-12 22:01:53",
+      "details": {
+        "查询参数": {
+          "gender": "male",
+          "search": "王"
+        },
+        "状态码": 200,
+        "结果数量": 1
+      }
+    },
+    {
+      "test_name": "分页测试",
+      "success": true,
+      "message": "预期 2 个结果，实际 2 个",
+      "timestamp": "2025-09-12 22:01:53",
+      "details": {
+        "查询参数": {
+          "page": 1,
+          "page_size": 2
+        },
+        "状态码": 200,
+        "结果数量": 2
+      }
+    },
+    {
+      "test_name": "创建师生关系",
+      "success": true,
+      "message": "成功创建师生关系",
+      "timestamp": "2025-09-12 22:01:53",
+      "details": {
+        "状态码": 201,
+        "教练员": "张教练",
+        "响应数据": {
+          "id": 3,
+          "coach": {
+            "id": 156,
+            "username": "coach1",
+            "real_name": "张教练",
+            "phone": "13800138002",
+            "email": "coach1@test.com",
+            "user_type": "coach"
+          },
+          "student": {
+            "id": 155,
+            "username": "backend_test_student",
+            "real_name": "后端测试学员",
+            "phone": "13800138001",
+            "email": "backend_student@test.com",
+            "user_type": "student"
+          },
+          "status": "pending",
+          "applied_by": "student",
+          "applied_at": "2025-09-12T22:01:53.885381+08:00",
+          "processed_at": null,
+          "terminated_at": null,
+          "notes": "测试选择教练",
+          "created_at": "2025-09-12T22:01:53.885381+08:00"
+        }
+      }
+    },
+    {
+      "test_name": "查询师生关系",
+      "success": true,
+      "message": "成功查询师生关系，共 0 条记录",
+      "timestamp": "2025-09-12 22:01:53",
+      "details": {
+        "状态码": 200,
+        "关系数量": 0
+      }
+    },
+    {
+      "test_name": "未认证访问控制",
+      "success": true,
+      "message": "正确拒绝未认证用户访问，状态码: 403",
+      "timestamp": "2025-09-12 22:01:54",
+      "details": {
+        "状态码": 403
+      }
+    }
+  ]
+}

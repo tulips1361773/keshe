@@ -1,0 +1,348 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | 乒乓球培训管理系统{% endblock %}
+
+{% block branding %}
+<div class="admin-branding">
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            <i class="fas fa-table-tennis"></i>
+            乒乓球培训管理系统
+        </a>
+    </h1>
+    <div class="admin-subtitle">管理后台</div>
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/custom_admin.css' %}">
+<style>
+    /* 主体样式 */
+    body {
+        font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+    
+    /* 头部样式 */
+    #header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-bottom: none;
+    }
+    
+    .admin-branding {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    #site-name {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+    
+    #site-name a {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    #site-name i {
+        font-size: 2rem;
+        color: #ffd700;
+    }
+    
+    .admin-subtitle {
+        color: rgba(255,255,255,0.8);
+        font-size: 0.9rem;
+        margin-left: 45px;
+    }
+    
+    /* 用户工具栏 */
+    #user-tools {
+        background: rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 8px 15px;
+        backdrop-filter: blur(10px);
+    }
+    
+    #user-tools a {
+        color: white;
+        text-decoration: none;
+        margin: 0 8px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    #user-tools a:hover {
+        background: rgba(255,255,255,0.2);
+    }
+    
+    /* 内容区域 */
+    .colM {
+        background: white;
+        border-radius: 15px;
+        margin: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    /* 面包屑导航 */
+    .breadcrumbs {
+        background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+        border: none;
+        border-radius: 10px;
+        margin: 15px;
+        padding: 12px 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .breadcrumbs a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .breadcrumbs a:hover {
+        color: #764ba2;
+    }
+    
+    /* 模块样式 */
+    .module {
+        border: none;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .module h2 {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 20px;
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .module table {
+        margin: 0;
+    }
+    
+    /* 表格样式 */
+    table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    th {
+        background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+        color: #495057;
+        font-weight: 600;
+        padding: 12px 15px;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    tr:hover td {
+        background-color: #f8f9ff;
+    }
+    
+    /* 按钮样式 */
+    .button, input[type=submit], input[type=button], .submit-row input {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 25px;
+        color: white;
+        padding: 10px 20px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .button:hover, input[type=submit]:hover, input[type=button]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    /* 表单样式 */
+    .form-row {
+        margin-bottom: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .form-row label {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    input[type=text], input[type=password], input[type=email], 
+    input[type=number], textarea, select {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 10px 12px;
+        transition: all 0.3s ease;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+    
+    /* 消息样式 */
+    .messagelist {
+        margin: 15px;
+        padding: 0;
+        list-style: none;
+    }
+    
+    .messagelist li {
+        padding: 12px 20px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        border-left: 4px solid;
+    }
+    
+    .messagelist .success {
+        background: #d4edda;
+        border-left-color: #28a745;
+        color: #155724;
+    }
+    
+    .messagelist .error {
+        background: #f8d7da;
+        border-left-color: #dc3545;
+        color: #721c24;
+    }
+    
+    .messagelist .warning {
+        background: #fff3cd;
+        border-left-color: #ffc107;
+        color: #856404;
+    }
+    
+    /* 分页样式 */
+    .paginator {
+        text-align: center;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 0 0 10px 10px;
+    }
+    
+    .paginator a {
+        display: inline-block;
+        padding: 8px 12px;
+        margin: 0 2px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        color: #667eea;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .paginator a:hover {
+        background: #667eea;
+        color: white;
+    }
+    
+    .paginator .this-page {
+        display: inline-block;
+        padding: 8px 12px;
+        margin: 0 2px;
+        background: #667eea;
+        color: white;
+        border-radius: 5px;
+        font-weight: 600;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .admin-branding {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        
+        .admin-subtitle {
+            margin-left: 0;
+        }
+        
+        .colM {
+            margin: 10px;
+        }
+        
+        #user-tools {
+            margin-top: 10px;
+        }
+    }
+    
+    /* 仪表板特殊样式 */
+    #content-main {
+        padding: 20px;
+    }
+    
+    .dashboard .module {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .dashboard .module:hover {
+        transform: translateY(-5px);
+    }
+    
+    .dashboard .module h2 {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        margin: 0;
+        padding: 20px;
+        border-radius: 15px 15px 0 0;
+    }
+    
+    .dashboard .module table {
+        margin: 0;
+    }
+    
+    .dashboard .module td {
+        padding: 15px 20px;
+    }
+    
+    .dashboard .module a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+    
+    .dashboard .module a:hover {
+        color: #764ba2;
+    }
+</style>
+{% endblock %}
+
+{% block footer %}
+<div id="footer" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; padding: 15px; margin-top: 30px;">
+    <p style="margin: 0; opacity: 0.8;">
+        <i class="fas fa-copyright"></i> 2025 乒乓球培训管理系统 - 专业的体育培训管理平台
+    </p>
+</div>
+{% endblock %}

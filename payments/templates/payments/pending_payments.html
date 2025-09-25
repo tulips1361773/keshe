@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - 支付管理系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 10px 25px rgba(0,0,0,0.1);
+            --border-radius: 15px;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin: 2rem;
+            padding: 2rem;
+            min-height: calc(100vh - 4rem);
+        }
+        
+        .navbar {
+            background: var(--primary-gradient) !important;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table-dark {
+            background: var(--primary-gradient) !important;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+        
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        
+        .badge.bg-info {
+            background: var(--success-gradient) !important;
+        }
+        
+        .badge.bg-warning {
+            background: var(--warning-gradient) !important;
+            color: #333 !important;
+        }
+        
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+        }
+        
+        .btn {
+            border-radius: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+            border: none;
+        }
+        
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+        
+        .btn-success {
+            background: var(--success-gradient);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        .btn-danger {
+            background: var(--danger-gradient);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.3);
+        }
+        
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline-secondary {
+            background: transparent;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: #6c757d;
+            border-color: transparent;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .form-control {
+            border-radius: 25px;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1.25rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .search-box {
+            max-width: 350px;
+        }
+        
+        .table-responsive {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        .action-buttons {
+            white-space: nowrap;
+        }
+        
+        .text-success {
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        code {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        
+        .pagination .page-link {
+            border-radius: 10px;
+            margin: 0 2px;
+            border: none;
+            color: #667eea;
+            transition: var(--transition);
+        }
+        
+        .pagination .page-item.active .page-link {
+            background: var(--primary-gradient);
+            border-color: transparent;
+        }
+        
+        .pagination .page-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .alert {
+            border-radius: var(--border-radius);
+            border: none;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .main-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .card {
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .navbar {
+                margin-bottom: 1rem;
+            }
+            
+            .search-box {
+                max-width: 200px;
+            }
+            
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .btn-sm {
+                padding: 0.35rem 0.7rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="/admin/">
+                    <i class="fas fa-credit-card"></i>
+                    支付管理系统
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/admin/">返回管理后台</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">
+                            <i class="fas fa-clock text-warning"></i>
+                            {{ title }}
+                            <span class="badge bg-secondary ms-2">{{ total_count }}</span>
+                        </h2>
+                        
+                        <!-- 搜索框 -->
+                        <form method="get" class="d-flex">
+                            <input type="text" name="search" class="form-control search-box" 
+                                   placeholder="搜索用户名、姓名、手机号或订单号" 
+                                   value="{{ search }}">
+                            <button type="submit" class="btn btn-outline-primary ms-2">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            {% if search %}
+                            <a href="?" class="btn btn-outline-secondary ms-1">
+                                <i class="fas fa-times-circle"></i>
+                            </a>
+                            {% endif %}
+                        </form>
+                    </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if payments %}
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>订单号</th>
+                                        <th>用户信息</th>
+                                        <th>充值金额</th>
+                                        <th>支付方式</th>
+                                        <th>创建时间</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments %}
+                                    <tr id="payment-{{ payment.payment_id }}">
+                                        <td>
+                                            <code>{{ payment.payment_id }}</code>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ payment.user.real_name|default:payment.user.username }}</strong>
+                                            </div>
+                                            <small class="text-muted">
+                                                {{ payment.user.username }}
+                                                {% if payment.user.phone %}
+                                                    <br>{{ payment.user.phone }}
+                                                {% endif %}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-success">¥{{ payment.amount }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ payment.payment_method.name }}</span>
+                                        </td>
+                                        <td>
+                                            <small>{{ payment.created_at|date:"Y-m-d H:i" }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning status-badge">
+                                                <i class="fas fa-clock"></i> 待审核
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn btn-success btn-sm" 
+                                                        onclick="approvePayment('{{ payment.payment_id }}', 'approve')">
+                                                    <i class="fas fa-check-circle"></i> 通过
+                                                </button>
+                                                <button class="btn btn-danger btn-sm ms-1" 
+                                                        onclick="approvePayment('{{ payment.payment_id }}', 'reject')">
+                                                    <i class="fas fa-times-circle"></i> 拒绝
+                                                </button>
+                                                <a href="{% url 'payments:payment_detail' payment.payment_id %}" 
+                                                   class="btn btn-outline-primary btn-sm ms-1">
+                                                    <i class="fas fa-eye"></i> 详情
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+                {% if payments.has_other_pages %}
+                <nav aria-label="分页导航" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if payments.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ payments.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in payments.paginator.page_range %}
+                            {% if payments.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > payments.number|add:'-3' and num < payments.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if payments.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ payments.next_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ payments.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox display-1 text-muted"></i>
+                    <h4 class="text-muted mt-3">暂无待审核的支付订单</h4>
+                    {% if search %}
+                    <p class="text-muted">没有找到匹配 "{{ search }}" 的订单</p>
+                    <a href="?" class="btn btn-outline-primary">查看所有订单</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+             </div>
+         </div>
+     </div>
+     </div>
+
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function approvePayment(paymentId, action) {
+            const actionText = action === 'approve' ? '通过' : '拒绝';
+            const confirmText = `确定要${actionText}这个充值订单吗？`;
+            
+            if (!confirm(confirmText)) {
+                return;
+            }
+            
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-hourglass-half"></i> 处理中...';
+            
+            fetch(`/payments/approve/${paymentId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: `action=${action}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 显示成功消息
+                    showAlert('success', data.message);
+                    
+                    // 移除该行或更新状态
+                    const row = document.getElementById(`payment-${paymentId}`);
+                    if (row) {
+                        row.style.transition = 'opacity 0.5s';
+                        row.style.opacity = '0.5';
+                        setTimeout(() => {
+                            row.remove();
+                            // 如果没有更多行了，刷新页面
+                            if (document.querySelectorAll('tbody tr').length === 0) {
+                                location.reload();
+                            }
+                        }, 1000);
+                    }
+                } else {
+                    showAlert('danger', data.message);
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', '操作失败，请重试');
+                button.disabled = false;
+                button.innerHTML = originalText;
+            });
+        }
+        
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.container');
+            const firstChild = container.firstElementChild;
+            container.insertBefore(alertDiv, firstChild.nextSibling);
+            
+            // 自动消失
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端退款调试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; font-family: monospace; }
+        button { padding: 10px 20px; margin: 5px; }
+        input, select { padding: 5px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>前端退款功能调试</h1>
+    
+    <div class="section">
+        <h2>1. 检查前端控制台</h2>
+        <p>打开浏览器开发者工具(F12)，查看Console和Network标签页</p>
+        <button onclick="checkConsole()">检查控制台状态</button>
+        <div id="console-status" class="log"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. 测试API连接</h2>
+        <button onclick="testAPIConnection()">测试API连接</button>
+        <div id="api-status" class="log"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. 获取取消申请列表</h2>
+        <button onclick="getCancellations()">获取取消申请</button>
+        <div id="cancellations" class="log"></div>
+    </div>
+
+    <div class="section">
+        <h2>4. 测试批准取消申请</h2>
+        <input type="number" id="cancellation-id" placeholder="取消申请ID" value="15">
+        <button onclick="approveCancellation()">批准取消申请</button>
+        <div id="approve-result" class="log"></div>
+    </div>
+
+    <div class="section">
+        <h2>5. 检查学员账户</h2>
+        <button onclick="checkAccount()">检查账户余额</button>
+        <div id="account-info" class="log"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        
+        function log(elementId, message) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML += `[${timestamp}] ${message}<br>`;
+        }
+
+        function checkConsole() {
+            log('console-status', '控制台检查开始...');
+            log('console-status', `当前URL: ${window.location.href}`);
+            log('console-status', `User Agent: ${navigator.userAgent}`);
+            log('console-status', '请检查浏览器开发者工具的Console和Network标签页');
+        }
+
+        async function testAPIConnection() {
+            log('api-status', '测试API连接...');
+            try {
+                const response = await fetch(`${API_BASE}/accounts/profile/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                log('api-status', `API连接状态: ${response.status}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log('api-status', `用户信息: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    log('api-status', `API错误: ${response.statusText}`);
+                }
+            } catch (error) {
+                log('api-status', `连接错误: ${error.message}`);
+            }
+        }
+
+        async function getCancellations() {
+            log('cancellations', '获取取消申请列表...');
+            try {
+                const response = await fetch(`${API_BASE}/reservations/cancellations/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                log('cancellations', `请求状态: ${response.status}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log('cancellations', `取消申请数据: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    log('cancellations', `获取失败: ${response.statusText}`);
+                }
+            } catch (error) {
+                log('cancellations', `请求错误: ${error.message}`);
+            }
+        }
+
+        async function approveCancellation() {
+            const cancellationId = document.getElementById('cancellation-id').value;
+            if (!cancellationId) {
+                log('approve-result', '请输入取消申请ID');
+                return;
+            }
+
+            log('approve-result', `批准取消申请 ID: ${cancellationId}`);
+            try {
+                const response = await fetch(`${API_BASE}/reservations/cancellations/${cancellationId}/approve/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'approve',
+                        comment: '测试批准退款功能'
+                    })
+                });
+                
+                log('approve-result', `请求状态: ${response.status}`);
+                log('approve-result', `请求URL: ${response.url}`);
+                
+                const responseText = await response.text();
+                log('approve-result', `响应内容: ${responseText}`);
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        log('approve-result', `批准成功: ${JSON.stringify(data, null, 2)}`);
+                    } catch (e) {
+                        log('approve-result', `批准成功，但响应不是JSON格式`);
+                    }
+                } else {
+                    log('approve-result', `批准失败: ${response.status} - ${response.statusText}`);
+                }
+            } catch (error) {
+                log('approve-result', `请求错误: ${error.message}`);
+            }
+        }
+
+        async function checkAccount() {
+            log('account-info', '检查账户信息...');
+            try {
+                const response = await fetch(`${API_BASE}/payments/api/account/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                log('account-info', `请求状态: ${response.status}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log('account-info', `账户信息: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    log('account-info', `获取失败: ${response.statusText}`);
+                }
+            } catch (error) {
+                log('account-info', `请求错误: ${error.message}`);
+            }
+        }
+
+        // 页面加载时自动检查
+        window.onload = function() {
+            log('console-status', '页面加载完成');
+            const token = localStorage.getItem('token');
+            if (token) {
+                log('console-status', `找到Token: ${token.substring(0, 20)}...`);
+            } else {
+                log('console-status', '未找到Token，请先登录');
+            }
+        };
+    </script>
+</body>
+</html>

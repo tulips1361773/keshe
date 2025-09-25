@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程表API调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #409eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #337ecc;
+        }
+        .button.danger {
+            background: #f56c6c;
+        }
+        .button.success {
+            background: #67c23a;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            background: #fef0f0;
+            border-color: #fbc4c4;
+            color: #f56c6c;
+        }
+        .success {
+            background: #f0f9ff;
+            border-color: #b3d8ff;
+            color: #409eff;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        .status.online {
+            background: #f0f9ff;
+            color: #409eff;
+        }
+        .status.offline {
+            background: #fef0f0;
+            color: #f56c6c;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏓 课程表API调试工具</h1>
+    
+    <div class="container">
+        <h2>📋 当前状态</h2>
+        <div id="status">
+            <div class="status" id="tokenStatus">Token状态: 检查中...</div>
+            <div class="status" id="apiStatus">API状态: 检查中...</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔑 Token管理</h2>
+        <div class="input-group">
+            <label for="tokenInput">设置Token:</label>
+            <input type="text" id="tokenInput" placeholder="输入Token" value="d548b083231205ef6d7d8726629a0c9340d34f5d">
+        </div>
+        <button class="button" onclick="setToken()">设置Token</button>
+        <button class="button" onclick="getToken()">获取Token</button>
+        <button class="button danger" onclick="clearToken()">清除Token</button>
+        <div id="tokenResult" class="result"></div>
+    </div>
+
+    <div class="container">
+        <h2>📅 课程表API测试</h2>
+        <div class="input-group">
+            <label for="dateFrom">开始日期:</label>
+            <input type="date" id="dateFrom">
+        </div>
+        <div class="input-group">
+            <label for="dateTo">结束日期:</label>
+            <input type="date" id="dateTo">
+        </div>
+        <button class="button" onclick="testScheduleAPI()">测试课程表API</button>
+        <button class="button" onclick="testTodaySchedule()">测试今日课程</button>
+        <button class="button" onclick="testWeekSchedule()">测试本周课程</button>
+        <div id="apiResult" class="result"></div>
+    </div>
+
+    <div class="container">
+        <h2>🔧 网络诊断</h2>
+        <button class="button" onclick="testConnection()">测试连接</button>
+        <button class="button" onclick="testAuth()">测试认证</button>
+        <button class="button" onclick="checkCORS()">检查CORS</button>
+        <div id="diagnosticResult" class="result"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // 配置axios
+        axios.defaults.baseURL = 'http://127.0.0.1:8000';
+        axios.defaults.withCredentials = true;
+
+        // 初始化页面
+        window.onload = function() {
+            checkStatus();
+            setDefaultDates();
+        };
+
+        function setDefaultDates() {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            
+            document.getElementById('dateFrom').value = today.toISOString().split('T')[0];
+            document.getElementById('dateTo').value = tomorrow.toISOString().split('T')[0];
+        }
+
+        function checkStatus() {
+            // 检查Token状态
+            const token = localStorage.getItem('token');
+            const tokenStatus = document.getElementById('tokenStatus');
+            if (token) {
+                tokenStatus.textContent = `Token状态: 已设置 (${token.substring(0, 10)}...)`;
+                tokenStatus.className = 'status online';
+                
+                // 设置axios默认头
+                axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+            } else {
+                tokenStatus.textContent = 'Token状态: 未设置';
+                tokenStatus.className = 'status offline';
+            }
+
+            // 检查API状态
+            testConnection().then(() => {
+                const apiStatus = document.getElementById('apiStatus');
+                apiStatus.textContent = 'API状态: 在线';
+                apiStatus.className = 'status online';
+            }).catch(() => {
+                const apiStatus = document.getElementById('apiStatus');
+                apiStatus.textContent = 'API状态: 离线';
+                apiStatus.className = 'status offline';
+            });
+        }
+
+        function setToken() {
+            const token = document.getElementById('tokenInput').value.trim();
+            if (token) {
+                localStorage.setItem('token', token);
+                axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+                document.getElementById('tokenResult').textContent = `✅ Token已设置: ${token}`;
+                document.getElementById('tokenResult').className = 'result success';
+                checkStatus();
+            } else {
+                document.getElementById('tokenResult').textContent = '❌ 请输入有效的Token';
+                document.getElementById('tokenResult').className = 'result error';
+            }
+        }
+
+        function getToken() {
+            const token = localStorage.getItem('token');
+            const result = document.getElementById('tokenResult');
+            if (token) {
+                result.textContent = `当前Token: ${token}`;
+                result.className = 'result success';
+            } else {
+                result.textContent = '未找到Token';
+                result.className = 'result error';
+            }
+        }
+
+        function clearToken() {
+            localStorage.removeItem('token');
+            delete axios.defaults.headers.common['Authorization'];
+            document.getElementById('tokenResult').textContent = '✅ Token已清除';
+            document.getElementById('tokenResult').className = 'result success';
+            checkStatus();
+        }
+
+        async function testScheduleAPI() {
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const result = document.getElementById('apiResult');
+            
+            try {
+                result.textContent = '🔄 正在调用API...';
+                result.className = 'result';
+                
+                const params = {};
+                if (dateFrom) params.date_from = dateFrom;
+                if (dateTo) params.date_to = dateTo;
+                
+                console.log('发送请求:', {
+                    url: '/api/reservations/bookings/my_schedule/',
+                    params: params,
+                    headers: axios.defaults.headers.common
+                });
+                
+                const response = await axios.get('/api/reservations/bookings/my_schedule/', { params });
+                
+                result.textContent = `✅ API调用成功!\n\n状态码: ${response.status}\n\n响应数据:\n${JSON.stringify(response.data, null, 2)}`;
+                result.className = 'result success';
+                
+                console.log('API响应:', response);
+                
+            } catch (error) {
+                console.error('API调用失败:', error);
+                
+                let errorMsg = `❌ API调用失败!\n\n`;
+                errorMsg += `错误类型: ${error.name}\n`;
+                errorMsg += `错误信息: ${error.message}\n`;
+                
+                if (error.response) {
+                    errorMsg += `状态码: ${error.response.status}\n`;
+                    errorMsg += `响应数据: ${JSON.stringify(error.response.data, null, 2)}\n`;
+                } else if (error.request) {
+                    errorMsg += `请求已发送但无响应\n`;
+                    errorMsg += `请求详情: ${error.request}\n`;
+                } else {
+                    errorMsg += `请求配置错误: ${error.config}\n`;
+                }
+                
+                result.textContent = errorMsg;
+                result.className = 'result error';
+            }
+        }
+
+        async function testTodaySchedule() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateFrom').value = today;
+            document.getElementById('dateTo').value = today;
+            await testScheduleAPI();
+        }
+
+        async function testWeekSchedule() {
+            const today = new Date();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            
+            document.getElementById('dateFrom').value = monday.toISOString().split('T')[0];
+            document.getElementById('dateTo').value = sunday.toISOString().split('T')[0];
+            await testScheduleAPI();
+        }
+
+        async function testConnection() {
+            const result = document.getElementById('diagnosticResult');
+            try {
+                result.textContent = '🔄 测试连接...';
+                result.className = 'result';
+                
+                const response = await axios.get('/api/');
+                result.textContent = `✅ 连接成功!\n状态码: ${response.status}`;
+                result.className = 'result success';
+                return Promise.resolve();
+            } catch (error) {
+                result.textContent = `❌ 连接失败!\n错误: ${error.message}`;
+                result.className = 'result error';
+                return Promise.reject(error);
+            }
+        }
+
+        async function testAuth() {
+            const result = document.getElementById('diagnosticResult');
+            try {
+                result.textContent = '🔄 测试认证...';
+                result.className = 'result';
+                
+                const response = await axios.get('/api/accounts/profile/');
+                result.textContent = `✅ 认证成功!\n用户信息: ${JSON.stringify(response.data, null, 2)}`;
+                result.className = 'result success';
+            } catch (error) {
+                result.textContent = `❌ 认证失败!\n状态码: ${error.response?.status}\n错误: ${error.response?.data?.message || error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        async function checkCORS() {
+            const result = document.getElementById('diagnosticResult');
+            result.textContent = `🔍 CORS检查:\n\n当前域名: ${window.location.origin}\nAPI地址: ${axios.defaults.baseURL}\nwithCredentials: ${axios.defaults.withCredentials}\n\n请检查浏览器控制台是否有CORS错误`;
+            result.className = 'result';
+        }
+
+        // 监听axios请求和响应
+        axios.interceptors.request.use(request => {
+            console.log('🚀 发送请求:', request);
+            return request;
+        });
+
+        axios.interceptors.response.use(
+            response => {
+                console.log('✅ 收到响应:', response);
+                return response;
+            },
+            error => {
+                console.error('❌ 请求错误:', error);
+                return Promise.reject(error);
+            }
+        );
+    </script>
+</body>
+</html>

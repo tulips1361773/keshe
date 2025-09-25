@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单API测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 API连接测试</h1>
+        
+        <div class="section">
+            <h3>1. 设置Token</h3>
+            <input type="text" id="tokenInput" value="2f4e9746ba1c15900dd4df0858e5dd67a099a79e" placeholder="输入Token">
+            <button onclick="setToken()">设置Token</button>
+            <button onclick="checkToken()">检查Token</button>
+            <div id="tokenResult" class="result info"></div>
+        </div>
+        
+        <div class="section">
+            <h3>2. 测试API</h3>
+            <button onclick="testStatsAPI()">测试统计API</button>
+            <button onclick="testNotificationsAPI()">测试通知API</button>
+            <button onclick="testUnreadAPI()">测试未读消息API</button>
+            <div id="apiResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h3>3. 检查localStorage</h3>
+            <button onclick="checkLocalStorage()">检查localStorage</button>
+            <div id="storageResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        
+        function setToken() {
+            const token = document.getElementById('tokenInput').value;
+            if (token) {
+                localStorage.setItem('token', token);
+                showResult('tokenResult', `✅ Token已设置: ${token.substring(0, 20)}...`, 'success');
+            } else {
+                showResult('tokenResult', '❌ 请输入Token', 'error');
+            }
+        }
+        
+        function checkToken() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                showResult('tokenResult', `✅ 当前Token: ${token}`, 'info');
+            } else {
+                showResult('tokenResult', '❌ 未设置Token', 'error');
+            }
+        }
+        
+        async function testStatsAPI() {
+            showResult('apiResult', '正在测试统计API...', 'info');
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showResult('apiResult', '❌ 未设置Token', 'error');
+                    return;
+                }
+                
+                console.log('发送请求到:', `${API_BASE}/accounts/api/stats/`);
+                console.log('使用Token:', token);
+                
+                const response = await fetch(`${API_BASE}/accounts/api/stats/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                console.log('响应状态:', response.status);
+                console.log('响应头:', [...response.headers.entries()]);
+                
+                const responseText = await response.text();
+                console.log('响应内容:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    showResult('apiResult', `❌ 响应不是有效JSON:\n状态码: ${response.status}\n响应: ${responseText}`, 'error');
+                    return;
+                }
+                
+                const message = `${response.ok ? '✅' : '❌'} 统计API\n状态码: ${response.status}\n响应: ${JSON.stringify(data, null, 2)}`;
+                showResult('apiResult', message, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                console.error('请求错误:', error);
+                showResult('apiResult', `❌ 统计API错误: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testNotificationsAPI() {
+            showResult('apiResult', '正在测试通知API...', 'info');
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showResult('apiResult', '❌ 未设置Token', 'error');
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE}/api/notifications/list/?page=1&page_size=5`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const responseText = await response.text();
+                console.log('通知API响应:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    showResult('apiResult', `❌ 通知API响应不是有效JSON:\n状态码: ${response.status}\n响应: ${responseText}`, 'error');
+                    return;
+                }
+                
+                const message = `${response.ok ? '✅' : '❌'} 通知API\n状态码: ${response.status}\n响应: ${JSON.stringify(data, null, 2)}`;
+                showResult('apiResult', message, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('apiResult', `❌ 通知API错误: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testUnreadAPI() {
+            showResult('apiResult', '正在测试未读消息API...', 'info');
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showResult('apiResult', '❌ 未设置Token', 'error');
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE}/api/notifications/unread-count/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const responseText = await response.text();
+                console.log('未读消息API响应:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    showResult('apiResult', `❌ 未读消息API响应不是有效JSON:\n状态码: ${response.status}\n响应: ${responseText}`, 'error');
+                    return;
+                }
+                
+                const message = `${response.ok ? '✅' : '❌'} 未读消息API\n状态码: ${response.status}\n响应: ${JSON.stringify(data, null, 2)}`;
+                showResult('apiResult', message, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('apiResult', `❌ 未读消息API错误: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkLocalStorage() {
+            const storage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                storage[key] = localStorage.getItem(key);
+            }
+            
+            showResult('storageResult', `localStorage内容:\n${JSON.stringify(storage, null, 2)}`, 'info');
+        }
+        
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+        
+        // 页面加载时自动检查
+        window.onload = function() {
+            checkToken();
+            checkLocalStorage();
+            console.log('简单测试页面已加载');
+        };
+    </script>
+</body>
+</html>
