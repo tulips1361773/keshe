@@ -80,15 +80,7 @@
             <span>我的课表</span>
           </el-menu-item>
           
-          <el-menu-item v-if="userStore.user?.user_type === 'coach'" index="cancellation-approval">
-            <el-icon><DocumentChecked /></el-icon>
-            <span>取消申请审核</span>
-          </el-menu-item>
-          
-          <el-menu-item v-if="userStore.user?.user_type === 'coach'" index="cancellation-approval">
-            <el-icon><DocumentChecked /></el-icon>
-            <span>取消申请审核</span>
-          </el-menu-item>
+
           
           <el-menu-item index="reservations">
             <el-icon><Calendar /></el-icon>
@@ -98,11 +90,6 @@
           <el-menu-item index="schedule">
             <el-icon><Clock /></el-icon>
             <span>课程表</span>
-          </el-menu-item>
-          
-          <el-menu-item index="progress">
-            <el-icon><TrendCharts /></el-icon>
-            <span>学习进度</span>
           </el-menu-item>
           
           <el-menu-item index="payments">
