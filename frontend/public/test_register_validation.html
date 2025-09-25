@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册密码验证测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .password-input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .valid {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .invalid {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>注册密码验证测试</h1>
+    <p>测试密码规则：8-16位，必须包含字母、数字和特殊字符(!@#$%^&*(),.?":{}|<>_~`-+=[]\;/)</p>
+    
+    <div class="test-case">
+        <h3>测试密码验证</h3>
+        <input type="password" class="password-input" id="testPassword" placeholder="输入密码进行测试">
+        <div id="result" class="result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>预设测试用例</h3>
+        <button onclick="testPassword('abc123')">测试: abc123 (缺少特殊字符)</button><br><br>
+        <button onclick="testPassword('abc123!')">测试: abc123! (符合要求)</button><br><br>
+        <button onclick="testPassword('abcdefg')">测试: abcdefg (缺少数字和特殊字符)</button><br><br>
+        <button onclick="testPassword('123456!')">测试: 123456! (缺少字母)</button><br><br>
+        <button onclick="testPassword('Abc123!@#')">测试: Abc123!@# (符合要求)</button><br><br>
+        <button onclick="testPassword('Abc123_')">测试: Abc123_ (包含下划线)</button><br><br>
+        <button onclick="testPassword('Abc123~')">测试: Abc123~ (包含波浪号)</button><br><br>
+        <button onclick="testPassword('a1!')">测试: a1! (太短)</button><br><br>
+        <button onclick="testPassword('abcdefghijklmnop123!')">测试: abcdefghijklmnop123! (太长)</button>
+    </div>
+    
+    <script>
+        // 与前端代码相同的密码验证规则
+        function validatePassword(password) {
+            const rules = {
+                length: password.length >= 8 && password.length <= 16,
+                hasLetter: /[a-zA-Z]/.test(password),
+                hasNumber: /\d/.test(password),
+                hasSpecialChar: /[!@#$%^&*(),.?":{}|<>_~`\-+=\[\]\\;/]/.test(password),
+                fullMatch: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>_~`\-+=\[\]\\;/]).*$/.test(password)
+            };
+            
+            const isValid = rules.length && rules.hasLetter && rules.hasNumber && rules.hasSpecialChar && rules.fullMatch;
+            
+            return {
+                isValid,
+                rules,
+                message: isValid ? '密码符合要求' : getErrorMessage(rules)
+            };
+        }
+        
+        function getErrorMessage(rules) {
+            const errors = [];
+            if (!rules.length) errors.push('长度必须为8-16位');
+            if (!rules.hasLetter) errors.push('必须包含字母');
+            if (!rules.hasNumber) errors.push('必须包含数字');
+            if (!rules.hasSpecialChar) errors.push('必须包含特殊字符');
+            return errors.join('，');
+        }
+        
+        function testPassword(password) {
+            const result = validatePassword(password);
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.className = 'result ' + (result.isValid ? 'valid' : 'invalid');
+            resultDiv.innerHTML = `
+                <strong>密码: ${password}</strong><br>
+                结果: ${result.message}<br>
+                详细检查:<br>
+                - 长度(8-16): ${result.rules.length ? '✓' : '✗'}<br>
+                - 包含字母: ${result.rules.hasLetter ? '✓' : '✗'}<br>
+                - 包含数字: ${result.rules.hasNumber ? '✓' : '✗'}<br>
+                - 包含特殊字符: ${result.rules.hasSpecialChar ? '✓' : '✗'}<br>
+                - 完整匹配: ${result.rules.fullMatch ? '✓' : '✗'}
+            `;
+        }
+        
+        // 实时验证输入的密码
+        document.getElementById('testPassword').addEventListener('input', function(e) {
+            if (e.target.value) {
+                testPassword(e.target.value);
+            } else {
+                document.getElementById('result').innerHTML = '';
+                document.getElementById('result').className = 'result';
+            }
+        });
+    </script>
+</body>
+</html>

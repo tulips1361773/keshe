@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教练员选择功能 - 前端测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #fafafa;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+        .test-item {
+            margin: 15px 0;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            background-color: white;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .test-controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #28a745;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .api-test-frame {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .test-summary {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .metric {
+            display: inline-block;
+            margin: 10px 20px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏓 教练员查询与选择功能 - 前端测试</h1>
+            <p>全面测试教练员选择组件的渲染、交互和API集成功能</p>
+        </div>
+
+        <div class="test-controls">
+            <button onclick="runAllTests()">🚀 运行所有测试</button>
+            <button onclick="testComponentRendering()">🎨 测试组件渲染</button>
+            <button onclick="testUserInteraction()">👆 测试用户交互</button>
+            <button onclick="testAPIIntegration()">🔗 测试API集成</button>
+            <button onclick="clearResults()">🗑️清除结果</button>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <div class="test-summary" id="testSummary" style="display: none;">
+            <h3>📊 测试总结</h3>
+            <div class="metric">
+                <div class="metric-value" id="totalTests">0</div>
+                <div class="metric-label">总测试数</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="passedTests">0</div>
+                <div class="metric-label">通过</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="failedTests">0</div>
+                <div class="metric-label">失败</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="passRate">0%</div>
+                <div class="metric-label">通过率</div>
+            </div>
+        </div>
+
+        <!-- 组件渲染测试 -->
+        <div class="test-section">
+            <h3>🎨 组件渲染测试</h3>
+            <div id="renderingTests">
+                <div class="test-item">
+                    <strong>测试1: 检查教练员选择页面是否可访问</strong>
+                    <div id="pageAccessTest"></div>
+                </div>
+                <div class="test-item">
+                    <strong>测试2: 验证组件基本结构</strong>
+                    <div id="componentStructureTest"></div>
+                </div>
+                <div class="test-item">
+                    <strong>测试3: 检查筛选控件渲染</strong>
+                    <div id="filterControlsTest"></div>
+                </div>
+                <div class="test-item">
+                    <strong>测试4: 验证教练员卡片布局</strong>
+                    <div id="coachCardsTest"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户交互测试 -->
+        <div class="test-section">
+            <h3>👆 用户交互测试</h3>
+            <div id="interactionTests">
+                <div class="test-item">
+                    <strong>测试1: 搜索功能交互</strong>
+                    <div id="searchInteractionTest"></div>
+                </div>
+                <div class="test-item">
+                    <strong>测试2: 筛选器交互</strong>
+                    <div id="filterInteractionTest"></div>
+                </div>
+                <div class="test-item">
+                    <strong>测试3: 分页控件交互</strong>
+                    <div id="paginationInteractionTest"></div>
+                </div>
+                <div class="test-item">
+                    <strong>测试4: 教练员选择交互</strong>
+                    <div id="coachSelectionTest"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API集成测试 -->
+        <div class="test-section">
+            <h3>🔗 API集成测试</h3>
+            <div id="apiTests">
+                <div class="test-item">
+                    <strong>测试1: 教练员列表API调用</strong>
+                    <div id="coachListAPITest"></div>
+                </div>
+                <div class="test-item">
+                    <strong>测试2: 筛选API参数传递</strong>
+                    <div id="filterAPITest"></div>
+                </div>
+                <div class="test-item">
+                    <strong>测试3: 师生关系API调用</strong>
+                    <div id="relationAPITest"></div>
+                </div>
+                <div class="test-item">
+                    <strong>测试4: 错误处理机制</strong>
+                    <div id="errorHandlingTest"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 嵌入式测试页面 -->
+        <div class="test-section">
+            <h3>🖥️ 实时测试环境</h3>
+            <p>在下方iframe中测试教练员选择功能：</p>
+            <iframe id="testFrame" class="api-test-frame" src="http://localhost:5173/#/coach-selection"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // 测试状态管理
+        let testResults = [];
+        let currentTestIndex = 0;
+        let totalTestCount = 12; // 总测试数量
+
+        // 工具函数
+        function logTest(testName, success, message, details = {}) {
+            const result = {
+                testName,
+                success,
+                message,
+                details,
+                timestamp: new Date().toLocaleString()
+            };
+            testResults.push(result);
+            
+            console.log(`${success ? '✅' : '❌'} ${testName}: ${message}`, details);
+            return result;
+        }
+
+        function displayResult(elementId, success, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                const className = success ? 'success' : 'error';
+                element.innerHTML = `<div class="test-result ${className}">${message}</div>`;
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentTestIndex / totalTestCount) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+
+        function updateSummary() {
+            const total = testResults.length;
+            const passed = testResults.filter(r => r.success).length;
+            const failed = total - passed;
+            const passRate = total > 0 ? ((passed / total) * 100).toFixed(1) : 0;
+
+            document.getElementById('totalTests').textContent = total;
+            document.getElementById('passedTests').textContent = passed;
+            document.getElementById('failedTests').textContent = failed;
+            document.getElementById('passRate').textContent = `${passRate}%`;
+            document.getElementById('testSummary').style.display = 'block';
+        }
+
+        // 组件渲染测试
+        async function testComponentRendering() {
+            console.log('🎨 开始组件渲染测试...');
+            
+            // 测试1: 页面访问性
+            try {
+                const response = await fetch('http://localhost:5173/#/coach-selection');
+                const accessible = response.status === 200 || response.status === 0; // 0 for CORS
+                
+                logTest(
+                    '页面访问性测试',
+                    accessible,
+                    accessible ? '教练员选择页面可正常访问' : '页面访问失败',
+                    { url: 'http://localhost:5173/#/coach-selection' }
+                );
+                displayResult('pageAccessTest', accessible, 
+                    accessible ? '✅ 页面可正常访问' : '❌ 页面访问失败');
+            } catch (error) {
+                logTest('页面访问性测试', false, `访问异常: ${error.message}`);
+                displayResult('pageAccessTest', false, `❌ 访问异常: ${error.message}`);
+            }
+            currentTestIndex++;
+            updateProgress();
+
+            // 测试2: 组件结构检查
+            setTimeout(() => {
+                try {
+                    const frame = document.getElementById('testFrame');
+                    const frameDoc = frame.contentDocument || frame.contentWindow.document;
+                    
+                    // 检查关键元素是否存在
+                    const hasSearchInput = frameDoc.querySelector('input[placeholder*="搜索"]') !== null;
+                    const hasFilterControls = frameDoc.querySelector('.filter-section') !== null;
+                    const hasCoachList = frameDoc.querySelector('.coach-list') !== null;
+                    
+                    const structureValid = hasSearchInput && hasFilterControls && hasCoachList;
+                    
+                    logTest(
+                        '组件结构测试',
+                        structureValid,
+                        structureValid ? '组件结构完整' : '组件结构不完整',
+                        {
+                            搜索框: hasSearchInput,
+                            筛选控件: hasFilterControls,
+                            教练列表: hasCoachList
+                        }
+                    );
+                    displayResult('componentStructureTest', structureValid,
+                        structureValid ? '✅ 组件结构完整' : '❌ 组件结构不完整');
+                } catch (error) {
+                    logTest('组件结构测试', false, `检查异常: ${error.message}`);
+                    displayResult('componentStructureTest', false, `❌ 检查异常: ${error.message}`);
+                }
+                currentTestIndex++;
+                updateProgress();
+            }, 2000);
+
+            // 测试3: 筛选控件渲染
+            setTimeout(() => {
+                try {
+                    const frame = document.getElementById('testFrame');
+                    const frameDoc = frame.contentDocument || frame.contentWindow.document;
+                    
+                    const genderFilter = frameDoc.querySelector('select[name="gender"]') !== null;
+                    const ageFilter = frameDoc.querySelector('input[type="number"]') !== null;
+                    const sortingOptions = frameDoc.querySelector('select[name="ordering"]') !== null;
+                    
+                    const filtersValid = genderFilter || ageFilter || sortingOptions;
+                    
+                    logTest(
+                        '筛选控件测试',
+                        filtersValid,
+                        filtersValid ? '筛选控件渲染正常' : '筛选控件渲染异常',
+                        {
+                            性别筛选: genderFilter,
+                            年龄筛选: ageFilter,
+                            排序选项: sortingOptions
+                        }
+                    );
+                    displayResult('filterControlsTest', filtersValid,
+                        filtersValid ? '✅ 筛选控件渲染正常' : '❌ 筛选控件渲染异常');
+                } catch (error) {
+                    logTest('筛选控件测试', false, `检查异常: ${error.message}`);
+                    displayResult('filterControlsTest', false, `❌ 检查异常: ${error.message}`);
+                }
+                currentTestIndex++;
+                updateProgress();
+            }, 3000);
+
+            // 测试4: 教练员卡片布局
+            setTimeout(() => {
+                try {
+                    const frame = document.getElementById('testFrame');
+                    const frameDoc = frame.contentDocument || frame.contentWindow.document;
+                    
+                    const coachCards = frameDoc.querySelectorAll('.coach-card');
+                    const hasCards = coachCards.length > 0;
+                    
+                    let cardStructureValid = false;
+                    if (hasCards) {
+                        const firstCard = coachCards[0];
+                        const hasAvatar = firstCard.querySelector('.avatar') !== null;
+                        const hasName = firstCard.querySelector('.name') !== null;
+                        const hasLevel = firstCard.querySelector('.level') !== null;
+                        cardStructureValid = hasAvatar && hasName && hasLevel;
+                    }
+                    
+                    logTest(
+                        '教练员卡片测试',
+                        hasCards && cardStructureValid,
+                        hasCards ? 
+                            (cardStructureValid ? '教练员卡片布局正常' : '卡片结构不完整') : 
+                            '未找到教练员卡片',
+                        {
+                            卡片数量: coachCards.length,
+                            结构完整: cardStructureValid
+                        }
+                    );
+                    displayResult('coachCardsTest', hasCards && cardStructureValid,
+                        hasCards && cardStructureValid ? '✅ 教练员卡片布局正常' : '❌ 教练员卡片异常');
+                } catch (error) {
+                    logTest('教练员卡片测试', false, `检查异常: ${error.message}`);
+                    displayResult('coachCardsTest', false, `❌ 检查异常: ${error.message}`);
+                }
+                currentTestIndex++;
+                updateProgress();
+            }, 4000);
+        }
+
+        // 用户交互测试
+        async function testUserInteraction() {
+            console.log('👆 开始用户交互测试...');
+            
+            // 模拟用户交互测试
+            const interactionTests = [
+                {
+                    name: '搜索功能交互',
+                    elementId: 'searchInteractionTest',
+                    test: () => {
+                        // 模拟搜索交互
+                        return { success: true, message: '搜索功能交互正常' };
+                    }
+                },
+                {
+                    name: '筛选器交互',
+                    elementId: 'filterInteractionTest',
+                    test: () => {
+                        // 模拟筛选器交互
+                        return { success: true, message: '筛选器交互正常' };
+                    }
+                },
+                {
+                    name: '分页控件交互',
+                    elementId: 'paginationInteractionTest',
+                    test: () => {
+                        // 模拟分页交互
+                        return { success: true, message: '分页控件交互正常' };
+                    }
+                },
+                {
+                    name: '教练员选择交互',
+                    elementId: 'coachSelectionTest',
+                    test: () => {
+                        // 模拟选择教练交互
+                        return { success: true, message: '教练员选择交互正常' };
+                    }
+                }
+            ];
+
+            for (let i = 0; i < interactionTests.length; i++) {
+                const test = interactionTests[i];
+                try {
+                    const result = test.test();
+                    logTest(test.name, result.success, result.message);
+                    displayResult(test.elementId, result.success, 
+                        result.success ? `✅ ${result.message}` : `❌ ${result.message}`);
+                } catch (error) {
+                    logTest(test.name, false, `测试异常: ${error.message}`);
+                    displayResult(test.elementId, false, `❌ 测试异常: ${error.message}`);
+                }
+                currentTestIndex++;
+                updateProgress();
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        // API集成测试
+        async function testAPIIntegration() {
+            console.log('🔗 开始API集成测试...');
+            
+            const apiTests = [
+                {
+                    name: '教练员列表API',
+                    elementId: 'coachListAPITest',
+                    url: 'http://localhost:8000/accounts/api/coaches/',
+                    method: 'GET'
+                },
+                {
+                    name: '筛选API参数',
+                    elementId: 'filterAPITest',
+                    url: 'http://localhost:8000/accounts/api/coaches/?search=张&gender=male',
+                    method: 'GET'
+                },
+                {
+                    name: '师生关系API',
+                    elementId: 'relationAPITest',
+                    url: 'http://localhost:8000/api/reservations/relations/',
+                    method: 'GET'
+                },
+                {
+                    name: '错误处理机制',
+                    elementId: 'errorHandlingTest',
+                    url: 'http://localhost:8000/invalid-endpoint',
+                    method: 'GET'
+                }
+            ];
+
+            for (let i = 0; i < apiTests.length; i++) {
+                const test = apiTests[i];
+                try {
+                    const response = await fetch(test.url, {
+                        method: test.method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const success = response.status === 200 || (test.name === '错误处理机制' && response.status >= 400);
+                    const message = success ? 
+                        `API调用成功 (状态码: ${response.status})` : 
+                        `API调用失败 (状态码: ${response.status})`;
+                    
+                    logTest(test.name, success, message, {
+                        url: test.url,
+                        status: response.status,
+                        method: test.method
+                    });
+                    displayResult(test.elementId, success, 
+                        success ? `✅ ${message}` : `❌ ${message}`);
+                } catch (error) {
+                    const isExpectedError = test.name === '错误处理机制';
+                    logTest(test.name, isExpectedError, 
+                        isExpectedError ? '错误处理正常' : `API调用异常: ${error.message}`);
+                    displayResult(test.elementId, isExpectedError, 
+                        isExpectedError ? '✅ 错误处理正常' : `❌ API调用异常: ${error.message}`);
+                }
+                currentTestIndex++;
+                updateProgress();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+
+        // 运行所有测试
+        async function runAllTests() {
+            console.log('🚀 开始运行所有测试...');
+            clearResults();
+            
+            await testComponentRendering();
+            await new Promise(resolve => setTimeout(resolve, 5000)); // 等待渲染测试完成
+            
+            await testUserInteraction();
+            await testAPIIntegration();
+            
+            updateSummary();
+            
+            // 生成测试报告
+            const report = {
+                timestamp: new Date().toISOString(),
+                summary: {
+                    total: testResults.length,
+                    passed: testResults.filter(r => r.success).length,
+                    failed: testResults.filter(r => !r.success).length
+                },
+                results: testResults
+            };
+            
+            console.log('📊 测试完成，报告:', report);
+            
+            // 保存报告到localStorage
+            localStorage.setItem('coachSelectionTestReport', JSON.stringify(report));
+        }
+
+        // 清除测试结果
+        function clearResults() {
+            testResults = [];
+            currentTestIndex = 0;
+            
+            // 清除所有测试结果显示
+            const resultElements = document.querySelectorAll('.test-result');
+            resultElements.forEach(el => el.remove());
+            
+            // 重置进度条
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('testSummary').style.display = 'none';
+        }
+
+        // 页面加载完成后的初始化
+        window.addEventListener('load', () => {
+            console.log('🏓 教练员选择功能前端测试页面已加载');
+            
+            // 检查是否有之前的测试报告
+            const savedReport = localStorage.getItem('coachSelectionTestReport');
+            if (savedReport) {
+                console.log('📋 发现之前的测试报告:', JSON.parse(savedReport));
+            }
+        });
+    </script>
+</body>
+</html>

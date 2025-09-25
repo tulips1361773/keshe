@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>球台API调试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .table-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .table-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏓 球台API调试页面</h1>
+        
+        <div class="form-group">
+            <label for="token">认证Token:</label>
+            <input type="text" id="token" placeholder="请输入用户Token">
+            <button onclick="loadUserData()">加载用户数据</button>
+        </div>
+        
+        <div class="form-group">
+            <label for="campus">选择校区:</label>
+            <select id="campus">
+                <option value="">请选择校区</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="startTime">开始时间:</label>
+            <input type="datetime-local" id="startTime">
+        </div>
+        
+        <div class="form-group">
+            <label for="endTime">结束时间:</label>
+            <input type="datetime-local" id="endTime">
+        </div>
+        
+        <button onclick="loadAvailableTables()">查询可用球台</button>
+        <button onclick="clearResults()">清空结果</button>
+        
+        <div id="result" class="result info" style="display: none;"></div>
+    </div>
+
+    <script>
+        let currentToken = '';
+        
+        // 设置默认时间（明天10:00-12:00）
+        function setDefaultTime() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(10, 0, 0, 0);
+            
+            const endTime = new Date(tomorrow);
+            endTime.setHours(12, 0, 0, 0);
+            
+            document.getElementById('startTime').value = tomorrow.toISOString().slice(0, 16);
+            document.getElementById('endTime').value = endTime.toISOString().slice(0, 16);
+        }
+        
+        // 显示结果
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+            resultDiv.style.display = 'block';
+        }
+        
+        // 清空结果
+        function clearResults() {
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        // 加载用户数据
+        async function loadUserData() {
+            const token = document.getElementById('token').value.trim();
+            if (!token) {
+                showResult('请输入Token', 'error');
+                return;
+            }
+            
+            currentToken = token;
+            
+            try {
+                // 加载校区列表
+                const response = await fetch('/api/campus/api/list/', {
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const campuses = data.data || [];
+                    
+                    const campusSelect = document.getElementById('campus');
+                    campusSelect.innerHTML = '<option value="">请选择校区</option>';
+                    
+                    campuses.forEach(campus => {
+                        const option = document.createElement('option');
+                        option.value = campus.id;
+                        option.textContent = `${campus.name} (ID: ${campus.id})`;
+                        campusSelect.appendChild(option);
+                    });
+                    
+                    showResult(`成功加载 ${campuses.length} 个校区`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    showResult(`加载校区失败: ${response.status} - ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showResult(`请求失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 查询可用球台
+        async function loadAvailableTables() {
+            if (!currentToken) {
+                showResult('请先输入Token并加载用户数据', 'error');
+                return;
+            }
+            
+            const campusId = document.getElementById('campus').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            
+            if (!campusId || !startTime || !endTime) {
+                showResult('请填写完整的查询条件', 'error');
+                return;
+            }
+            
+            try {
+                const params = new URLSearchParams({
+                    campus_id: campusId,
+                    start_time: startTime,
+                    end_time: endTime
+                });
+                
+                showResult('正在查询可用球台...', 'info');
+                
+                const response = await fetch(`/api/reservations/tables/available/?${params}`, {
+                    headers: {
+                        'Authorization': `Token ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const tables = await response.json();
+                    
+                    let resultMessage = `查询成功！\n`;
+                    resultMessage += `校区ID: ${campusId}\n`;
+                    resultMessage += `时间段: ${startTime} - ${endTime}\n`;
+                    resultMessage += `找到 ${tables.length} 个可用球台:\n\n`;
+                    
+                    if (tables.length > 0) {
+                        tables.forEach((table, index) => {
+                            resultMessage += `${index + 1}. ${table.name || table.number} (ID: ${table.id})\n`;
+                            resultMessage += `   状态: ${table.status}\n`;
+                            resultMessage += `   描述: ${table.description || '无'}\n\n`;
+                        });
+                        showResult(resultMessage, 'success');
+                    } else {
+                        resultMessage += '该时间段暂无可用球台，请调整时间或选择其他校区。';
+                        showResult(resultMessage, 'error');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    showResult(`查询失败: ${response.status} - ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showResult(`请求失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 页面加载时设置默认时间
+        window.onload = function() {
+            setDefaultTime();
+        };
+    </script>
+</body>
+</html>

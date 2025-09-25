@@ -71,6 +71,11 @@ yarn-error.log*
 .npm
 .eslintcache
 
+# 前端依赖目录（必须添加）
+frontend/node_modules/
+# 依赖版本锁文件（可选，若需要跟踪则保留）
+frontend/package-lock.json
+
 # 前端构建文件
 frontend/dist/
 frontend/build/

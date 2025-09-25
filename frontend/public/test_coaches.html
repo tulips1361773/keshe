@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教练员功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏓 教练员功能测试页面</h1>
+        <p>此页面用于测试教练员相关的API功能和前端页面集成。</p>
+    </div>
+
+    <div class="container">
+        <div class="test-section">
+            <h2>1. 教练员列表API测试</h2>
+            <button onclick="testCoachList()">测试获取教练员列表</button>
+            <button onclick="testCoachListWithFilters()">测试带筛选的列表</button>
+            <div id="coachListResult" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. 教练员详情API测试</h2>
+            <button onclick="testCoachDetail(1)">测试获取教练员详情 (ID: 1)</button>
+            <button onclick="testCoachDetail(999)">测试不存在的教练员 (ID: 999)</button>
+            <div id="coachDetailResult" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. 前端页面导航测试</h2>
+            <button onclick="openCoachesPage()">打开教练员列表页面</button>
+            <button onclick="openCoachDetail(1)">打开教练员详情页面</button>
+            <div id="navigationResult" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. 认证状态测试</h2>
+            <button onclick="checkAuthStatus()">检查认证状态</button>
+            <button onclick="testLogin()">测试登录</button>
+            <div id="authResult" class="result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        const FRONTEND_BASE = 'http://localhost:3001';
+
+        // 显示结果的辅助函数
+        function showResult(elementId, content, isError = false) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${isError ? 'error' : 'success'}`;
+            element.innerHTML = content;
+        }
+
+        // 测试教练员列表API
+        async function testCoachList() {
+            try {
+                const response = await fetch(`${API_BASE}/api/coaches/`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('coachListResult', `
+                        <strong>✅ 教练员列表获取成功</strong><br>
+                        状态码: ${response.status}<br>
+                        数据数量: ${data.results ? data.results.length : (data.length || 0)}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `);
+                } else {
+                    showResult('coachListResult', `
+                        <strong>❌ 教练员列表获取失败</strong><br>
+                        状态码: ${response.status}<br>
+                        错误信息: ${data.message || '未知错误'}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, true);
+                }
+            } catch (error) {
+                showResult('coachListResult', `
+                    <strong>❌ 网络请求失败</strong><br>
+                    错误: ${error.message}
+                `, true);
+            }
+        }
+
+        // 测试带筛选的教练员列表
+        async function testCoachListWithFilters() {
+            try {
+                const params = new URLSearchParams({
+                    page: 1,
+                    page_size: 5,
+                    status: 'approved',
+                    ordering: '-created_at'
+                });
+                
+                const response = await fetch(`${API_BASE}/api/coaches/?${params}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('coachListResult', `
+                        <strong>✅ 带筛选的教练员列表获取成功</strong><br>
+                        状态码: ${response.status}<br>
+                        筛选条件: 已审核, 按创建时间倒序, 每页5条<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `);
+                } else {
+                    showResult('coachListResult', `
+                        <strong>❌ 带筛选的教练员列表获取失败</strong><br>
+                        状态码: ${response.status}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, true);
+                }
+            } catch (error) {
+                showResult('coachListResult', `
+                    <strong>❌ 网络请求失败</strong><br>
+                    错误: ${error.message}
+                `, true);
+            }
+        }
+
+        // 测试教练员详情API
+        async function testCoachDetail(coachId) {
+            try {
+                const response = await fetch(`${API_BASE}/api/coaches/${coachId}/`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('coachDetailResult', `
+                        <strong>✅ 教练员详情获取成功</strong><br>
+                        状态码: ${response.status}<br>
+                        教练员ID: ${coachId}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `);
+                } else {
+                    showResult('coachDetailResult', `
+                        <strong>❌ 教练员详情获取失败</strong><br>
+                        状态码: ${response.status}<br>
+                        教练员ID: ${coachId}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, true);
+                }
+            } catch (error) {
+                showResult('coachDetailResult', `
+                    <strong>❌ 网络请求失败</strong><br>
+                    错误: ${error.message}
+                `, true);
+            }
+        }
+
+        // 打开教练员列表页面
+        function openCoachesPage() {
+            const url = `${FRONTEND_BASE}/#/coaches`;
+            window.open(url, '_blank');
+            showResult('navigationResult', `
+                <strong>🔗 已打开教练员列表页面</strong><br>
+                URL: ${url}
+            `);
+        }
+
+        // 打开教练员详情页面
+        function openCoachDetail(coachId) {
+            const url = `${FRONTEND_BASE}/#/coaches/${coachId}`;
+            window.open(url, '_blank');
+            showResult('navigationResult', `
+                <strong>🔗 已打开教练员详情页面</strong><br>
+                URL: ${url}<br>
+                教练员ID: ${coachId}
+            `);
+        }
+
+        // 检查认证状态
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/csrf-token/`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                showResult('authResult', `
+                    <strong>🔐 认证状态检查</strong><br>
+                    状态码: ${response.status}<br>
+                    CSRF Token: ${data.csrf_token ? '已获取' : '未获取'}<br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `);
+            } catch (error) {
+                showResult('authResult', `
+                    <strong>❌ 认证状态检查失败</strong><br>
+                    错误: ${error.message}
+                `, true);
+            }
+        }
+
+        // 测试登录
+        async function testLogin() {
+            try {
+                // 首先获取CSRF token
+                const csrfResponse = await fetch(`${API_BASE}/api/csrf-token/`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const csrfData = await csrfResponse.json();
+                
+                // 使用测试账号登录
+                const loginResponse = await fetch(`${API_BASE}/api/login/`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfData.csrf_token
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    })
+                });
+                
+                const loginData = await loginResponse.json();
+                
+                if (loginResponse.ok && loginData.success) {
+                    showResult('authResult', `
+                        <strong>✅ 登录成功</strong><br>
+                        用户: ${loginData.user?.username || 'admin'}<br>
+                        角色: ${loginData.user?.role || '未知'}<br>
+                        现在可以测试需要认证的API了！
+                    `);
+                } else {
+                    showResult('authResult', `
+                        <strong>❌ 登录失败</strong><br>
+                        状态码: ${loginResponse.status}<br>
+                        错误: ${loginData.message || '登录失败'}<br>
+                        提示: 请确保有admin/admin123测试账号
+                    `, true);
+                }
+            } catch (error) {
+                showResult('authResult', `
+                    <strong>❌ 登录请求失败</strong><br>
+                    错误: ${error.message}
+                `, true);
+            }
+        }
+
+        // 页面加载时的提示
+        window.onload = function() {
+            console.log('教练员功能测试页面已加载');
+            console.log('Django API地址:', API_BASE);
+            console.log('前端应用地址:', FRONTEND_BASE);
+        };
+    </script>
+</body>
+</html>

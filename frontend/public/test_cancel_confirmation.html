@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预约取消确认流程演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 5px solid #4facfe;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .feature-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .flow-section {
+            margin-top: 40px;
+        }
+
+        .flow-title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+
+        .flow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #28a745;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+
+        .step-content p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .demo-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .demo-title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .demo-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .demo-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .demo-btn.secondary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .demo-btn.secondary:hover {
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-step {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .step-number {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .demo-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏓 预约取消确认流程</h1>
+            <p>全新的双方确认机制，让预约取消更加规范和透明</p>
+        </div>
+
+        <div class="content">
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🔒 双方确认机制</h3>
+                    <p>取消预约不再是单方面决定，需要对方确认才能生效，确保双方权益得到保护。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🔔 实时通知提醒</h3>
+                    <p>申请取消时，对方会立即收到通知，处理结果也会及时反馈给申请人。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📊 状态透明化</h3>
+                    <p>预约列表中清晰显示取消申请状态，包括待确认、已同意、已拒绝等状态。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>⚡ 操作便捷化</h3>
+                    <p>简化的操作流程，一键申请取消，一键同意或拒绝，提升用户体验。</p>
+                </div>
+            </div>
+
+            <div class="flow-section">
+                <h2 class="flow-title">📋 完整流程演示</h2>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>学员申请取消预约</h4>
+                            <p>学员在预约列表中点击"申请取消"按钮，填写取消原因并提交申请。预约状态显示为"待确认取消"<span class="status-indicator status-pending">待确认取消</span></p>
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>教练收到取消申请通知</h4>
+                            <p>系统自动向教练发送通知，告知学员申请取消预约的详细信息，包括预约时间、取消原因等。</p>
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>教练处理取消申请</h4>
+                            <p>教练在预约列表中看到取消申请，可以选择"同意取消"或"拒绝取消"，并可添加回复消息。</p>
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>处理结果通知与状态更新</h4>
+                            <p>学员收到处理结果通知。如果同意，预约状态变为"已取消"；如果拒绝，预约状态恢复为"已确认"。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h3 class="demo-title">🚀 立即体验</h3>
+                <div class="demo-buttons">
+                    <a href="http://localhost:3002/" class="demo-btn" target="_blank">
+                        🏓 进入预约系统
+                    </a>
+                    <a href="http://localhost:8000/admin/" class="demo-btn secondary" target="_blank">
+                        ⚙️ 管理后台
+                    </a>
+                </div>
+                <p style="text-align: center; margin-top: 20px; color: #666;">
+                    💡 提示：请先登录系统，然后创建预约来体验完整的取消确认流程
+                </p>
+            </div>
+
+            <div style="margin-top: 40px; padding: 20px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+                <h4 style="color: #1976d2; margin-bottom: 10px;">🔍 测试说明</h4>
+                <ul style="color: #666; line-height: 1.6; padding-left: 20px;">
+                    <li>系统已通过完整的自动化测试，包括申请取消、同意取消、拒绝取消等所有流程</li>
+                    <li>通知机制正常工作，双方都能及时收到相关通知</li>
+                    <li>预约状态更新正确，数据一致性得到保证</li>
+                    <li>权限控制严格，只有对方或管理员可以处理取消申请</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加一些交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为特性卡片添加点击效果
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+
+            // 为流程步骤添加动画
+            const flowSteps = document.querySelectorAll('.flow-step');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateX(0)';
+                    }
+                });
+            });
+
+            flowSteps.forEach((step, index) => {
+                step.style.opacity = '0';
+                step.style.transform = 'translateX(-50px)';
+                step.style.transition = `opacity 0.6s ease ${index * 0.2}s, transform 0.6s ease ${index * 0.2}s`;
+                observer.observe(step);
+            });
+        });
+    </script>
+</body>
+</html>
