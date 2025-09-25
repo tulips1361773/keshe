@@ -64,6 +64,10 @@
             <input v-model="newCompetition.name" type="text" required class="form-control">
           </div>
           <div class="form-group">
+            <label>比赛标题</label>
+            <input v-model="newCompetition.title" type="text" required class="form-control">
+          </div>
+          <div class="form-group">
             <label>比赛类型</label>
             <select v-model="newCompetition.competition_type" required class="form-control">
               <option value="single">单打</option>
@@ -80,16 +84,20 @@
             </select>
           </div>
           <div class="form-group">
-            <label>最大参赛人数</label>
-            <input v-model.number="newCompetition.max_participants" type="number" min="2" required class="form-control">
+            <label>每组最大参赛人数</label>
+            <input v-model.number="newCompetition.max_participants_per_group" type="number" min="2" required class="form-control">
+          </div>
+          <div class="form-group">
+            <label>报名开始时间</label>
+            <input v-model="newCompetition.registration_start" type="datetime-local" required class="form-control">
           </div>
           <div class="form-group">
             <label>报名截止时间</label>
-            <input v-model="newCompetition.registration_deadline" type="datetime-local" required class="form-control">
+            <input v-model="newCompetition.registration_end" type="datetime-local" required class="form-control">
           </div>
           <div class="form-group">
             <label>比赛开始时间</label>
-            <input v-model="newCompetition.start_date" type="datetime-local" required class="form-control">
+            <input v-model="newCompetition.competition_date" type="datetime-local" required class="form-control">
           </div>
           <div class="form-group">
             <label>比赛描述</label>
@@ -124,11 +132,13 @@ export default {
     
     const newCompetition = ref({
       name: '',
+      title: '',
       competition_type: 'single',
       campus: '',
-      max_participants: 16,
-      registration_deadline: '',
-      start_date: '',
+      max_participants_per_group: 16,
+      registration_start: '',
+      registration_end: '',
+      competition_date: '',
       description: ''
     })
 
@@ -146,7 +156,8 @@ export default {
     const fetchCampuses = async () => {
       try {
         const response = await axios.get('/api/campus/api/list/')
-        campuses.value = response.data.results || response.data
+        // 修复数据解析：API返回的数据在response.data.data中
+        campuses.value = response.data.data || response.data.results || response.data
       } catch (error) {
         console.error('获取校区列表失败:', error)
       }
@@ -172,11 +183,13 @@ export default {
         // 重置表单
         newCompetition.value = {
           name: '',
+          title: '',
           competition_type: 'single',
           campus: '',
-          max_participants: 16,
-          registration_deadline: '',
-          start_date: '',
+          max_participants_per_group: 16,
+          registration_start: '',
+          registration_end: '',
+          competition_date: '',
           description: ''
         }
         await fetchCompetitions()
@@ -234,7 +247,9 @@ export default {
     // 获取状态文本
     const getStatusText = (status) => {
       const statusMap = {
+        'upcoming': '即将开始',
         'registration': '报名中',
+        'preparation': '准备中',
         'in_progress': '进行中',
         'completed': '已结束',
         'cancelled': '已取消'
