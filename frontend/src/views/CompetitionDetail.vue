@@ -63,7 +63,7 @@
           <button 
             v-if="canManage"
             @click="createGroups"
-            :disabled="competition.status !== 'registration'"
+            :disabled="competition.status !== 'registration' && competition.status !== 'preparation'"
             class="btn btn-primary"
           >
             创建分组
@@ -262,7 +262,23 @@ export default {
     })
 
     const canManage = computed(() => {
-      return userStore.user?.user_type === 'coach'
+      // 管理员或比赛创建者可以管理
+      const isCoachAndCreator = userStore.user?.user_type === 'coach' && 
+                               competition.value?.created_by === userStore.user?.id;
+      const isSuperAdmin = userStore.user?.user_type === 'super_admin';
+      const isCampusAdmin = userStore.user?.user_type === 'campus_admin';
+      
+      // 调试信息
+      console.log('权限检查:', {
+        userType: userStore.user?.user_type,
+        userId: userStore.user?.id,
+        competitionCreatedBy: competition.value?.created_by,
+        isCoachAndCreator,
+        isSuperAdmin,
+        isCampusAdmin
+      });
+      
+      return isCoachAndCreator || isSuperAdmin || isCampusAdmin;
     })
 
     const hasGroups = computed(() => {
@@ -393,7 +409,9 @@ export default {
     // 工具函数
     const getStatusText = (status) => {
       const statusMap = {
+        'upcoming': '即将开始',
         'registration': '报名中',
+        'preparation': '准备中',
         'in_progress': '进行中',
         'completed': '已结束',
         'cancelled': '已取消'

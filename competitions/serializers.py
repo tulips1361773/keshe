@@ -61,13 +61,13 @@ class CompetitionGroupMemberSerializer(serializers.ModelSerializer):
     """
     比赛分组成员序列化器
     """
-    student_name = serializers.CharField(source='student.username', read_only=True)
-    student_real_name = serializers.CharField(source='student.real_name', read_only=True)
+    participant_name = serializers.CharField(source='participant.username', read_only=True)
+    participant_real_name = serializers.CharField(source='participant.real_name', read_only=True)
     
     class Meta:
         model = CompetitionGroupMember
         fields = [
-            'id', 'student', 'student_name', 'student_real_name', 'joined_at'
+            'id', 'participant', 'participant_name', 'participant_real_name', 'seed_number'
         ]
 
 
@@ -75,20 +75,20 @@ class CompetitionGroupSerializer(serializers.ModelSerializer):
     """
     比赛分组序列化器
     """
-    members = CompetitionGroupMemberSerializer(many=True, read_only=True)
+    members = CompetitionGroupMemberSerializer(source='competitiongroupmember_set', many=True, read_only=True)
     competition_name = serializers.CharField(source='competition.title', read_only=True)
     member_count = serializers.SerializerMethodField()
     
     class Meta:
         model = CompetitionGroup
         fields = [
-            'id', 'competition', 'competition_name', 'group_name', 'group_number',
+            'id', 'competition', 'competition_name', 'group_name', 'group_type',
             'members', 'member_count', 'created_at'
         ]
     
     def get_member_count(self, obj):
         """获取组员数量"""
-        return obj.members.count()
+        return obj.competitiongroupmember_set.count()
 
 
 class CompetitionMatchSerializer(serializers.ModelSerializer):

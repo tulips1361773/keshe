@@ -315,20 +315,23 @@ class CompetitionViewSet(viewsets.ModelViewSet):
     def create_groups(self, request, pk=None):
         """
         创建比赛分组
-        只有管理员可以操作
+        管理员和比赛创建者（教练）可以操作
         """
         competition = self.get_object()
         user = request.user
         
-        if not (user.is_superuser or user.user_type in ['super_admin', 'campus_admin']):
+        # 检查权限：管理员或比赛创建者
+        if not (user.is_superuser or 
+                user.user_type in ['super_admin', 'campus_admin'] or
+                (user.user_type == 'coach' and competition.created_by == user)):
             return Response(
-                {'error': '权限不足'},
+                {'error': '权限不足，只有管理员或比赛创建者可以创建分组'},
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        if competition.status != 'registration':
+        if competition.status not in ['registration', 'preparation']:
             return Response(
-                {'error': '只能在报名阶段创建分组'},
+                {'error': '只能在报名阶段或准备阶段创建分组'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -362,14 +365,14 @@ class CompetitionViewSet(viewsets.ModelViewSet):
                 group = CompetitionGroup.objects.create(
                     competition=competition,
                     group_name=f"第{group_number}组",
-                    group_number=group_number
+                    group_type='A'  # 默认设置为A组，可以根据需要调整
                 )
                 
                 # 添加组员
                 for registration in group_participants:
                     CompetitionGroupMember.objects.create(
                         group=group,
-                        student=registration.student
+                        participant=registration.participant
                     )
                 
                 groups_created.append(group)
@@ -393,7 +396,7 @@ class CompetitionViewSet(viewsets.ModelViewSet):
         competition = self.get_object()
         groups = CompetitionGroup.objects.filter(
             competition=competition
-        ).prefetch_related('members__student__user')
+        ).prefetch_related('competitiongroupmember_set__participant')
         
         serializer = CompetitionGroupSerializer(groups, many=True)
         return Response(serializer.data)
@@ -402,17 +405,21 @@ class CompetitionViewSet(viewsets.ModelViewSet):
     def generate_matches(self, request, pk=None):
         """
         生成比赛对阵（支持全循环和小组循环+交叉淘汰）
+        管理员和比赛创建者（教练）可以操作
         """
         competition = self.get_object()
         user = request.user
         
-        if not (user.is_superuser or user.user_type in ['super_admin', 'campus_admin']):
+        # 检查权限：管理员或比赛创建者
+        if not (user.is_superuser or 
+                user.user_type in ['super_admin', 'campus_admin'] or
+                (user.user_type == 'coach' and competition.created_by == user)):
             return Response(
-                {'error': '权限不足'},
+                {'error': '权限不足，只有管理员或比赛创建者可以生成对阵'},
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        if competition.status not in ['upcoming', 'registration']:
+        if competition.status not in ['upcoming', 'registration', 'preparation']:
             return Response(
                 {'error': '比赛状态不正确，无法生成对阵'},
                 status=status.HTTP_400_BAD_REQUEST
