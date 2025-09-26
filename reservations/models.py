@@ -258,7 +258,7 @@ class Booking(models.Model):
     
     def can_cancel(self, user):
         """检查是否可以取消预约"""
-        if self.status not in ['pending', 'confirmed']:
+        if self.status not in ['pending', 'confirmed', 'pending_cancellation']:
             return False, '预约状态不允许取消'
         
         # 检查是否在24小时内
