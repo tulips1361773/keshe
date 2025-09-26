@@ -84,6 +84,9 @@ frontend/build/
 debug_*.py
 test_*.html
 test_*.py
+!new_test/test_data.py
+!new_test/unit.py
+!new_test/functional.py
 check_*.py
 
 # 备份文件
