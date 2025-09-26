@@ -215,6 +215,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             user.is_active_member = True
             user.save()
 
+        # 如果是校区管理员，设置Django Admin访问权限
+        elif user.user_type == 'campus_admin':
+            # 设置is_staff=True，允许访问Django Admin
+            user.is_staff = True
+            user.is_active_member = True
+            user.save()
+
         return user
 
 
