@@ -120,8 +120,18 @@
           :min="0" 
           :precision="2" 
           style="width: 100%"
+          readonly
         />
-        <div class="form-tip">单位：元</div>
+        <div class="form-tip">费用根据教练等级和预约时长自动计算</div>
+        <div class="form-tip" v-if="form.relation_id && relations.length">
+          <span v-for="relation in relations" :key="relation.id">
+            <span v-if="relation.id === form.relation_id">
+              教练：{{ relation.coach.real_name }} | 
+              等级：{{ getCoachLevelText(relation.coach.coach_level) }} | 
+              时薪：¥{{ relation.coach.hourly_rate }}/小时
+            </span>
+          </span>
+        </div>
       </el-form-item>
 
       <!-- 备注 -->
@@ -412,7 +422,8 @@ const loadAvailableTables = async () => {
 }
 
 const handleRelationChange = () => {
-  // 师生关系改变时的处理逻辑
+  // 师生关系改变时，重新计算费用
+  updateDuration()
 }
 
 const handleCampusChange = () => {
@@ -441,9 +452,17 @@ const updateDuration = () => {
     const duration = (end - start) / (1000 * 60 * 60)
     form.duration_hours = Math.round(duration * 10) / 10
     
-    // 根据时长自动计算费用（示例：每小时100元）
-    if (duration > 0) {
-      form.total_fee = Math.round(duration * 100 * 100) / 100
+    // 根据教练等级和时长自动计算费用
+    if (duration > 0 && form.relation_id) {
+      const selectedRelation = relations.value.find(r => r.id === form.relation_id)
+      if (selectedRelation && selectedRelation.coach && selectedRelation.coach.hourly_rate) {
+        // 使用教练的实际时薪计算费用
+        const hourlyRate = parseFloat(selectedRelation.coach.hourly_rate)
+        form.total_fee = Math.round(duration * hourlyRate * 100) / 100
+      } else {
+        // 如果没有获取到教练时薪信息，使用默认费用计算
+        form.total_fee = Math.round(duration * 100 * 100) / 100
+      }
     }
   }
 }
@@ -558,6 +577,16 @@ const submitForm = async () => {
   } finally {
     submitting.value = false
     performance.end('submitBooking')
+  }
+}
+
+// 获取教练等级文本
+const getCoachLevelText = (level) => {
+  switch (level) {
+    case 'junior': return '初级教练员'
+    case 'intermediate': return '中级教练员'
+    case 'senior': return '高级教练员'
+    default: return '未知等级'
   }
 }
 

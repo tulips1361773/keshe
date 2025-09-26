@@ -7,10 +7,24 @@ from accounts.serializers import UserSerializer
 User = get_user_model()
 
 
+class CoachDetailSerializer(serializers.ModelSerializer):
+    """教练详细信息序列化器，包含时薪信息"""
+    coach_level_display = serializers.CharField(source='coach_profile.get_coach_level_display', read_only=True)
+    hourly_rate = serializers.DecimalField(source='coach_profile.hourly_rate', max_digits=8, decimal_places=2, read_only=True)
+    coach_level = serializers.CharField(source='coach_profile.coach_level', read_only=True)
+    
+    class Meta:
+        model = User
+        fields = [
+            'id', 'username', 'real_name', 'phone', 'user_type',
+            'gender', 'birth_date', 'coach_level', 'coach_level_display', 'hourly_rate'
+        ]
+
+
 class CoachStudentRelationSerializer(serializers.ModelSerializer):
     coach_id = serializers.IntegerField(write_only=True)
     student_id = serializers.IntegerField(write_only=True)
-    coach = UserSerializer(read_only=True)
+    coach = CoachDetailSerializer(read_only=True)
     student = UserSerializer(read_only=True)
     
     class Meta:
