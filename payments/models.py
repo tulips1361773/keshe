@@ -312,6 +312,7 @@ class AccountTransaction(models.Model):
         ('freeze', '冻结'),
         ('unfreeze', '解冻'),
         ('adjustment', '调整'),
+        ('income', '收入'),
     ]
     
     account = models.ForeignKey(

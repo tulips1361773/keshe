@@ -346,7 +346,19 @@ def confirm_booking(request, booking_id):
             student_account.balance -= booking.total_fee
             student_account.save()
             
-            # 创建交易记录
+            # 获取教练账户并增加收入
+            coach = booking.relation.coach
+            try:
+                coach_account = UserAccount.objects.get(user=coach)
+            except UserAccount.DoesNotExist:
+                # 如果教练账户不存在，创建一个
+                coach_account = UserAccount.objects.create(user=coach)
+            
+            # 增加教练账户余额
+            coach_account.balance += booking.total_fee
+            coach_account.save()
+            
+            # 创建学员支付交易记录
             AccountTransaction.objects.create(
                 account=student_account,
                 transaction_type='payment',
@@ -354,6 +366,16 @@ def confirm_booking(request, booking_id):
                 balance_before=student_account.balance + booking.total_fee,
                 balance_after=student_account.balance,
                 description=f'预约课程费用 - 教练：{booking.relation.coach.real_name}，时间：{booking.start_time.strftime("%Y-%m-%d %H:%M")}'
+            )
+            
+            # 创建教练收入交易记录
+            AccountTransaction.objects.create(
+                account=coach_account,
+                transaction_type='income',
+                amount=booking.total_fee,
+                balance_before=coach_account.balance - booking.total_fee,
+                balance_after=coach_account.balance,
+                description=f'课程收入 - 学员：{booking.relation.student.real_name}，时间：{booking.start_time.strftime("%Y-%m-%d %H:%M")}'
             )
             
             # 更新预约状态
@@ -393,13 +415,14 @@ def confirm_booking(request, booking_id):
                 resource_type='booking',
                 resource_id=booking.id,
                 resource_name=f"预约 {booking.id}",
-                description=f"确认了与学员 {student.real_name} 的预约，扣除费用 ¥{booking.total_fee}",
+                description=f"确认了与学员 {student.real_name} 的预约，获得收入 ¥{booking.total_fee}",
                 request=request,
                 extra_data={
                     'student_id': student.id,
                     'student_name': student.real_name,
                     'amount': float(booking.total_fee),
                     'student_balance_after': float(student_account.balance),
+                    'coach_balance_after': float(coach_account.balance),
                     'start_time': booking.start_time.isoformat(),
                     'end_time': booking.end_time.isoformat()
                 }
@@ -408,9 +431,10 @@ def confirm_booking(request, booking_id):
             # 返回成功响应
             serializer = BookingSerializer(booking)
             return Response({
-                'message': '预约确认成功，费用已扣除',
+                'message': '预约确认成功，费用已扣除，收入已到账',
                 'booking': serializer.data,
-                'student_balance': float(student_account.balance)
+                'student_balance': float(student_account.balance),
+                'coach_balance': float(coach_account.balance)
             }, status=status.HTTP_200_OK)
             
     except Exception as e:
