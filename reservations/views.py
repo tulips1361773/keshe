@@ -699,7 +699,8 @@ def approve_cancellation(request, cancellation_id):
         
         with transaction.atomic():
             # 在事务内部再次检查预约状态，确保数据一致性
-            if booking.status not in ['confirmed', 'pending']:
+            # 允许 pending_cancellation 状态，因为这表示已有待处理的取消申请
+            if booking.status not in ['confirmed', 'pending', 'pending_cancellation']:
                 return Response({
                     'error': '预约状态不允许取消'
                 }, status=status.HTTP_400_BAD_REQUEST)
@@ -734,21 +735,39 @@ def approve_cancellation(request, cancellation_id):
                         print(f"发现数据不一致：预约{booking.id}存在已批准的支付记录但payment_status为{booking.payment_status}")
                 
                 if should_refund:
-                    user_account = UserAccount.objects.get(user=booking.relation.student)
+                    # 处理学员退款
+                    student_account = UserAccount.objects.get(user=booking.relation.student)
                     
                     # 直接退还金额到账户余额
                     # 注意：对于已确认的预约，金额已经从冻结转为实际扣费，所以只需要增加余额
-                    user_account.balance += booking.total_fee
-                    user_account.save()
+                    student_account.balance += booking.total_fee
+                    student_account.save()
                     
-                    # 创建退款交易记录
+                    # 创建学员退款交易记录
                     AccountTransaction.objects.create(
-                        account=user_account,
+                        account=student_account,
                         transaction_type='refund',
                         amount=booking.total_fee,
-                        balance_before=user_account.balance - booking.total_fee,
-                        balance_after=user_account.balance,
+                        balance_before=student_account.balance - booking.total_fee,
+                        balance_after=student_account.balance,
                         description=f'预约取消退款 - 预约ID: {booking.id}'
+                    )
+                    
+                    # 处理教练收入扣除
+                    coach_account = UserAccount.objects.get(user=booking.relation.coach)
+                    
+                    # 从教练账户扣除收入
+                    coach_account.balance -= booking.total_fee
+                    coach_account.save()
+                    
+                    # 创建教练收入扣除交易记录
+                    AccountTransaction.objects.create(
+                        account=coach_account,
+                        transaction_type='refund',
+                        amount=-booking.total_fee,  # 负数表示扣除
+                        balance_before=coach_account.balance + booking.total_fee,
+                        balance_after=coach_account.balance,
+                        description=f'预约取消收入扣除 - 预约ID: {booking.id}'
                     )
                     
                     # 更新预约支付状态
