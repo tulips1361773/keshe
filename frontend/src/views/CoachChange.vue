@@ -90,12 +90,12 @@
           <el-table-column prop="id" label="请求ID" width="80" />
           <el-table-column label="当前教练" width="120">
             <template #default="scope">
-              {{ scope.row.current_coach_name }}
+              {{ scope.row.current_coach.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="目标教练" width="120">
             <template #default="scope">
-              {{ scope.row.target_coach_name }}
+              {{ scope.row.target_coach.real_name }}
             </template>
           </el-table-column>
           <el-table-column prop="reason" label="更换原因" min-width="200" show-overflow-tooltip />
@@ -163,26 +163,26 @@
           <el-table-column prop="id" label="请求ID" width="80" />
           <el-table-column label="学员" width="120">
             <template #default="scope">
-              {{ scope.row.student_name }}
+              {{ scope.row.student.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="当前教练" width="120">
             <template #default="scope">
-              {{ scope.row.current_coach_name }}
+              {{ scope.row.current_coach.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="目标教练" width="120">
             <template #default="scope">
-              {{ scope.row.target_coach_name }}
+              {{ scope.row.target_coach.real_name }}
             </template>
           </el-table-column>
           <el-table-column prop="reason" label="更换原因" min-width="200" show-overflow-tooltip />
           <el-table-column label="我的角色" width="100">
             <template #default="scope">
-              <el-tag v-if="scope.row.current_coach === userStore.user.id" type="warning">
+              <el-tag v-if="scope.row.current_coach.id === userStore.user.id" type="warning">
                 当前教练
               </el-tag>
-              <el-tag v-else-if="scope.row.target_coach === userStore.user.id" type="success">
+              <el-tag v-else-if="scope.row.target_coach.id === userStore.user.id" type="success">
                 目标教练
               </el-tag>
             </template>
@@ -224,17 +224,17 @@
           <el-table-column prop="id" label="请求ID" width="80" />
           <el-table-column label="学员" width="120">
             <template #default="scope">
-              {{ scope.row.student_name }}
+              {{ scope.row.student.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="当前教练" width="120">
             <template #default="scope">
-              {{ scope.row.current_coach_name }}
+              {{ scope.row.current_coach.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="目标教练" width="120">
             <template #default="scope">
-              {{ scope.row.target_coach_name }}
+              {{ scope.row.target_coach.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="审批状态" width="300">
@@ -318,17 +318,17 @@
           <el-table-column prop="id" label="请求ID" width="80" />
           <el-table-column label="学员" width="120">
             <template #default="scope">
-              {{ scope.row.student_name }}
+              {{ scope.row.student.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="当前教练" width="120">
             <template #default="scope">
-              {{ scope.row.current_coach_name }}
+              {{ scope.row.current_coach.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="目标教练" width="120">
             <template #default="scope">
-              {{ scope.row.target_coach_name }}
+              {{ scope.row.target_coach.real_name }}
             </template>
           </el-table-column>
           <el-table-column prop="reason" label="更换原因" min-width="200" show-overflow-tooltip />
@@ -387,17 +387,17 @@
           <el-table-column prop="id" label="请求ID" width="80" />
           <el-table-column label="学员" width="120">
             <template #default="scope">
-              {{ scope.row.student_name }}
+              {{ scope.row.student.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="当前教练" width="120">
             <template #default="scope">
-              {{ scope.row.current_coach_name }}
+              {{ scope.row.current_coach.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="目标教练" width="120">
             <template #default="scope">
-              {{ scope.row.target_coach_name }}
+              {{ scope.row.target_coach.real_name }}
             </template>
           </el-table-column>
           <el-table-column label="审批状态" width="300">
@@ -486,9 +486,9 @@
       <div v-if="selectedRequest" class="request-detail">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="请求ID">{{ selectedRequest.id }}</el-descriptions-item>
-          <el-descriptions-item label="学员">{{ selectedRequest.student_name }}</el-descriptions-item>
-          <el-descriptions-item label="当前教练">{{ selectedRequest.current_coach_name }}</el-descriptions-item>
-          <el-descriptions-item label="目标教练">{{ selectedRequest.target_coach_name }}</el-descriptions-item>
+          <el-descriptions-item label="学员">{{ selectedRequest.student.real_name }}</el-descriptions-item>
+          <el-descriptions-item label="当前教练">{{ selectedRequest.current_coach.real_name }}</el-descriptions-item>
+          <el-descriptions-item label="目标教练">{{ selectedRequest.target_coach.real_name }}</el-descriptions-item>
           <el-descriptions-item label="申请时间" :span="2">
             {{ formatDateTime(selectedRequest.created_at) }}
           </el-descriptions-item>
