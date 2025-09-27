@@ -50,8 +50,8 @@
           <div class="filter-item">
             <label class="filter-label">性别：</label>
             <el-select v-model="filters.gender" placeholder="选择性别" clearable @change="handleFilterChange">
-              <el-option label="男" value="M" />
-              <el-option label="女" value="F" />
+              <el-option label="男" value="male" />
+              <el-option label="女" value="female" />
             </el-select>
           </div>
           
@@ -70,7 +70,6 @@
             <el-select v-model="filters.ordering" placeholder="排序方式" @change="handleFilterChange">
               <el-option label="评分最高" value="-rating" />
               <el-option label="经验最多" value="-experience_years" />
-              <el-option label="学员最多" value="-student_count" />
               <el-option label="最新加入" value="-created_at" />
             </el-select>
           </div>
@@ -131,23 +130,15 @@
             <div class="coach-details">
               <div class="detail-row">
                 <span class="detail-label">性别：</span>
-                <span class="detail-value">{{ coach.gender === 'M' ? '男' : '女' }}</span>
+                <span class="detail-value">{{ coach.gender ? (coach.gender === 'male' ? '男' : '女') : '?' }}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">年龄：</span>
-                <span class="detail-value">{{ coach.age }}岁</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">教学经验：</span>
-                <span class="detail-value">{{ coach.experience_years }}年</span>
+                <span class="detail-value">{{ coach.age !== null ? `${coach.age}岁` : '?' }}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">联系方式：</span>
                 <span class="detail-value">{{ coach.phone }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">学员数量：</span>
-                <span class="detail-value">{{ coach.student_count }}人</span>
               </div>
             </div>
             
@@ -685,6 +676,7 @@ export default {
       if (!avatar) {
         return '/default-avatar.svg'
       }
+
       
       // 如果已经是完整URL，直接返回
       if (avatar.startsWith('http')) {

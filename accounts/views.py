@@ -687,31 +687,55 @@ def coach_list(request):
 
         # 性别筛选
         if gender_filter:
-            queryset = queryset.filter(user__gender=gender_filter)
+            # 处理前端可能传递的中文性别值，转换为模型中定义的字段值
+            gender_mapping = {
+                '男': 'male',
+                '女': 'female',
+                'male': 'male',  # 保留原始值支持
+                'female': 'female'
+            }
+            # 转换性别值，若不匹配则使用原始值（可能导致无结果，符合预期）
+            normalized_gender = gender_mapping.get(gender_filter, gender_filter)
+            # 关联User模型的gender字段进行筛选
+            queryset = queryset.filter(user__gender=normalized_gender)
 
         # 年龄筛选
-        if age_min or age_max:
+        age_range = request.GET.get('age_range')
+        if age_range:
             from datetime import date, timedelta
             today = date.today()
+            age_min = None
+            age_max = None
 
-            if age_min:
+            # 解析年龄范围字符串
+            if age_range == '20-30':
+                age_min, age_max = 20, 30
+            elif age_range == '30-40':
+                age_min, age_max = 30, 40
+            elif age_range == '40-50':
+                age_min, age_max = 40, 50
+            elif age_range == '50+':
+                age_min = 50  # 50岁及以上
+            else:
+                # 未知的年龄范围格式，不进行筛选
+                pass
+
+            # 根据解析的年龄范围计算出生日期条件
+            if age_min is not None:
                 try:
-                    age_min = int(age_min)
-                    # 计算最大出生日期（年龄最小对应的出生日期）
+                    # 年龄 >= age_min：出生日期 <= 今天 - age_min年
                     max_birth_date = today - timedelta(days=age_min * 365)
                     queryset = queryset.filter(user__birth_date__lte=max_birth_date)
                 except (ValueError, TypeError):
                     pass
 
-            if age_max:
+            if age_max is not None:
                 try:
-                    age_max = int(age_max)
-                    # 计算最小出生日期（年龄最大对应的出生日期）
+                    # 年龄 <= age_max：出生日期 >= 今天 - (age_max + 1)年
                     min_birth_date = today - timedelta(days=(age_max + 1) * 365)
                     queryset = queryset.filter(user__birth_date__gte=min_birth_date)
                 except (ValueError, TypeError):
                     pass
-
         # 排序
         if ordering:
             if ordering == '-rating':
