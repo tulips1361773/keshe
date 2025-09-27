@@ -71,6 +71,11 @@ yarn-error.log*
 .npm
 .eslintcache
 
+# 前端依赖目录（必须添加）
+frontend/node_modules/
+# 依赖版本锁文件（可选，若需要跟踪则保留）
+frontend/package-lock.json
+
 # 前端构建文件
 frontend/dist/
 frontend/build/
@@ -79,6 +84,9 @@ frontend/build/
 debug_*.py
 test_*.html
 test_*.py
+!new_test/test_data.py
+!new_test/unit.py
+!new_test/functional.py
 check_*.py
 
 # 备份文件
